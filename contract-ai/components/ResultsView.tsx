@@ -46,7 +46,7 @@ export default function ResultsView({ summary, parties, duration, risks, sourceF
         </div>
       </div>
 
-      {/* Download Button */}
+      {/* Download Buttons */}
       <div className="results-download">
         <button 
           onClick={() => downloadResultsPdf({
@@ -61,6 +61,21 @@ export default function ResultsView({ summary, parties, duration, risks, sourceF
           className="btn btn--primary"
         >
           Download Summary as PDF
+        </button>
+        <button 
+          onClick={() => downloadResultsPdf({
+            siteTitle: 'CONTRACT EXPLAINER',
+            sourceFilename: sourceFilename,
+            summary,
+            parties,
+            duration,
+            risks,
+            analyzedAt: new Date().toLocaleString()
+          })}
+          className="btn"
+          style={{ marginLeft: '12px' }}
+        >
+          Re-download PDF
         </button>
       </div>
 

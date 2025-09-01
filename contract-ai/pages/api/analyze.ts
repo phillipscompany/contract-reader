@@ -57,8 +57,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (extractedText) {
       try {
         summary = await summarizeContract(extractedText);
-      } catch (error) {
-        return res.status(500).json({ error: 'Failed to summarize contract' });
+      } catch (error: any) {
+        // Handle standardized errors from summarizeContract
+        if (error.code && error.message) {
+          let statusCode = 500;
+          
+          switch (error.code) {
+            case 'RATE_LIMIT':
+              statusCode = 429;
+              break;
+            case 'AUTH':
+              statusCode = 401;
+              break;
+            case 'TIMEOUT':
+              statusCode = 504;
+              break;
+            default:
+              statusCode = 500;
+          }
+          
+          return res.status(statusCode).json({ 
+            error: { 
+              code: error.code, 
+              message: error.message 
+            } 
+          });
+        }
+        
+        // Fallback for unexpected errors
+        return res.status(500).json({ 
+          error: { 
+            code: 'UNKNOWN', 
+            message: 'We couldn\'t complete the analysis right now. Please try again.' 
+          } 
+        });
       }
     }
 

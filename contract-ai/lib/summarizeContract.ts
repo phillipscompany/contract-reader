@@ -7,6 +7,11 @@ interface ContractSummary {
   risks: string[];
 }
 
+interface ContractError {
+  code: 'RATE_LIMIT' | 'AUTH' | 'TIMEOUT' | 'UNKNOWN';
+  message: string;
+}
+
 export async function summarizeContract(text: string): Promise<ContractSummary> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OpenAI API key not configured');
@@ -62,10 +67,51 @@ Remember: Return ONLY the JSON object, no additional text or explanations.`;
     }
 
     return summary;
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      throw new Error('Failed to parse OpenAI API response');
+  } catch (error: any) {
+    // Handle OpenAI API errors
+    if (error?.status === 429) {
+      console.log({ scope: "openai", code: "RATE_LIMIT", httpStatus: 429, tokenCount: text.length });
+      const contractError: ContractError = {
+        code: "RATE_LIMIT",
+        message: "Too many requests — please try again in a minute."
+      };
+      throw contractError;
     }
-    throw new Error('Failed to analyze contract with OpenAI API');
+    
+    if (error?.status === 401 || error?.status === 403) {
+      console.log({ scope: "openai", code: "AUTH", httpStatus: error.status, tokenCount: text.length });
+      const contractError: ContractError = {
+        code: "AUTH",
+        message: "API authorization failed. Please try again later."
+      };
+      throw contractError;
+    }
+    
+    if (error?.status === 408 || error?.status === 504 || error?.name === 'AbortError') {
+      console.log({ scope: "openai", code: "TIMEOUT", httpStatus: error.status || 'timeout', tokenCount: text.length });
+      const contractError: ContractError = {
+        code: "TIMEOUT",
+        message: "The analysis is taking too long. Please retry."
+      };
+      throw contractError;
+    }
+    
+    // Handle JSON parsing errors
+    if (error instanceof SyntaxError) {
+      console.log({ scope: "openai", code: "UNKNOWN", httpStatus: "parse_error", tokenCount: text.length });
+      const contractError: ContractError = {
+        code: "UNKNOWN",
+        message: "We couldn't complete the analysis right now. Please try again."
+      };
+      throw contractError;
+    }
+    
+    // Default error case
+    console.log({ scope: "openai", code: "UNKNOWN", httpStatus: error?.status || "unknown", tokenCount: text.length });
+    const contractError: ContractError = {
+      code: "UNKNOWN",
+      message: "We couldn't complete the analysis right now. Please try again."
+    };
+    throw contractError;
   }
 }
