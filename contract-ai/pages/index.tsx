@@ -81,6 +81,31 @@ export default function Home() {
             </p>
           </article>
         </section>
+
+        <section className="workflow">
+          <h2 className="workflow__title">How it works</h2>
+          <div className="workflow__path">
+            <div className="workflow__step">
+              <div className="workflow__icon">📄</div>
+              <h3 className="workflow__step-title">Upload your contract</h3>
+              <p className="workflow__step-text">Simply drag and drop your PDF or DOCX file into the upload area above.</p>
+            </div>
+            <div className="workflow__arrow workflow__arrow--down"></div>
+            
+            <div className="workflow__step">
+              <div className="workflow__icon">🤖</div>
+              <h3 className="workflow__step-title">Our AI analyzes it</h3>
+              <p className="workflow__step-text">Our expert AI scans through your document to identify key terms and risks.</p>
+            </div>
+            <div className="workflow__arrow workflow__arrow--right"></div>
+            
+            <div className="workflow__step">
+              <div className="workflow__icon">📥</div>
+              <h3 className="workflow__step-title">Get your summary</h3>
+              <p className="workflow__step-text">Download a clear, comprehensive PDF summary highlighting what matters most.</p>
+            </div>
+          </div>
+        </section>
       </main>
     </>
   );
