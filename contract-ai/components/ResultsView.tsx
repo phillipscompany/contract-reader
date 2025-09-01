@@ -1,11 +1,14 @@
+import { downloadResultsPdf } from '../lib/pdf';
+
 interface ResultsViewProps {
   summary: string;
   parties: string;
   duration: string;
   risks: string[];
+  sourceFilename?: string;
 }
 
-export default function ResultsView({ summary, parties, duration, risks }: ResultsViewProps) {
+export default function ResultsView({ summary, parties, duration, risks, sourceFilename }: ResultsViewProps) {
   return (
     <div className="results-container">
       <div className="results-grid">
@@ -41,6 +44,24 @@ export default function ResultsView({ summary, parties, duration, risks }: Resul
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* Download Button */}
+      <div className="results-download">
+        <button 
+          onClick={() => downloadResultsPdf({
+            siteTitle: 'CONTRACT EXPLAINER',
+            sourceFilename: sourceFilename,
+            summary,
+            parties,
+            duration,
+            risks,
+            analyzedAt: new Date().toLocaleString()
+          })}
+          className="btn btn--primary"
+        >
+          Download Summary as PDF
+        </button>
       </div>
 
       {/* Footer Disclaimer */}

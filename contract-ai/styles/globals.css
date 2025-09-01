@@ -176,6 +176,11 @@ a { color: inherit; }
   font-size: 14px;
 }
 
+.results-download {
+  text-align: center;
+  margin: 32px 0;
+}
+
 .results-disclaimer {
   text-align: center;
   color: var(--muted);

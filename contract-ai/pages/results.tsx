@@ -13,6 +13,7 @@ export default function Results() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<ContractSummary | null>(null);
+  const [sourceFilename, setSourceFilename] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,6 +29,9 @@ export default function Results() {
         }
 
         const uploadData = JSON.parse(pendingUpload);
+        
+        // Store the source filename for the PDF download
+        setSourceFilename(uploadData.name);
         
         // Convert base64 back to file
         const base64ToBlob = (base64: string, mimeType: string) => {
@@ -138,6 +142,7 @@ export default function Results() {
         parties={summary.parties}
         duration={summary.duration}
         risks={summary.risks}
+        sourceFilename={sourceFilename}
       />
     </main>
   );
