@@ -94,8 +94,8 @@ export default function Home() {
             
             <div className="workflow__step">
               <div className="workflow__icon">🤖</div>
-              <h3 className="workflow__step-title">Our AI analyzes it</h3>
-              <p className="workflow__step-text">Our expert AI scans through your document to identify key terms and risks.</p>
+              <h3 className="workflow__step-title">Our AI analyses it</h3>
+              <p className="workflow__step-text">Our trained AI scans through your document to identify key terms and risks.</p>
             </div>
             <div className="workflow__arrow workflow__arrow--right"></div>
             

@@ -9,9 +9,8 @@ export default function Navbar() {
           <Link href="/" className="nav__title">CONTRACT EXPLAINER</Link>
         </div>
         <nav className="nav__links">
+          <Link href="/" className="nav__link">Home</Link>
           <Link href="/pricing" className="nav__link">Pricing</Link>
-          <Link href="/login" className="nav__link">Login</Link>
-          <Link href="/register" className="nav__link nav__register">Register</Link>
         </nav>
       </div>
     </header>
