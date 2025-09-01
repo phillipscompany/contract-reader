@@ -39,8 +39,7 @@ export default function Home() {
         <section className="hero__text">
           <h1 className="hero__title">Know Exactly What You're Signing... Before You Sign!</h1>
           <p className="hero__subtitle">
-            Don't fall into the trap of signing something you don't understand. Simply upload your contract, wait a few seconds and our AI will explain it clearly, highlighting key risks & obligations.
-            We never store your documents.
+            Don't fall into the trap of signing something you don't understand. Simply upload your document and within seconds our expert AI will explain it clearly, highlighting key risks & obligations.
           </p>
         </section>
 
@@ -49,8 +48,7 @@ export default function Home() {
             <FileUploader onFileSelect={handleFileSelect} />
           </div>
           <div className="drop__notes">
-            <div>✅ Works with housing contracts, service agreements, NDAs, etc.</div>
-            <div>🔒 Files are deleted immediately after processing.</div>
+            <div>🚨 Please note this is not legal advice. If unsure, seek advice from a legal professional.</div>
           </div>
         </section>
 
@@ -63,21 +61,21 @@ export default function Home() {
         <section className="features">
           <article className="feature">
             <div className="feature__icon" aria-hidden>🔒</div>
-            <h3 className="feature__title">Secure</h3>
+            <h3 className="feature__title">Stay Secure</h3>
             <p className="feature__text">
               We follow strict standards when handling your files. Documents are processed in-memory and deleted right after analysis.
             </p>
           </article>
           <article className="feature">
-            <div className="feature__icon" aria-hidden>✨</div>
-            <h3 className="feature__title">Easy</h3>
+            <div className="feature__icon" aria-hidden>🪤</div>
+            <h3 className="feature__title">Avoid Traps</h3>
             <p className="feature__text">
-              Just upload your document, wait a few seconds, and get a clear summary. No account needed, no complex setup required.
+              Don't get caught out! We flag hidden fees, auto-renewals, and penalty clauses buried in the fine print.
             </p>
           </article>
           <article className="feature">
             <div className="feature__icon" aria-hidden>⏰</div>
-            <h3 className="feature__title">Saves time</h3>
+            <h3 className="feature__title">Save Time</h3>
             <p className="feature__text">
               Skip hours of reading through boring legal text. Get the key points, risks, and obligations summarised in seconds.
             </p>
