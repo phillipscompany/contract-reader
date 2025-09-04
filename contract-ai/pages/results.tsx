@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import ResultsView from '../components/ResultsView';
+import ResultsDemo from '../components/ResultsDemo';
+import ResultsFull from '../components/ResultsFull';
 import { withBackoff } from '../lib/backoff';
+import type { DemoResult, FullResult } from '../lib/summarizeContract';
 
-interface ContractSummary {
-  summary: string;
-  parties: string;
-  duration: string;
-  risks: string[];
+interface ApiResponse {
+  name: string;
+  size: number;
+  type: string;
+  mode: 'demo' | 'full';
+  demo: DemoResult | null;
+  full: FullResult | null;
 }
 
 interface ErrorResponse {
@@ -22,13 +26,13 @@ type ProgressStep = 'UPLOADING' | 'EXTRACTING' | 'SUMMARIZING' | 'DONE' | 'ERROR
 export default function Results() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<{ code: string; message: string } | null>(null);
-  const [summary, setSummary] = useState<ContractSummary | null>(null);
+  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
   const [sourceFilename, setSourceFilename] = useState<string | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
   const [progressStep, setProgressStep] = useState<ProgressStep>('UPLOADING');
   const router = useRouter();
 
-  const doUploadFetch = async (): Promise<ContractSummary> => {
+  const doUploadFetch = async (): Promise<ApiResponse> => {
     // Get the pending upload from sessionStorage
     const pendingUpload = sessionStorage.getItem('pendingUpload');
     
@@ -57,6 +61,7 @@ export default function Results() {
     // Create FormData and send to API
     const formData = new FormData();
     formData.append('file', file, uploadData.name);
+    formData.append('mode', 'demo'); // For now, always use demo mode
 
     // Set EXTRACTING state before making the request
     setProgressStep('EXTRACTING');
@@ -92,7 +97,7 @@ export default function Results() {
         jitter: true // Add jitter
       });
       
-      setSummary(result);
+      setApiResponse(result);
       setProgressStep('DONE');
       
       // Store results in sessionStorage for persistence
@@ -151,12 +156,7 @@ export default function Results() {
         
         if (latestResults) {
           const results = JSON.parse(latestResults);
-          setSummary({
-            summary: results.summary,
-            parties: results.parties,
-            duration: results.duration,
-            risks: results.risks
-          });
+          setApiResponse(results);
           setSourceFilename(results.sourceFilename);
           setIsFromCache(true);
           setProgressStep('DONE');
@@ -243,7 +243,7 @@ export default function Results() {
     );
   }
 
-  if (!summary) {
+  if (!apiResponse) {
     return (
       <main className="results-container">
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
@@ -275,16 +275,23 @@ export default function Results() {
           📋 Showing your last analysis
         </div>
       )}
+      
       <h1 style={{ textAlign: 'center', marginBottom: '40px', color: 'var(--text)' }}>
         Contract Analysis Results
       </h1>
-      <ResultsView 
-        summary={summary.summary}
-        parties={summary.parties}
-        duration={summary.duration}
-        risks={summary.risks}
-        sourceFilename={sourceFilename}
-      />
+
+      {/* Render appropriate view based on available data */}
+      {apiResponse.full ? (
+        <ResultsFull 
+          fullResult={apiResponse.full}
+          sourceFilename={sourceFilename}
+        />
+      ) : (
+        <ResultsDemo 
+          demoResult={apiResponse.demo}
+          sourceFilename={sourceFilename}
+        />
+      )}
     </main>
   );
 }
