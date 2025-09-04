@@ -72,11 +72,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid file type' });
     }
 
-    // Determine mode from query or body, default to "demo"
-    const mode = (fields.mode?.[0] || req.query.mode || 'demo') as 'demo' | 'full';
-    if (mode !== 'demo' && mode !== 'full') {
-      return res.status(400).json({ error: 'Invalid mode. Use "demo" or "full".' });
-    }
+    // Always use full mode for now (demo mode commented out for future payment integration)
+    const mode = 'full' as const;
+    // const mode = (fields.mode?.[0] || req.query.mode || 'demo') as 'demo' | 'full';
+    // if (mode !== 'demo' && mode !== 'full') {
+    //   return res.status(400).json({ error: 'Invalid mode. Use "demo" or "full".' });
+    // }
 
     // Extract text for PDF and DOCX files
     let extractedText = '';
@@ -90,8 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Process text based on mode
-    let demoResult: DemoResult | null = null;
+    // Process text - always use full mode
     let fullResult: FullResult | null = null;
 
     if (extractedText) {
@@ -99,15 +99,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Sanitize text to remove links and law firm names
         const sanitizedText = sanitizeText(extractedText);
 
-        if (mode === 'demo') {
-          // For demo mode, use first page text
-          const firstPageText = extractFirstPageText(sanitizedText, file.mimetype || '');
-          demoResult = await summarizeContractDemo(firstPageText);
-        } else {
-          // For full mode, use capped full text
-          const cappedText = sanitizedText.length > 50000 ? sanitizedText.substring(0, 50000) + '... [truncated]' : sanitizedText;
-          fullResult = await summarizeContractFull(cappedText);
-        }
+        // Always use full analysis mode
+        const cappedText = sanitizedText.length > 50000 ? sanitizedText.substring(0, 50000) + '... [truncated]' : sanitizedText;
+        fullResult = await summarizeContractFull(cappedText);
+
+        // Demo mode logic commented out for future payment integration
+        // if (mode === 'demo') {
+        //   // For demo mode, use first page text
+        //   const firstPageText = extractFirstPageText(sanitizedText, file.mimetype || '');
+        //   demoResult = await summarizeContractDemo(firstPageText);
+        // } else {
+        //   // For full mode, use capped full text
+        //   const cappedText = sanitizedText.length > 50000 ? sanitizedText.substring(0, 50000) + '... [truncated]' : sanitizedText;
+        //   fullResult = await summarizeContractFull(cappedText);
+        // }
       } catch (error: any) {
         // Handle standardized errors from summarization functions
         if (error.code && error.message) {
@@ -145,13 +150,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Return unified response shape
+    // Return unified response shape - only full mode
     return res.status(200).json({
       name: file.originalFilename || 'unknown',
       size: file.size,
       type: file.mimetype,
       mode: mode,
-      demo: demoResult,
       full: fullResult,
     });
   } catch (error) {

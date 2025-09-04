@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import ResultsDemo from '../components/ResultsDemo';
+// import ResultsDemo from '../components/ResultsDemo'; // Commented out for future payment integration
 import ResultsFull from '../components/ResultsFull';
 import { withBackoff } from '../lib/backoff';
-import type { DemoResult, FullResult } from '../lib/summarizeContract';
+import type { FullResult } from '../lib/summarizeContract';
+// import type { DemoResult, FullResult } from '../lib/summarizeContract'; // DemoResult commented out
 
 interface ApiResponse {
   name: string;
   size: number;
   type: string;
-  mode: 'demo' | 'full';
-  demo: DemoResult | null;
+  mode: 'full';
   full: FullResult | null;
 }
 
@@ -61,7 +61,8 @@ export default function Results() {
     // Create FormData and send to API
     const formData = new FormData();
     formData.append('file', file, uploadData.name);
-    formData.append('mode', 'demo'); // For now, always use demo mode
+    // Always use full mode now (demo mode commented out for future payment integration)
+    // formData.append('mode', 'demo'); // For now, always use demo mode
 
     // Set EXTRACTING state before making the request
     setProgressStep('EXTRACTING');
@@ -280,8 +281,20 @@ export default function Results() {
         Contract Analysis Results
       </h1>
 
-      {/* Render appropriate view based on available data */}
+      {/* Always render full results - demo mode commented out for future payment integration */}
       {apiResponse.full ? (
+        <ResultsFull 
+          fullResult={apiResponse.full}
+          sourceFilename={sourceFilename}
+        />
+      ) : (
+        <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+          <p>No analysis results available.</p>
+        </div>
+      )}
+      
+      {/* Demo results logic commented out for future payment integration */}
+      {/* {apiResponse.full ? (
         <ResultsFull 
           fullResult={apiResponse.full}
           sourceFilename={sourceFilename}
@@ -291,7 +304,7 @@ export default function Results() {
           demoResult={apiResponse.demo}
           sourceFilename={sourceFilename}
         />
-      )}
+      )} */}
     </main>
   );
 }
