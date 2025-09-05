@@ -3,7 +3,9 @@ import { useRouter } from 'next/router';
 // import ResultsDemo from '../components/ResultsDemo'; // Commented out for future payment integration
 import ResultsFull from '../components/ResultsFull';
 import { withBackoff } from '../lib/backoff';
+import { downloadFullAnalysisPdf } from '../lib/pdf';
 import type { FullResult } from '../lib/summarizeContract';
+import { MapPin, Briefcase, Mail } from 'lucide-react';
 // import type { DemoResult, FullResult } from '../lib/summarizeContract'; // DemoResult commented out
 
 interface ApiResponse {
@@ -12,6 +14,15 @@ interface ApiResponse {
   type: string;
   mode: 'full';
   full: FullResult | null;
+  meta: {
+    email?: string;
+    location?: {
+      country?: string;
+      region?: string;
+    };
+    contractType?: string;
+    pages?: number;
+  };
 }
 
 interface ErrorResponse {
@@ -58,9 +69,32 @@ export default function Results() {
 
     const file = base64ToBlob(uploadData.base64, uploadData.type);
     
+    // Get intake data from localStorage
+    const intakeData = localStorage.getItem('intake');
+    let intakeEmail = '';
+    let intakeCountry = '';
+    let intakeRegion = '';
+    let intakeContractType = '';
+    
+    if (intakeData) {
+      try {
+        const parsed = JSON.parse(intakeData);
+        intakeEmail = parsed.email || '';
+        intakeCountry = parsed.location?.country || '';
+        intakeRegion = parsed.location?.region || '';
+        intakeContractType = parsed.contractType || '';
+      } catch (error) {
+        console.warn('Failed to parse intake data:', error);
+      }
+    }
+    
     // Create FormData and send to API
     const formData = new FormData();
     formData.append('file', file, uploadData.name);
+    formData.append('intakeEmail', intakeEmail);
+    formData.append('intakeCountry', intakeCountry);
+    formData.append('intakeRegion', intakeRegion);
+    formData.append('intakeContractType', intakeContractType);
     // Always use full mode now (demo mode commented out for future payment integration)
     // formData.append('mode', 'demo'); // For now, always use demo mode
 
@@ -257,35 +291,61 @@ export default function Results() {
             Go Back
           </button>
         </div>
+        
+        {/* Sponsor Slot */}
+        <div className="sponsor-slot">
+          <p>Looking for professional legal advice? Sponsor placement coming soon.</p>
+        </div>
       </main>
     );
   }
 
   return (
     <main className="results-container">
-      {isFromCache && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '16px', 
-          marginBottom: '20px', 
-          backgroundColor: 'var(--card)', 
-          border: '1px solid var(--border)', 
-          borderRadius: '8px',
-          color: 'var(--muted)'
-        }}>
-          📋 Showing your last analysis
-        </div>
-      )}
-      
       <h1 style={{ textAlign: 'center', marginBottom: '40px', color: 'var(--text)' }}>
         Contract Analysis Results
       </h1>
+
+      {/* Meta Information Display */}
+      {apiResponse.meta && ((apiResponse.meta.location?.country || apiResponse.meta.location?.region) || apiResponse.meta.contractType || apiResponse.meta.email) && (
+        <div className="meta-bar">
+          {apiResponse.meta.location && (apiResponse.meta.location.country || apiResponse.meta.location.region) && (
+            <div className="meta-item">
+              <MapPin size={16} className="meta-icon" />
+              <span className="meta-label">Location:</span>
+              <span className="meta-value">
+                {apiResponse.meta.location.region && apiResponse.meta.location.country
+                  ? `${apiResponse.meta.location.region}, ${apiResponse.meta.location.country}`
+                  : apiResponse.meta.location.country || apiResponse.meta.location.region
+                }
+              </span>
+            </div>
+          )}
+          
+          {apiResponse.meta.contractType && (
+            <div className="meta-item">
+              <Briefcase size={16} className="meta-icon" />
+              <span className="meta-label">Contract Type:</span>
+              <span className="meta-value">{apiResponse.meta.contractType}</span>
+            </div>
+          )}
+          
+          {apiResponse.meta.email && (
+            <div className="meta-item">
+              <Mail size={16} className="meta-icon" />
+              <span className="meta-label">Email:</span>
+              <span className="meta-value">{apiResponse.meta.email}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Always render full results - demo mode commented out for future payment integration */}
       {apiResponse.full ? (
         <ResultsFull 
           fullResult={apiResponse.full}
           sourceFilename={sourceFilename}
+          meta={apiResponse.meta}
         />
       ) : (
         <div style={{ textAlign: 'center', padding: '40px 20px' }}>
@@ -305,6 +365,30 @@ export default function Results() {
           sourceFilename={sourceFilename}
         />
       )} */}
+
+      {/* PDF Download Button */}
+      {apiResponse.full && (
+        <div style={{ textAlign: 'center', marginTop: '40px', marginBottom: '20px' }}>
+          <button 
+            onClick={() => downloadFullAnalysisPdf({
+              siteTitle: 'CONTRACT EXPLAINER - FULL ANALYSIS',
+              sourceFilename: sourceFilename,
+              analyzedAt: new Date().toLocaleString(),
+              full: apiResponse.full,
+              meta: apiResponse.meta
+            })}
+            className="btn btn--primary"
+            style={{ fontSize: '18px', padding: '16px 32px', minWidth: '250px' }}
+          >
+            Download Full Report (PDF)
+          </button>
+        </div>
+      )}
+
+      {/* Sponsor Slot */}
+      <div className="sponsor-slot">
+        <p>Looking for professional legal advice? Sponsor placement coming soon.</p>
+      </div>
     </main>
   );
 }

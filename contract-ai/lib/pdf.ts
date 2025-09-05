@@ -16,6 +16,15 @@ interface DownloadFullAnalysisPdfOptions {
   sourceFilename?: string;
   analyzedAt?: string;
   full: FullResult;
+  meta?: {
+    email?: string;
+    location?: {
+      country?: string;
+      region?: string;
+    };
+    contractType?: string;
+    pages?: number;
+  };
 }
 
 export function downloadResultsPdf(options: DownloadResultsPdfOptions): void {
@@ -187,37 +196,42 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
     siteTitle,
     sourceFilename,
     analyzedAt = new Date().toLocaleString(),
-    full
+    full,
+    meta
   } = options;
+
+  // Highlights section removed - no longer needed
 
   // Initialize PDF with A4 portrait
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 20;
+  const margin = 25.4; // ~1 inch margins
   const contentWidth = pageWidth - (margin * 2);
   
   let yPosition = margin;
-  const lineHeight = 7;
-  const sectionSpacing = 15;
+  const lineHeight = 7; // Optimized for better content density
+  const sectionSpacing = 15; // Reduced spacing between sections
+  const paragraphSpacing = 4; // Reduced spacing between paragraphs
   let currentPage = 1;
-  const maxPages = 2;
+  const maxPages = 4; // Increased from 2 to 4 pages
 
   // Helper function to add text with word wrapping and page management
-  const addWrappedText = (text: string, y: number, fontSize: number = 12, maxWidth?: number): number => {
+  const addWrappedText = (text: string, y: number, fontSize: number = 12, maxWidth?: number, lineSpacing: number = 1.2): number => {
     const maxW = maxWidth || contentWidth;
     pdf.setFontSize(fontSize);
     
     const lines = pdf.splitTextToSize(text, maxW);
+    const actualLineHeight = lineHeight * lineSpacing;
     
     // Check if we need a new page
-    if (y + (lines.length * lineHeight) > pageHeight - margin - 20) {
+    if (y + (lines.length * actualLineHeight) > pageHeight - margin - 30) {
       if (currentPage >= maxPages) {
         // Truncate with continuation note
-        const truncatedText = text.substring(0, Math.floor(text.length * 0.8)) + '... [continued in full report]';
+        const truncatedText = text.substring(0, Math.floor(text.length * 0.8)) + '... [continued]';
         const truncatedLines = pdf.splitTextToSize(truncatedText, maxW);
         pdf.text(truncatedLines, margin, y);
-        return y + (truncatedLines.length * lineHeight);
+        return y + (truncatedLines.length * actualLineHeight);
       }
       
       pdf.addPage();
@@ -226,12 +240,12 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
     }
     
     pdf.text(lines, margin, y);
-    return y + (lines.length * lineHeight);
+    return y + (lines.length * actualLineHeight);
   };
 
   // Helper function to add section heading with page management
   const addSectionHeading = (text: string, y: number): number => {
-    if (y > pageHeight - margin - 30) {
+    if (y > pageHeight - margin - 40) {
       if (currentPage >= maxPages) {
         return y; // Skip if we're at page limit
       }
@@ -240,30 +254,36 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       y = margin;
     }
     
-    pdf.setFontSize(16);
-    pdf.setFont(undefined, 'bold');
+    // Add spacing above section heading
+    y += 5;
+    
+    pdf.setFontSize(18);
+    pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(70, 99, 217); // Primary color
-    const newY = addWrappedText(text, y, 16);
+    const newY = addWrappedText(text, y, 18, contentWidth, 1.2);
     pdf.setTextColor(0, 0, 0); // Reset to black
-    pdf.setFont(undefined, 'normal');
+    pdf.setFont('helvetica', 'normal');
+    
+    // Add spacing below section heading
     return newY + 5;
   };
 
   // Helper function to add subsection heading
   const addSubsectionHeading = (text: string, y: number): number => {
     pdf.setFontSize(14);
-    pdf.setFont(undefined, 'bold');
+    pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(70, 99, 217); // Primary color
-    const newY = addWrappedText(text, y, 14);
+    const newY = addWrappedText(text, y, 14, contentWidth, 1.1);
     pdf.setTextColor(0, 0, 0); // Reset to black
-    pdf.setFont(undefined, 'normal');
+    pdf.setFont('helvetica', 'normal');
     return newY + 3;
   };
 
   // Helper function to add content text
   const addContentText = (text: string, y: number): number => {
     pdf.setFontSize(11);
-    return addWrappedText(text, y, 11);
+    pdf.setFont('helvetica', 'normal');
+    return addWrappedText(text, y, 11, contentWidth, 1.15);
   };
 
   // Helper function to add bullet list items
@@ -272,14 +292,24 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       y = addSubsectionHeading(title, y);
     }
     
+    if (items.length === 0) {
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(120, 120, 120);
+      y = addWrappedText('Not specified in the provided text.', y, 11, contentWidth, 1.15);
+      pdf.setTextColor(0, 0, 0);
+      return y + paragraphSpacing;
+    }
+    
     pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
     let currentY = y;
     
     items.forEach((item, index) => {
-      if (currentY > pageHeight - margin - 20) {
+      if (currentY > pageHeight - margin - 30) {
         if (currentPage >= maxPages) {
           // Add continuation note and stop
-          currentY = addWrappedText('... [continued in full report]', currentY, 11);
+          currentY = addWrappedText('... [continued]', currentY, 11, contentWidth, 1.15);
           return currentY;
         }
         pdf.addPage();
@@ -288,25 +318,32 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       }
       
       const bulletText = `• ${item}`;
-      currentY = addWrappedText(bulletText, currentY, 11);
-      currentY += 3; // Add spacing between items
+      currentY = addWrappedText(bulletText, currentY, 11, contentWidth, 1.15);
+      currentY += paragraphSpacing; // Add spacing between items
     });
     
     return currentY;
   };
 
-  // Helper function to add explained terms
-  const addExplainedTerms = (terms: Array<{ term: string; meaning: string }>, y: number): number => {
-    if (terms.length === 0) return y;
+
+  // Helper function to add explained terms/clauses
+  const addExplainedTerms = (terms: Array<{ clause: string; explanation: string }>, y: number): number => {
+    if (terms.length === 0) {
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(120, 120, 120);
+      y = addWrappedText('Not specified in the provided text.', y, 11, contentWidth, 1.15);
+      pdf.setTextColor(0, 0, 0);
+      return y + paragraphSpacing;
+    }
     
-    y = addSubsectionHeading('Legal Terms Explained', y);
     pdf.setFontSize(11);
     let currentY = y;
     
     terms.forEach((term, index) => {
-      if (currentY > pageHeight - margin - 30) {
+      if (currentY > pageHeight - margin - 40) {
         if (currentPage >= maxPages) {
-          currentY = addWrappedText('... [continued in full report]', currentY, 11);
+          currentY = addWrappedText('... [continued]', currentY, 11, contentWidth, 1.15);
           return currentY;
         }
         pdf.addPage();
@@ -314,31 +351,37 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
         currentY = margin;
       }
       
-      // Term
-      pdf.setFont(undefined, 'bold');
-      currentY = addWrappedText(`${term.term}:`, currentY, 11);
-      pdf.setFont(undefined, 'normal');
+      // Clause
+      pdf.setFont('helvetica', 'bold');
+      currentY = addWrappedText(`${term.clause}:`, currentY, 11, contentWidth, 1.15);
+      pdf.setFont('helvetica', 'normal');
       
-      // Meaning
-      currentY = addWrappedText(term.meaning, currentY, 11);
-      currentY += 5; // Add spacing between terms
+      // Explanation
+      currentY = addWrappedText(term.explanation, currentY, 11, contentWidth, 1.15);
+      currentY += paragraphSpacing; // Add spacing between terms
     });
     
     return currentY;
   };
 
   // Helper function to add detailed risks
-  const addDetailedRisks = (risks: Array<{ title: string; whyItMatters: string; howItAppliesHere: string }>, y: number): number => {
-    if (risks.length === 0) return y;
+  const addDetailedRisks = (risks: Array<{ clause: string; whyItMatters: string; howItAffectsYou: string }>, y: number): number => {
+    if (risks.length === 0) {
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(120, 120, 120);
+      y = addWrappedText('Not specified in the provided text.', y, 11, contentWidth, 1.15);
+      pdf.setTextColor(0, 0, 0);
+      return y + paragraphSpacing;
+    }
     
-    y = addSubsectionHeading('Comprehensive Risk Analysis', y);
     pdf.setFontSize(11);
     let currentY = y;
     
     risks.forEach((risk, index) => {
-      if (currentY > pageHeight - margin - 40) {
+      if (currentY > pageHeight - margin - 50) {
         if (currentPage >= maxPages) {
-          currentY = addWrappedText('... [continued in full report]', currentY, 11);
+          currentY = addWrappedText('... [continued]', currentY, 11, contentWidth, 1.15);
           return currentY;
         }
         pdf.addPage();
@@ -346,95 +389,138 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
         currentY = margin;
       }
       
-      // Risk title
-      pdf.setFont(undefined, 'bold');
-      currentY = addWrappedText(risk.title, currentY, 11);
-      pdf.setFont(undefined, 'normal');
+      // Risk clause (bold and slightly indented)
+      pdf.setFont('helvetica', 'bold');
+      currentY = addWrappedText(risk.clause, currentY, 11, contentWidth, 1.15);
+      pdf.setFont('helvetica', 'normal');
       
-      // Why it matters
-      currentY = addWrappedText(`Why this matters: ${risk.whyItMatters}`, currentY, 11);
+      // Why it matters (indented further)
+      const indentWidth = 10;
+      currentY = addWrappedText(`• Why this matters: ${risk.whyItMatters}`, currentY, 11, contentWidth - indentWidth, 1.15);
       
-      // How it applies here
-      currentY = addWrappedText(`How it applies here: ${risk.howItAppliesHere}`, currentY, 11);
-      currentY += 8; // Add spacing between risks
+      // How it affects you (indented further)
+      currentY = addWrappedText(`• How it affects you: ${risk.howItAffectsYou}`, currentY, 11, contentWidth - indentWidth, 1.15);
+      currentY += paragraphSpacing; // Add spacing between risks
     });
     
     return currentY;
   };
 
-  // Title
+  // Helper function to add section divider
+  const addSectionDivider = (y: number): number => {
+    if (y > pageHeight - margin - 20) {
+      if (currentPage < maxPages) {
+        pdf.addPage();
+        currentPage++;
+        y = margin;
+      } else {
+        return y;
+      }
+    }
+    
+    // Draw a subtle horizontal line
+    pdf.setDrawColor(220, 220, 220);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, y, pageWidth - margin, y);
+    
+    return y + 6; // Add spacing after divider
+  };
+
+  // A) Title and Meta Information
   pdf.setFontSize(24);
-  pdf.setFont(undefined, 'bold');
+  pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(70, 99, 217); // Primary color
-  yPosition = addWrappedText(siteTitle, yPosition, 24);
+  yPosition = addWrappedText(siteTitle, yPosition, 24, contentWidth, 1.3);
   pdf.setTextColor(0, 0, 0); // Reset to black
-  pdf.setFont(undefined, 'normal');
+  pdf.setFont('helvetica', 'normal');
   
-  // Subtitle with date and filename
-  pdf.setFontSize(12);
+  // Meta information (Location, Contract Type, Email, Timestamp, Filename)
+  yPosition += 8;
+  pdf.setFontSize(11);
+  pdf.setFont('helvetica', 'normal');
   pdf.setTextColor(100, 100, 100);
-  let subtitle = `Analyzed on: ${analyzedAt}`;
-  if (sourceFilename) {
-    subtitle += ` | Source: ${sourceFilename}`;
+  
+  const metaLines: string[] = [];
+  if (meta?.location && (meta.location.country || meta.location.region)) {
+    const locationText = meta.location.region && meta.location.country
+      ? `${meta.location.region}, ${meta.location.country}`
+      : meta.location.country || meta.location.region;
+    metaLines.push(`Location: ${locationText}`);
   }
-  yPosition = addWrappedText(subtitle, yPosition + 5, 12);
+  if (meta?.contractType) {
+    metaLines.push(`Contract Type: ${meta.contractType}`);
+  }
+  if (meta?.email) {
+    metaLines.push(`Email: ${meta.email}`);
+  }
+  metaLines.push(`Analyzed: ${analyzedAt}`);
+  if (sourceFilename) {
+    metaLines.push(`Source: ${sourceFilename}`);
+  }
+  
+  yPosition = addWrappedText(metaLines.join(' | '), yPosition, 11, contentWidth, 1.2);
   pdf.setTextColor(0, 0, 0); // Reset to black
   
   yPosition += sectionSpacing;
 
-  // Section 1: Extended Summary
-  yPosition = addSectionHeading('Extended Summary', yPosition);
-  yPosition = addContentText(full.extendedSummary, yPosition);
-  yPosition += sectionSpacing;
+  // B) Executive Summary
+  yPosition = addSectionHeading('Executive Summary', yPosition);
+  yPosition = addContentText(full.executiveSummary, yPosition);
+  yPosition = addSectionDivider(yPosition);
 
-  // Section 2: Explained Terms
-  if (full.explainedTerms.length > 0) {
-    yPosition = addExplainedTerms(full.explainedTerms, yPosition);
-    yPosition += sectionSpacing;
+  // C) Parties and Purpose
+  yPosition = addSectionHeading('Parties and Purpose', yPosition);
+  yPosition = addContentText(full.partiesAndPurpose, yPosition);
+  yPosition = addSectionDivider(yPosition);
+
+  // D) Key Clauses
+  yPosition = addSectionHeading('Key Clauses', yPosition);
+  yPosition = addExplainedTerms(full.keyClauses, yPosition);
+  yPosition = addSectionDivider(yPosition);
+
+  // E) Obligations
+  if (full.obligations.length > 0) {
+    yPosition = addSectionHeading('Obligations', yPosition);
+    yPosition = addBulletList(full.obligations, yPosition);
+    yPosition = addSectionDivider(yPosition);
   }
 
-  // Section 3: Key Details
-  yPosition = addSectionHeading('Key Details', yPosition);
-  
-  if (full.keyDetails.datesMentioned.length > 0) {
-    yPosition = addBulletList(full.keyDetails.datesMentioned, yPosition, 'Important Dates');
-    yPosition += 5;
-  }
-  
-  if (full.keyDetails.amountsMentioned.length > 0) {
-    yPosition = addBulletList(full.keyDetails.amountsMentioned, yPosition, 'Financial Amounts');
-    yPosition += 5;
-  }
-  
-  if (full.keyDetails.obligations.length > 0) {
-    yPosition = addBulletList(full.keyDetails.obligations, yPosition, 'Your Obligations');
-    yPosition += 5;
-  }
-  
-  if (full.keyDetails.terminationOrRenewal.length > 0) {
-    yPosition = addBulletList(full.keyDetails.terminationOrRenewal, yPosition, 'Termination & Renewal');
-    yPosition += 5;
+  // F) Payments and Costs
+  if (full.paymentsAndCosts.length > 0) {
+    yPosition = addSectionHeading('Payments and Costs', yPosition);
+    yPosition = addBulletList(full.paymentsAndCosts, yPosition);
+    yPosition = addSectionDivider(yPosition);
   }
 
-  yPosition += sectionSpacing;
-
-  // Section 4: Risks
-  yPosition = addDetailedRisks(full.risks, yPosition);
-
-  // Professional advice note
-  if (full.professionalAdviceNote) {
-    yPosition += sectionSpacing;
-    yPosition = addSubsectionHeading('Professional Note', yPosition);
-    pdf.setFont(undefined, 'italic');
-    yPosition = addContentText(full.professionalAdviceNote, yPosition);
-    pdf.setFont(undefined, 'normal');
+  // G) Renewal and Termination
+  if (full.renewalAndTermination.length > 0) {
+    yPosition = addSectionHeading('Renewal and Termination', yPosition);
+    yPosition = addBulletList(full.renewalAndTermination, yPosition);
+    yPosition = addSectionDivider(yPosition);
   }
 
-  // Footer disclaimer
-  yPosition += sectionSpacing;
-  
+  // H) Liability and Risks
+  yPosition = addSectionHeading('Liability and Risks', yPosition);
+  yPosition = addDetailedRisks(full.liabilityAndRisks, yPosition);
+  yPosition = addSectionDivider(yPosition);
+
+  // I) Recommendations
+  if (full.recommendations.length > 0) {
+    yPosition = addSectionHeading('Recommendations', yPosition);
+    yPosition = addBulletList(full.recommendations, yPosition);
+    yPosition = addSectionDivider(yPosition);
+  }
+
+  // J) Professional Advice Note
+  yPosition = addSectionHeading('Professional Advice Note', yPosition);
+  pdf.setFont('helvetica', 'italic');
+  yPosition = addContentText(full.professionalAdviceNote, yPosition);
+  pdf.setFont('helvetica', 'normal');
+  yPosition = addSectionDivider(yPosition);
+
+  // K) Footer disclaimer
   // Check if we need a new page for the disclaimer
-  if (yPosition > pageHeight - margin - 30) {
+  if (yPosition > pageHeight - margin - 40) {
     if (currentPage < maxPages) {
       pdf.addPage();
       currentPage++;
@@ -443,11 +529,30 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
   }
   
   if (currentPage <= maxPages) {
-    pdf.setFontSize(10);
+    // Add some spacing before footer
+    yPosition += 10;
+    
+    // Draw a subtle line above footer
+    pdf.setDrawColor(220, 220, 220);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 8;
+    
+    // Disclaimer text
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'italic');
     pdf.setTextColor(100, 100, 100);
-    pdf.setFont(undefined, 'italic');
-    yPosition = addWrappedText('This tool provides AI-powered plain-English explanations. It is not legal advice.', yPosition, 10);
-    pdf.setFont(undefined, 'normal');
+    yPosition = addWrappedText('This tool provides AI-powered plain-English explanations. It is not legal advice.', yPosition, 9, contentWidth, 1.2);
+    
+    // Add timestamp
+    const generatedAt = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+    yPosition += 3;
+    pdf.setFontSize(8);
+    pdf.setTextColor(120, 120, 120);
+    yPosition = addWrappedText(`Generated on ${generatedAt}`, yPosition, 8, contentWidth, 1.2);
+    
+    // Reset formatting
+    pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(0, 0, 0);
   }
 

@@ -11,6 +11,7 @@
     "@types/formidable": "^3.4.5",
     "formidable": "^3.5.4",
     "jspdf": "^3.0.2",
+    "lucide-react": "^0.542.0",
     "mammoth": "^1.10.0",
     "next": "latest",
     "openai": "^5.16.0",

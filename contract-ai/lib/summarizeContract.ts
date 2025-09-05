@@ -8,22 +8,21 @@ export interface DemoResult {
   risks: string[]; // 3–6 brief, concrete bullets
 }
 
-// Types for Full (detailed) analysis
+// Types for Full (detailed) analysis - Lawyer's Memo Style
 export interface FullResult {
-  extendedSummary: string; // 2–3 short paragraphs
-  explainedTerms: Array<{ term: string; meaning: string }>; // non-obvious terms only
-  keyDetails: {
-    datesMentioned: string[]; // normalize to YYYY-MM-DD when possible
-    amountsMentioned: string[]; // include currency symbols if present
-    obligations: string[]; // specific duties the signer must perform
-    terminationOrRenewal: string[]; // notice periods, auto-renew rules, termination conditions
-  };
-  risks: Array<{
-    title: string;
-    whyItMatters: string; // general risk rationale
-    howItAppliesHere: string; // tie back to THIS document's text
-  }>;
-  professionalAdviceNote: string; // neutral suggestion to consult a qualified legal professional (no firm names)
+  executiveSummary: string; // 2–3 paragraphs like a lawyer's note
+  partiesAndPurpose: string; // Who is involved and why
+  keyClauses: Array<{ clause: string, explanation: string }>; // Each important clause explained
+  obligations: string[]; // Duties user must fulfill
+  paymentsAndCosts: string[]; // Amounts, penalties, timing
+  renewalAndTermination: string[]; // Renewal/termination rules
+  liabilityAndRisks: Array<{
+    clause: string,
+    whyItMatters: string,
+    howItAffectsYou: string
+  }>; // Each risk with context
+  recommendations: string[]; // Practical steps: clarify, renegotiate, ask
+  professionalAdviceNote: string; // Reminder to seek legal counsel
 }
 
 interface ContractError {
@@ -32,7 +31,7 @@ interface ContractError {
 }
 
 // Shared system guardrails for both functions
-const SHARED_SYSTEM_PROMPT = `You are a contract analysis expert. Follow these strict rules:
+const SHARED_SYSTEM_PROMPT = `You are an experienced contracts lawyer. Your job is to explain contracts in plain English, highlighting obligations, risks, and practical steps. Do not give jurisdiction-specific legal advice. Do not include any URLs or law firm names. Output valid JSON only, exactly matching the provided schema. Follow these strict rules:
 - Return JSON ONLY matching the schema provided.
 - Use ONLY the provided contract text; if unknown, respond "Not specified in the provided text."
 - Do NOT include any URLs or links.
@@ -60,35 +59,34 @@ function sanitizeDemoResult(result: any): DemoResult {
 
 function sanitizeFullResult(result: any): FullResult {
   return {
-    extendedSummary: (result.extendedSummary || 'Not specified in the provided text.').substring(0, 1000).trim(),
-    explainedTerms: Array.isArray(result.explainedTerms) 
-      ? result.explainedTerms.slice(0, 10).map((term: any) => ({
-          term: String(term?.term || '').substring(0, 100).trim(),
-          meaning: String(term?.meaning || '').substring(0, 300).trim()
-        })).filter(t => t.term && t.meaning)
+    executiveSummary: (result.executiveSummary || 'Not specified in the provided text.').substring(0, 1200).trim(),
+    partiesAndPurpose: (result.partiesAndPurpose || 'Not specified in the provided text.').substring(0, 800).trim(),
+    keyClauses: Array.isArray(result.keyClauses) 
+      ? result.keyClauses.slice(0, 12).map((clause: any) => ({
+          clause: String(clause?.clause || '').substring(0, 150).trim(),
+          explanation: String(clause?.explanation || '').substring(0, 400).trim()
+        })).filter(c => c.clause && c.explanation)
       : [],
-    keyDetails: {
-      datesMentioned: Array.isArray(result.keyDetails?.datesMentioned) 
-        ? result.keyDetails.datesMentioned.slice(0, 10).map((d: any) => String(d || '').substring(0, 50).trim()).filter(Boolean)
-        : [],
-      amountsMentioned: Array.isArray(result.keyDetails?.amountsMentioned)
-        ? result.keyDetails.amountsMentioned.slice(0, 10).map((a: any) => String(a || '').substring(0, 100).trim()).filter(Boolean)
-        : [],
-      obligations: Array.isArray(result.keyDetails?.obligations)
-        ? result.keyDetails.obligations.slice(0, 15).map((o: any) => String(o || '').substring(0, 200).trim()).filter(Boolean)
-        : [],
-      terminationOrRenewal: Array.isArray(result.keyDetails?.terminationOrRenewal)
-        ? result.keyDetails.terminationOrRenewal.slice(0, 10).map((t: any) => String(t || '').substring(0, 200).trim()).filter(Boolean)
-        : []
-    },
-    risks: Array.isArray(result.risks)
-      ? result.risks.slice(0, 8).map((risk: any) => ({
-          title: String(risk?.title || '').substring(0, 150).trim(),
+    obligations: Array.isArray(result.obligations)
+      ? result.obligations.slice(0, 15).map((o: any) => String(o || '').substring(0, 250).trim()).filter(Boolean)
+      : [],
+    paymentsAndCosts: Array.isArray(result.paymentsAndCosts)
+      ? result.paymentsAndCosts.slice(0, 12).map((p: any) => String(p || '').substring(0, 200).trim()).filter(Boolean)
+      : [],
+    renewalAndTermination: Array.isArray(result.renewalAndTermination)
+      ? result.renewalAndTermination.slice(0, 10).map((r: any) => String(r || '').substring(0, 250).trim()).filter(Boolean)
+      : [],
+    liabilityAndRisks: Array.isArray(result.liabilityAndRisks)
+      ? result.liabilityAndRisks.slice(0, 8).map((risk: any) => ({
+          clause: String(risk?.clause || '').substring(0, 150).trim(),
           whyItMatters: String(risk?.whyItMatters || '').substring(0, 300).trim(),
-          howItAppliesHere: String(risk?.howItAppliesHere || '').substring(0, 400).trim()
-        })).filter(r => r.title && r.whyItMatters && r.howItAppliesHere)
+          howItAffectsYou: String(risk?.howItAffectsYou || '').substring(0, 300).trim()
+        })).filter(r => r.clause && r.whyItMatters && r.howItAffectsYou)
       : [],
-    professionalAdviceNote: (result.professionalAdviceNote || 'This analysis is for informational purposes only. Consider consulting with a qualified legal professional for specific legal advice.').substring(0, 500).trim()
+    recommendations: Array.isArray(result.recommendations)
+      ? result.recommendations.slice(0, 10).map((r: any) => String(r || '').substring(0, 200).trim()).filter(Boolean)
+      : [],
+    professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim()
   };
 }
 
@@ -206,32 +204,31 @@ Contract text: ${truncatedText}`;
   }
 }
 
-// Full function - deep, structured analysis suitable for 2-page PDF
+// Full function - lawyer's memo style analysis
 export async function summarizeContractFull(text: string): Promise<FullResult> {
   const truncatedText = truncateText(text, 50000); // Larger limit for full analysis
   
-  const prompt = `Analyze the following contract text and provide a comprehensive analysis. Return ONLY valid JSON with this exact structure:
+  const prompt = `Analyze the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
 {
-  "extendedSummary": "2-3 short paragraphs explaining what this contract is about, key terms, and overall purpose",
-  "explainedTerms": [
-    {"term": "legal term", "meaning": "plain English explanation"},
-    {"term": "another term", "meaning": "what it means in context"}
+  "executiveSummary": "2-3 paragraphs like a lawyer's note summarizing the contract's purpose, key terms, and overall implications",
+  "partiesAndPurpose": "Clear explanation of who is involved in this contract and what the main purpose is",
+  "keyClauses": [
+    {"clause": "Important clause name", "explanation": "Plain English explanation of what this clause means and its implications"},
+    {"clause": "Another clause", "explanation": "What this clause does and why it matters"}
   ],
-  "keyDetails": {
-    "datesMentioned": ["YYYY-MM-DD format when possible", "other date references"],
-    "amountsMentioned": ["$100", "€500", "other amounts with currency"],
-    "obligations": ["specific duty 1", "specific duty 2", "what signer must do"],
-    "terminationOrRenewal": ["30 days notice", "auto-renewal clause", "termination conditions"]
-  },
-  "risks": [
+  "obligations": ["Specific duty 1 that the signer must fulfill", "Specific duty 2", "Other obligations"],
+  "paymentsAndCosts": ["Payment amounts and timing", "Penalties or fees", "Cost structures"],
+  "renewalAndTermination": ["Renewal terms and conditions", "Termination procedures", "Notice requirements"],
+  "liabilityAndRisks": [
     {
-      "title": "Risk title",
-      "whyItMatters": "General explanation of why this type of risk matters",
-      "howItAppliesHere": "Specific application to THIS contract's text"
+      "clause": "Specific clause or section creating risk",
+      "whyItMatters": "Why this type of risk is significant in contracts",
+      "howItAffectsYou": "How this specific risk affects the signer in this contract"
     }
   ],
-  "professionalAdviceNote": "Neutral suggestion to consult qualified legal professional (no firm names)"
+  "recommendations": ["Practical step 1: clarify or renegotiate", "Question to ask", "Thing to watch out for"],
+  "professionalAdviceNote": "Reminder to seek qualified legal counsel for specific advice"
 }
 
 Contract text to analyze:
@@ -255,15 +252,14 @@ Return ONLY the JSON object, no additional text.`;
         const retryPrompt = `Return valid JSON exactly matching this schema - no extra text:
 
 {
-  "extendedSummary": "2-3 paragraphs about the contract",
-  "explainedTerms": [{"term": "term1", "meaning": "meaning1"}],
-  "keyDetails": {
-    "datesMentioned": ["date1"],
-    "amountsMentioned": ["amount1"],
-    "obligations": ["obligation1"],
-    "terminationOrRenewal": ["term1"]
-  },
-  "risks": [{"title": "title1", "whyItMatters": "why1", "howItAppliesHere": "how1"}],
+  "executiveSummary": "2-3 paragraphs like a lawyer's note",
+  "partiesAndPurpose": "who is involved and why",
+  "keyClauses": [{"clause": "clause1", "explanation": "explanation1"}],
+  "obligations": ["obligation1", "obligation2"],
+  "paymentsAndCosts": ["payment1", "cost1"],
+  "renewalAndTermination": ["renewal1", "termination1"],
+  "liabilityAndRisks": [{"clause": "clause1", "whyItMatters": "why1", "howItAffectsYou": "how1"}],
+  "recommendations": ["recommendation1", "recommendation2"],
   "professionalAdviceNote": "advice note"
 }
 

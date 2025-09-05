@@ -79,6 +79,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   return res.status(400).json({ error: 'Invalid mode. Use "demo" or "full".' });
     // }
 
+    // Parse intake data from form fields (do not log or store)
+    const intakeEmail = fields.intakeEmail?.[0] || '';
+    const intakeCountry = fields.intakeCountry?.[0] || '';
+    const intakeRegion = fields.intakeRegion?.[0] || '';
+    const intakeContractType = fields.intakeContractType?.[0] || '';
+
     // Extract text for PDF and DOCX files
     let extractedText = '';
     if (file.mimetype === 'application/pdf' || file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -157,6 +163,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       type: file.mimetype,
       mode: mode,
       full: fullResult,
+      meta: {
+        email: intakeEmail || undefined,
+        location: {
+          country: intakeCountry || undefined,
+          region: intakeRegion || undefined
+        },
+        contractType: intakeContractType || undefined,
+        // Note: pages count could be added here if needed in the future
+      },
     });
   } catch (error) {
     console.error('File upload error:', error);

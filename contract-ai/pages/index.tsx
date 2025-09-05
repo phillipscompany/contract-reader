@@ -1,12 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import FileUploader from '../components/FileUploader';
+import IntakeModal from '../components/IntakeModal';
+import TrustedBy from '../components/TrustedBy';
 import { fileToBase64 } from '../lib/base64';
+
+interface IntakeData {
+  email: string;
+  location: {
+    country: string;
+    region: string;
+  };
+  contractType: string;
+  savedAt: string;
+}
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showIntakeModal, setShowIntakeModal] = useState(false);
+  const [intakeCompleted, setIntakeCompleted] = useState(false);
   const router = useRouter();
+
+  // Check for existing intake data on mount
+  useEffect(() => {
+    const existingIntake = localStorage.getItem('intake');
+    if (!existingIntake) {
+      setShowIntakeModal(true);
+    } else {
+      setIntakeCompleted(true);
+    }
+  }, []);
+
+  const handleIntakeSave = (data: { email: string; location: { country: string; region: string }; contractType: string }) => {
+    const intakeData: IntakeData = {
+      ...data,
+      savedAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('intake', JSON.stringify(intakeData));
+    setIntakeCompleted(true);
+    setShowIntakeModal(false);
+  };
+
+  const handleIntakeClose = () => {
+    setShowIntakeModal(false);
+  };
 
   const handleFileSelect = async (selectedFile: File) => {
     setFile(selectedFile);
@@ -35,16 +74,54 @@ export default function Home() {
 
   return (
     <>
+      <IntakeModal 
+        open={showIntakeModal}
+        onClose={handleIntakeClose}
+        onSave={handleIntakeSave}
+      />
       <main className="container hero">
         <section className="hero__text">
           <h1 className="hero__title">Know Exactly What You're Signing... Before You Sign!</h1>
           <p className="hero__subtitle">
-            Don't fall into the trap of signing something you don't understand. Simply upload your document and within seconds our expert AI will explain it clearly, highlighting key risks & obligations.
+            Don't fall into the trap of signing something you don't understand. Simply upload your document and our AI will explain it clearly, highlighting key risks & obligations.
           </p>
         </section>
 
         <section className="drop">
-          <div className="drop__area" aria-label="Upload area">
+          <div className="drop__area" aria-label="Upload area" style={{ position: 'relative' }}>
+            {!intakeCompleted && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '16px',
+                zIndex: 10,
+                padding: '20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  color: 'var(--text)', 
+                  marginBottom: '8px' 
+                }}>
+                  Please complete a quick setup to continue
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--muted)' 
+                }}>
+                  We need some basic information to tailor your analysis
+                </div>
+              </div>
+            )}
             <FileUploader onFileSelect={handleFileSelect} />
           </div>
           <div className="drop__notes">
@@ -81,6 +158,8 @@ export default function Home() {
             </p>
           </article>
         </section>
+
+        {/* <TrustedBy /> */}
 
         <section className="workflow">
           <h2 className="workflow__title">How it works</h2>

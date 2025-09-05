@@ -1,163 +1,212 @@
+import { useState } from 'react';
 import { downloadFullAnalysisPdf } from '../lib/pdf';
 import type { FullResult } from '../lib/summarizeContract';
+import { 
+  FileText, 
+  Users, 
+  BookOpen, 
+  ClipboardCheck, 
+  BadgeDollarSign, 
+  RefreshCw, 
+  AlertTriangle, 
+  Lightbulb,
+  Scale,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 
 interface ResultsFullProps {
   fullResult: FullResult;
   sourceFilename?: string;
+  meta?: {
+    email?: string;
+    location?: {
+      country?: string;
+      region?: string;
+    };
+    contractType?: string;
+    pages?: number;
+  };
 }
 
-export default function ResultsFull({ fullResult, sourceFilename }: ResultsFullProps) {
+export default function ResultsFull({ fullResult, sourceFilename, meta }: ResultsFullProps) {
+
+  // Helper component for section headers
+  const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+    <div className="section-header">
+      <Icon size={20} className="section-icon" />
+      <h2 className="section-title">{title}</h2>
+    </div>
+  );
+
+  // Helper component for section cards
+  const SectionCard = ({ children }: { children: React.ReactNode }) => (
+    <div className="section-card">
+      {children}
+    </div>
+  );
+
+  // Helper component for expandable text
+  const ExpandableText = ({ text, maxLines = 6 }: { text: string, maxLines?: number }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const shouldTruncate = text.length > 300; // Rough estimate for ~6 lines
+
+    if (!shouldTruncate) {
+      return <p>{text}</p>;
+    }
+
+    return (
+      <div>
+        <p className={isExpanded ? '' : 'text-truncated'}>
+          {text}
+        </p>
+        <button 
+          className="expand-toggle"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? (
+            <>
+              Show less <ChevronUp size={14} />
+            </>
+          ) : (
+            <>
+              Show more <ChevronDown size={14} />
+            </>
+          )}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="results-container">
-      {/* Full Analysis Label */}
-      <div className="full-label">
-        <span className="full-badge">FULL ANALYSIS</span>
-        <span className="full-text">Complete Contract Review</span>
+      {/* A) Executive Summary Section */}
+      <div className="results-section">
+        <SectionHeader icon={FileText} title="Executive Summary" />
+        <SectionCard>
+          <div className="summary-content">
+            <p>{fullResult.executiveSummary}</p>
+          </div>
+        </SectionCard>
       </div>
 
-      <div className="results-grid">
-        {/* Left Column - Extended Summary */}
-        <div className="results-card results-summary">
-          <h2 className="results-heading">Extended Summary</h2>
-          <div className="results-content">
-            <div className="summary-section">
-              <h3>What This Contract Is About</h3>
-              <p>{fullResult.extendedSummary}</p>
-            </div>
+      {/* B) Parties and Purpose Section */}
+      <div className="results-section">
+        <SectionHeader icon={Users} title="Parties and Purpose" />
+        <SectionCard>
+          <div className="summary-content">
+            <p>{fullResult.partiesAndPurpose}</p>
           </div>
-        </div>
-
-        {/* Right Column - Key Details */}
-        <div className="results-card results-details">
-          <h2 className="results-heading">Key Details</h2>
-          <div className="results-content">
-            {fullResult.keyDetails.datesMentioned.length > 0 && (
-              <div className="detail-section">
-                <h3>Important Dates</h3>
-                <ul className="detail-list">
-                  {fullResult.keyDetails.datesMentioned.map((date, index) => (
-                    <li key={index} className="detail-item">
-                      {date}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            {fullResult.keyDetails.amountsMentioned.length > 0 && (
-              <div className="detail-section">
-                <h3>Financial Amounts</h3>
-                <ul className="detail-list">
-                  {fullResult.keyDetails.amountsMentioned.map((amount, index) => (
-                    <li key={index} className="detail-item">
-                      {amount}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
+        </SectionCard>
       </div>
 
-      {/* Second Row - Explained Terms and Obligations */}
-      <div className="results-grid">
-        {/* Left Column - Explained Terms */}
-        {fullResult.explainedTerms.length > 0 && (
-          <div className="results-card results-terms">
-            <h2 className="results-heading">Legal Terms Explained</h2>
-            <div className="results-content">
-              {fullResult.explainedTerms.map((term, index) => (
-                <div key={index} className="term-section">
-                  <h3>{term.term}</h3>
-                  <p>{term.meaning}</p>
+      {/* C) Key Clauses Section */}
+      {fullResult.keyClauses.length > 0 && (
+        <div className="results-section">
+          <SectionHeader icon={BookOpen} title="Key Clauses" />
+          <SectionCard>
+            <div className="terms-content">
+              {fullResult.keyClauses.map((clause, index) => (
+                <div key={index} className="term-item">
+                  <h4 className="term-name">{clause.clause}</h4>
+                  <p className="term-meaning">{clause.explanation}</p>
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Right Column - Obligations */}
-        {fullResult.keyDetails.obligations.length > 0 && (
-          <div className="results-card results-obligations">
-            <h2 className="results-heading">Your Obligations</h2>
-            <div className="results-content">
-              <ul className="obligations-list">
-                {fullResult.keyDetails.obligations.map((obligation, index) => (
-                  <li key={index} className="obligation-item">
-                    {obligation}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Third Row - Termination/Renewal and Risks */}
-      <div className="results-grid">
-        {/* Left Column - Termination/Renewal */}
-        {fullResult.keyDetails.terminationOrRenewal.length > 0 && (
-          <div className="results-card results-termination">
-            <h2 className="results-heading">Termination & Renewal</h2>
-            <div className="results-content">
-              <ul className="termination-list">
-                {fullResult.keyDetails.terminationOrRenewal.map((term, index) => (
-                  <li key={index} className="termination-item">
-                    {term}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {/* Right Column - Professional Advice Note */}
-        <div className="results-card results-advice">
-          <h2 className="results-heading">Professional Note</h2>
-          <div className="results-content">
-            <p className="advice-text">{fullResult.professionalAdviceNote}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Comprehensive Risks Section */}
-      {fullResult.risks.length > 0 && (
-        <div className="results-risks-comprehensive">
-          <h2 className="results-heading">Comprehensive Risk Analysis</h2>
-          <div className="risks-grid">
-            {fullResult.risks.map((risk, index) => (
-              <div key={index} className="risk-card">
-                <h3 className="risk-title">{risk.title}</h3>
-                <div className="risk-content">
-                  <div className="risk-why">
-                    <h4>Why This Matters</h4>
-                    <p>{risk.whyItMatters}</p>
-                  </div>
-                  <div className="risk-how">
-                    <h4>How It Applies Here</h4>
-                    <p>{risk.howItAppliesHere}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          </SectionCard>
         </div>
       )}
 
-      {/* Download Buttons */}
-      <div className="results-download">
-        <button 
-          onClick={() => downloadFullAnalysisPdf({
-            siteTitle: 'CONTRACT EXPLAINER - FULL ANALYSIS',
-            sourceFilename: sourceFilename,
-            analyzedAt: new Date().toLocaleString(),
-            full: fullResult
-          })}
-          className="btn btn--primary"
-        >
-          Download Full Report (PDF)
-        </button>
+      {/* D) Obligations Section */}
+      {fullResult.obligations.length > 0 && (
+        <div className="results-section">
+          <SectionHeader icon={ClipboardCheck} title="Obligations" />
+          <SectionCard>
+            <ul className="detail-list">
+              {fullResult.obligations.map((obligation, index) => (
+                <li key={index} className="detail-item">{obligation}</li>
+              ))}
+            </ul>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* E) Payments and Costs Section */}
+      {fullResult.paymentsAndCosts.length > 0 && (
+        <div className="results-section">
+          <SectionHeader icon={BadgeDollarSign} title="Payments and Costs" />
+          <SectionCard>
+            <ul className="detail-list">
+              {fullResult.paymentsAndCosts.map((payment, index) => (
+                <li key={index} className="detail-item">{payment}</li>
+              ))}
+            </ul>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* F) Renewal and Termination Section */}
+      {fullResult.renewalAndTermination.length > 0 && (
+        <div className="results-section">
+          <SectionHeader icon={RefreshCw} title="Renewal and Termination" />
+          <SectionCard>
+            <ul className="detail-list">
+              {fullResult.renewalAndTermination.map((term, index) => (
+                <li key={index} className="detail-item">{term}</li>
+              ))}
+            </ul>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* G) Liability and Risks Section */}
+      {fullResult.liabilityAndRisks.length > 0 && (
+        <div className="results-section">
+          <SectionHeader icon={AlertTriangle} title="Liability and Risks" />
+          <SectionCard>
+            <div className="risks-content">
+              {fullResult.liabilityAndRisks.map((risk, index) => (
+                <div key={index} className="risk-item">
+                  <h4 className="risk-title">{risk.clause}</h4>
+                  <div className="risk-details">
+                    <div className="risk-section">
+                      <h5>Why this matters</h5>
+                      <ExpandableText text={risk.whyItMatters} />
+                    </div>
+                    <div className="risk-section">
+                      <h5>How it affects you</h5>
+                      <ExpandableText text={risk.howItAffectsYou} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* H) Recommendations Section */}
+      {fullResult.recommendations.length > 0 && (
+        <div className="results-section">
+          <SectionHeader icon={Lightbulb} title="Recommendations" />
+          <SectionCard>
+            <ul className="detail-list">
+              {fullResult.recommendations.map((recommendation, index) => (
+                <li key={index} className="detail-item">{recommendation}</li>
+              ))}
+            </ul>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* I) Professional Advice Note Section */}
+      <div className="results-section">
+        <SectionHeader icon={Scale} title="Professional Advice Note" />
+        <SectionCard>
+          <div className="advice-content">
+            <p>{fullResult.professionalAdviceNote}</p>
+          </div>
+        </SectionCard>
       </div>
 
       {/* Footer Disclaimer */}
