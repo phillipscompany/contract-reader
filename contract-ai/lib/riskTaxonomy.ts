@@ -1,7 +1,7 @@
 import riskTaxonomyData from '../data/riskTaxonomy.json';
 
 // Contract types supported by the risk taxonomy
-export type ContractType = "Residential Lease" | "Freelance / Services";
+export type ContractType = "Residential Lease" | "Freelance / Services" | "NDA (Non-Disclosure Agreement)" | "Employment Contract";
 
 // Risk category interface
 export interface RiskCategory {
@@ -34,7 +34,17 @@ const contractTypeMapping: Record<string, ContractType> = {
   "contractor": "Freelance / Services",
   "consulting": "Freelance / Services",
   "consultant": "Freelance / Services",
-  "independent contractor": "Freelance / Services"
+  "independent contractor": "Freelance / Services",
+  "nda": "NDA (Non-Disclosure Agreement)",
+  "non-disclosure": "NDA (Non-Disclosure Agreement)",
+  "non disclosure": "NDA (Non-Disclosure Agreement)",
+  "confidentiality": "NDA (Non-Disclosure Agreement)",
+  "confidentiality agreement": "NDA (Non-Disclosure Agreement)",
+  "employment": "Employment Contract",
+  "employment contract": "Employment Contract",
+  "job": "Employment Contract",
+  "work": "Employment Contract",
+  "employee": "Employment Contract"
 };
 
 /**

@@ -118,54 +118,53 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* D) Risk Coverage Section */}
+      {/* D) Key Details Section */}
+      {(fullResult.obligations.length > 0 || fullResult.paymentsAndCosts.length > 0 || fullResult.renewalAndTermination.length > 0) && (
+        <div className="results-section">
+          <SectionHeader icon={ClipboardCheck} title="Key Details" />
+          <SectionCard>
+            {fullResult.obligations.length > 0 && (
+              <div className="detail-subsection">
+                <h4>Obligations</h4>
+                <ul className="detail-list">
+                  {fullResult.obligations.map((obligation, index) => (
+                    <li key={index} className="detail-item">{obligation}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {fullResult.paymentsAndCosts.length > 0 && (
+              <div className="detail-subsection">
+                <h4>Payments and Costs</h4>
+                <ul className="detail-list">
+                  {fullResult.paymentsAndCosts.map((payment, index) => (
+                    <li key={index} className="detail-item">{payment}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {fullResult.renewalAndTermination.length > 0 && (
+              <div className="detail-subsection">
+                <h4>Renewal and Termination</h4>
+                <ul className="detail-list">
+                  {fullResult.renewalAndTermination.map((term, index) => (
+                    <li key={index} className="detail-item">{term}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </SectionCard>
+        </div>
+      )}
+
+      {/* E) Risk Coverage Section */}
       {fullResult.riskCoverage && fullResult.riskCoverage.matrix.length > 0 && (
         <RiskCoverage coverage={fullResult.riskCoverage} />
       )}
 
-      {/* E) Obligations Section */}
-      {fullResult.obligations.length > 0 && (
-        <div className="results-section">
-          <SectionHeader icon={ClipboardCheck} title="Obligations" />
-          <SectionCard>
-            <ul className="detail-list">
-              {fullResult.obligations.map((obligation, index) => (
-                <li key={index} className="detail-item">{obligation}</li>
-              ))}
-            </ul>
-          </SectionCard>
-        </div>
-      )}
-
-      {/* F) Payments and Costs Section */}
-      {fullResult.paymentsAndCosts.length > 0 && (
-        <div className="results-section">
-          <SectionHeader icon={BadgeDollarSign} title="Payments and Costs" />
-          <SectionCard>
-            <ul className="detail-list">
-              {fullResult.paymentsAndCosts.map((payment, index) => (
-                <li key={index} className="detail-item">{payment}</li>
-              ))}
-            </ul>
-          </SectionCard>
-        </div>
-      )}
-
-      {/* G) Renewal and Termination Section */}
-      {fullResult.renewalAndTermination.length > 0 && (
-        <div className="results-section">
-          <SectionHeader icon={RefreshCw} title="Renewal and Termination" />
-          <SectionCard>
-            <ul className="detail-list">
-              {fullResult.renewalAndTermination.map((term, index) => (
-                <li key={index} className="detail-item">{term}</li>
-              ))}
-            </ul>
-          </SectionCard>
-        </div>
-      )}
-
-      {/* H) Liability and Risks Section */}
+      {/* F) Liability and Risks Section */}
       {fullResult.liabilityAndRisks.length > 0 && (
         <div className="results-section">
           <SectionHeader icon={AlertTriangle} title="Liability and Risks" />
@@ -191,21 +190,7 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* I) Recommendations Section */}
-      {fullResult.recommendations.length > 0 && (
-        <div className="results-section">
-          <SectionHeader icon={Lightbulb} title="Recommendations" />
-          <SectionCard>
-            <ul className="detail-list">
-              {fullResult.recommendations.map((recommendation, index) => (
-                <li key={index} className="detail-item">{recommendation}</li>
-              ))}
-            </ul>
-          </SectionCard>
-        </div>
-      )}
-
-      {/* J) Professional Advice Note Section */}
+      {/* G) Professional Advice Note Section */}
       <div className="results-section">
         <SectionHeader icon={Scale} title="Professional Advice Note" />
         <SectionCard>

@@ -26,7 +26,6 @@ export interface FullResult {
     whyItMatters: string,
     howItAffectsYou: string
   }>; // Each risk with context
-  recommendations: string[]; // Practical steps: clarify, renegotiate, ask
   professionalAdviceNote: string; // Reminder to seek legal counsel
   riskCoverage: {
     contractTypes: string[]; // detected or from intake
@@ -38,9 +37,8 @@ export interface FullResult {
       severity: Severity;
       evidence: string; // short snippet or clause ref; "" if none
       whyItMatters: string;
-      recommendedAction: string; // ask for doc, negotiate, clarify, etc.
     }>;
-    topRisks: Array<{ title: string; severity: Severity; action: string }>;
+    topRisks: Array<{ title: string; severity: Severity }>;
   };
 }
 
@@ -76,7 +74,7 @@ function sanitizeDemoResult(result: any): DemoResult {
   };
 }
 
-function sanitizeFullResult(result: any): FullResult {
+export function sanitizeFullResult(result: any): FullResult {
   return {
     executiveSummary: (result.executiveSummary || 'Not specified in the provided text.').substring(0, 1200).trim(),
     partiesAndPurpose: (result.partiesAndPurpose || 'Not specified in the provided text.').substring(0, 800).trim(),
@@ -101,9 +99,6 @@ function sanitizeFullResult(result: any): FullResult {
           whyItMatters: String(risk?.whyItMatters || '').substring(0, 300).trim(),
           howItAffectsYou: String(risk?.howItAffectsYou || '').substring(0, 300).trim()
         })).filter(r => r.clause && r.whyItMatters && r.howItAffectsYou)
-      : [],
-    recommendations: Array.isArray(result.recommendations)
-      ? result.recommendations.slice(0, 10).map((r: any) => String(r || '').substring(0, 200).trim()).filter(Boolean)
       : [],
     professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim(),
     riskCoverage: sanitizeRiskCoverage(result.riskCoverage)
@@ -140,16 +135,14 @@ function sanitizeRiskCoverage(riskCoverage: any): FullResult['riskCoverage'] {
           severity: (['high', 'medium', 'low'].includes(item?.severity)) 
             ? item.severity : 'medium',
           evidence: String(item?.evidence || '').substring(0, 200).trim(),
-          whyItMatters: String(item?.whyItMatters || '').substring(0, 300).trim(),
-          recommendedAction: String(item?.recommendedAction || '').substring(0, 200).trim()
+          whyItMatters: String(item?.whyItMatters || '').substring(0, 300).trim()
         })).filter(m => m.category)
       : [],
     topRisks: Array.isArray(riskCoverage.topRisks)
       ? riskCoverage.topRisks.slice(0, 5).map((risk: any) => ({
           title: String(risk?.title || '').substring(0, 150).trim(),
           severity: (['high', 'medium', 'low'].includes(risk?.severity)) 
-            ? risk.severity : 'medium',
-          action: String(risk?.action || '').substring(0, 200).trim()
+            ? risk.severity : 'medium'
         })).filter(r => r.title)
       : []
   };
@@ -223,13 +216,12 @@ function postProcessFullResult(result: any, riskCategories: RiskCategory[], cate
     // Add missing categories with default values
     missingCategories.forEach(categoryLabel => {
       const category = riskCategories.find(cat => cat.label === categoryLabel);
-      result.riskCoverage.matrix.push({
+      result.riskCoverage.      matrix.push({
         category: categoryLabel,
         status: 'not_mentioned',
         severity: category?.defaultSeverity || 'medium',
         evidence: '',
-        whyItMatters: category?.whyItMatters || 'This category was not addressed in the contract.',
-        recommendedAction: 'Ask for clarification or documentation regarding this area.'
+        whyItMatters: category?.whyItMatters || 'This category was not addressed in the contract.'
       });
     });
   }
@@ -249,8 +241,7 @@ function postProcessFullResult(result: any, riskCategories: RiskCategory[], cate
     
     result.riskCoverage.topRisks = riskItems.slice(0, 5).map((item: any) => ({
       title: item.category,
-      severity: item.severity,
-      action: item.recommendedAction
+      severity: item.severity
     }));
   }
 
@@ -370,7 +361,6 @@ export async function summarizeContractFull(text: string, options: { contractTyp
       "howItAffectsYou": "How this specific risk affects the signer in this contract"
     }
   ],
-  "recommendations": ["Practical step 1: clarify or renegotiate", "Question to ask", "Thing to watch out for"],
   "professionalAdviceNote": "Reminder to seek qualified legal counsel for specific advice",
   "riskCoverage": {
     "contractTypes": ["detected contract type"],
@@ -382,15 +372,13 @@ export async function summarizeContractFull(text: string, options: { contractTyp
         "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned",
         "severity": "high|medium|low",
         "evidence": "short snippet or clause reference, empty string if none",
-        "whyItMatters": "why this category matters for this contract type",
-        "recommendedAction": "specific action like 'ask for documentation', 'negotiate terms', 'clarify scope', etc."
+        "whyItMatters": "why this category matters for this contract type"
       }
     ],
     "topRisks": [
       {
         "title": "risk title",
-        "severity": "high|medium|low",
-        "action": "recommended action"
+        "severity": "high|medium|low"
       }
     ]
   }
@@ -398,10 +386,17 @@ export async function summarizeContractFull(text: string, options: { contractTyp
 
 CRITICAL REQUIREMENTS FOR RISK COVERAGE:
 - You MUST review EVERY category in the provided list and emit one matrix entry per category.
-- If a category is not mentioned in the contract, set status='not_mentioned' and still fill whyItMatters + recommendedAction.
+- If a category is not mentioned in the contract, set status='not_mentioned' and still fill whyItMatters.
 - Ambiguity counts as risk; use 'ambiguous' when unclear.
 - No URLs or law firm names. Plain English. JSON only.
 - The matrix array must have exactly ${categoryLabels.length} entries, one for each category.
+
+IMPORTANT GUARDRAILS:
+- Do NOT provide recommendations or prescriptive advice.
+- Do NOT suggest steps to take or actions to perform.
+- Do NOT include "recommendedAction" or "action" fields in your response.
+- Provide neutral explanations only - explain what exists, not what to do about it.
+- Focus on factual analysis and neutral explanations of contract terms.
 
 Categories to review:
 ${categoryInfo}
@@ -438,18 +433,19 @@ Return ONLY the JSON object, no additional text.`;
   "paymentsAndCosts": ["payment1", "cost1"],
   "renewalAndTermination": ["renewal1", "termination1"],
   "liabilityAndRisks": [{"clause": "clause1", "whyItMatters": "why1", "howItAffectsYou": "how1"}],
-  "recommendations": ["recommendation1", "recommendation2"],
   "professionalAdviceNote": "advice note",
   "riskCoverage": {
     "contractTypes": ["detected contract type"],
     "reviewedCategories": ["${categoryLabels.join('", "')}"],
     "unreviewedCategories": [],
     "matrix": [
-      ${categoryLabels.map(label => `{"category": "${label}", "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned", "severity": "high|medium|low", "evidence": "snippet or empty", "whyItMatters": "why it matters", "recommendedAction": "action to take"}`).join(',\n      ')}
+      ${categoryLabels.map(label => `{"category": "${label}", "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned", "severity": "high|medium|low", "evidence": "snippet or empty", "whyItMatters": "why it matters"}`).join(',\n      ')}
     ],
-    "topRisks": [{"title": "risk1", "severity": "high", "action": "action1"}]
+    "topRisks": [{"title": "risk1", "severity": "high"}]
   }
 }
+
+IMPORTANT: Do NOT include "recommendations", "recommendedAction", or "action" fields. Provide neutral explanations only.
 
 Categories to review (MUST include all ${categoryLabels.length}):
 ${categoryInfo}

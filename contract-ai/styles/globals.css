@@ -1807,7 +1807,7 @@ footer .footer-copyright {
 
 .table-header {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr 2fr;
+  grid-template-columns: 2fr 1fr 2fr;
   gap: 16px;
   padding: 16px;
   background: var(--bg-secondary);
@@ -1824,7 +1824,7 @@ footer .footer-copyright {
 
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr 2fr;
+  grid-template-columns: 2fr 1fr 2fr;
   gap: 16px;
   padding: 16px;
   border-bottom: 1px solid var(--border);
@@ -1946,12 +1946,6 @@ footer .footer-copyright {
   flex: 1;
 }
 
-.top-risk-item .risk-action {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  flex: 2;
-}
-
 /* Responsive Design for Coverage Table */
 @media (max-width: 768px) {
   .coverage__summary {
@@ -2016,9 +2010,6 @@ footer .footer-copyright {
     content: "Evidence";
   }
   
-  .table-cell--action::before {
-    content: "Recommended Action";
-  }
   
   .top-risk-item {
     flex-direction: column;
@@ -2026,8 +2017,25 @@ footer .footer-copyright {
     gap: 8px;
   }
   
-  .top-risk-item .risk-title,
-  .top-risk-item .risk-action {
+  .top-risk-item .risk-title {
     flex: none;
   }
+}
+
+/* Detail Subsection Styling */
+.detail-subsection {
+  margin-bottom: 20px;
+}
+
+.detail-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.detail-subsection h4 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
 }

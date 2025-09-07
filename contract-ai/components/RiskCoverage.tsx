@@ -114,25 +114,15 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
         <div className="coverage__table">
           <div className="table-header">
             <div className="table-cell table-cell--category">Category</div>
-            <div className="table-cell table-cell--status">Status</div>
             <div className="table-cell table-cell--severity">Severity</div>
             <div className="table-cell table-cell--evidence">Evidence</div>
-            <div className="table-cell table-cell--action">Recommended Action</div>
           </div>
           
           <div className="table-body">
             {filteredMatrix.map((item, index) => (
               <div key={index} className="table-row">
                 <div className="table-cell table-cell--category">
-                  <strong>{item.category}</strong>
-                </div>
-                <div className="table-cell table-cell--status">
-                  <span 
-                    className={getStatusBadgeClass(item.status)}
-                    aria-label={`Status: ${getStatusDisplayText(item.status)}`}
-                  >
-                    {getStatusDisplayText(item.status)}
-                  </span>
+                  <strong title={item.whyItMatters}>{item.category}</strong>
                 </div>
                 <div className="table-cell table-cell--severity">
                   <span 
@@ -144,9 +134,6 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
                 </div>
                 <div className="table-cell table-cell--evidence">
                   <TruncatedText text={item.evidence || 'No evidence provided'} />
-                </div>
-                <div className="table-cell table-cell--action">
-                  <TruncatedText text={item.recommendedAction} maxLength={80} />
                 </div>
               </div>
             ))}
@@ -164,7 +151,6 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
                     {risk.severity}
                   </span>
                   <span className="risk-title">{risk.title}</span>
-                  <span className="risk-action">{risk.action}</span>
                 </div>
               ))}
             </div>

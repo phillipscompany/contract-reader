@@ -206,18 +206,18 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 25.4; // ~1 inch margins
+  const margin = 20; // Reduced margins for more content space
   const contentWidth = pageWidth - (margin * 2);
   
   let yPosition = margin;
-  const lineHeight = 7; // Optimized for better content density
-  const sectionSpacing = 15; // Reduced spacing between sections
-  const paragraphSpacing = 4; // Reduced spacing between paragraphs
+  const lineHeight = 6; // More compact line height
+  const sectionSpacing = 12; // Reduced spacing between sections
+  const paragraphSpacing = 3; // Reduced spacing between paragraphs
   let currentPage = 1;
-  const maxPages = 4; // Increased from 2 to 4 pages
+  const maxPages = 5; // Allow 5 pages for comprehensive content display
 
   // Helper function to add text with word wrapping and page management
-  const addWrappedText = (text: string, y: number, fontSize: number = 12, maxWidth?: number, lineSpacing: number = 1.2): number => {
+  const addWrappedText = (text: string, y: number, fontSize: number = 11, maxWidth?: number, lineSpacing: number = 1.1): number => {
     const maxW = maxWidth || contentWidth;
     pdf.setFontSize(fontSize);
     
@@ -227,11 +227,20 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
     // Check if we need a new page
     if (y + (lines.length * actualLineHeight) > pageHeight - margin - 30) {
       if (currentPage >= maxPages) {
-        // Truncate with continuation note
-        const truncatedText = text.substring(0, Math.floor(text.length * 0.8)) + '... [continued]';
-        const truncatedLines = pdf.splitTextToSize(truncatedText, maxW);
-        pdf.text(truncatedLines, margin, y);
-        return y + (truncatedLines.length * actualLineHeight);
+        // Try to fit as much as possible on current page
+        const availableHeight = pageHeight - margin - 30 - y;
+        const maxLines = Math.floor(availableHeight / actualLineHeight);
+        
+        if (maxLines > 0) {
+          const truncatedLines = lines.slice(0, maxLines - 1);
+          pdf.text(truncatedLines, margin, y);
+          pdf.text('... [continued]', margin, y + (truncatedLines.length * actualLineHeight));
+          return y + ((truncatedLines.length + 1) * actualLineHeight);
+        } else {
+          // No space at all, just add continuation note
+          pdf.text('... [continued]', margin, y);
+          return y + actualLineHeight;
+        }
       }
       
       pdf.addPage();
@@ -440,21 +449,21 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       return acc;
     }, {} as Record<string, number>);
 
-    // Create summary line
+    // Create summary line with consistent status labels
     const summaryParts: string[] = [];
     if (statusCounts.present_favorable) summaryParts.push(`${statusCounts.present_favorable} favorable`);
     if (statusCounts.present_unfavorable) summaryParts.push(`${statusCounts.present_unfavorable} unfavorable`);
     if (statusCounts.ambiguous) summaryParts.push(`${statusCounts.ambiguous} ambiguous`);
     if (statusCounts.not_mentioned) summaryParts.push(`${statusCounts.not_mentioned} not mentioned`);
     
-    const summaryText = `Risk Coverage Summary: ${summaryParts.join(', ')} (${coverage.reviewedCategories.length} total categories reviewed)`;
+    const summaryText = `Risk Coverage: ${summaryParts.join(', ')} (${coverage.reviewedCategories.length} categories reviewed)`;
     
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
     currentY = addWrappedText(summaryText, currentY, 11, contentWidth, 1.15);
     currentY += paragraphSpacing;
 
-    // Add top risks if available
+    // Add top risks if available (NO actions)
     if (coverage.topRisks && coverage.topRisks.length > 0) {
       currentY = addSubsectionHeading('Top Risks', currentY);
       
@@ -469,7 +478,7 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
           currentY = margin;
         }
         
-        const riskText = `• ${risk.title} (${risk.severity}): ${risk.action}`;
+        const riskText = `• ${risk.title} (${risk.severity})`;
         currentY = addWrappedText(riskText, currentY, 11, contentWidth, 1.15);
         currentY += paragraphSpacing;
       });
@@ -477,36 +486,46 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       currentY += paragraphSpacing;
     }
 
-    // Check if we have space for the condensed table
-    const estimatedTableHeight = coverage.matrix.length * 15 + 20; // Rough estimate
-    const remainingSpace = pageHeight - currentY - margin - 30;
-    
-    if (remainingSpace > estimatedTableHeight && currentPage < maxPages) {
+    // Always try to include the full table with 5 pages available
+    if (currentPage < maxPages) {
       // Add condensed table
-      currentY = addSubsectionHeading('Risk Coverage Matrix', currentY);
+      currentY = addSubsectionHeading('Risk Coverage by Category', currentY);
       
-      // Table header
+      // Table header with proper table formatting
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       const headerY = currentY;
-      pdf.text('Category', margin, headerY);
-      pdf.text('Status', margin + 60, headerY);
-      pdf.text('Severity', margin + 100, headerY);
-      pdf.text('Action', margin + 140, headerY);
       
-      // Draw header line
-      pdf.setDrawColor(200, 200, 200);
+      // Define column positions with better spacing (3 columns: Category | Severity | Evidence)
+      const col1 = margin;
+      const col2 = margin + 60;
+      const col3 = margin + 100;
+      const col4 = pageWidth - margin;
+      
+      // Draw table border
+      pdf.setDrawColor(0, 0, 0);
+      pdf.setLineWidth(0.5);
+      pdf.rect(margin, headerY - 2, col4 - margin, 8);
+      
+      // Draw vertical lines
       pdf.setLineWidth(0.3);
-      pdf.line(margin, headerY + 2, pageWidth - margin, headerY + 2);
+      pdf.line(col2, headerY - 2, col2, headerY + 6);
+      pdf.line(col3, headerY - 2, col3, headerY + 6);
       
-      currentY = headerY + 8;
+      // Add header text
+      pdf.text('Category', col1 + 2, headerY + 4);
+      pdf.text('Severity', col2 + 2, headerY + 4);
+      pdf.text('Evidence', col3 + 2, headerY + 4);
       
-      // Table rows
+      currentY = headerY + 10;
+      
+      // Table rows with better formatting
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(9);
       
       coverage.matrix.forEach((item, index) => {
-        if (currentY > pageHeight - margin - 20) {
+        // Check if we need a new page
+        if (currentY > pageHeight - margin - 25) {
           if (currentPage >= maxPages) {
             currentY = addWrappedText('... [table continued]', currentY, 9, contentWidth, 1.1);
             return currentY;
@@ -516,18 +535,41 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
           currentY = margin + 8;
         }
         
-        // Truncate text to fit columns
-        const category = item.category.length > 25 ? item.category.substring(0, 22) + '...' : item.category;
-        const status = item.status.replace('present_', '').replace('_', ' ');
+        // Calculate row height based on content
+        const rowHeight = item.whyItMatters ? 12 : 8;
+        
+        // Draw row border
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.2);
+        pdf.rect(margin, currentY - 2, col4 - margin, rowHeight);
+        
+        // Draw vertical lines
+        pdf.line(col2, currentY - 2, col2, currentY + rowHeight - 2);
+        pdf.line(col3, currentY - 2, col3, currentY + rowHeight - 2);
+        
+        // Format text to fit within columns
+        const category = item.category.length > 30 ? item.category.substring(0, 27) + '...' : item.category;
         const severity = item.severity;
-        const action = item.recommendedAction.length > 35 ? item.recommendedAction.substring(0, 32) + '...' : item.recommendedAction;
+        const evidence = item.evidence.length > 45 ? item.evidence.substring(0, 42) + '...' : item.evidence;
         
-        pdf.text(category, margin, currentY);
-        pdf.text(status, margin + 60, currentY);
-        pdf.text(severity, margin + 100, currentY);
-        pdf.text(action, margin + 140, currentY);
+        // Add text with proper positioning
+        pdf.text(category, col1 + 2, currentY + 4);
+        pdf.text(severity, col2 + 2, currentY + 4);
+        pdf.text(evidence, col3 + 2, currentY + 4);
         
-        currentY += 6;
+        // Add whyItMatters as a small line beneath if space allows
+        if (item.whyItMatters && currentY + rowHeight < pageHeight - margin - 10) {
+          pdf.setFontSize(7);
+          pdf.setFont('helvetica', 'italic');
+          pdf.setTextColor(100, 100, 100);
+          const whyText = item.whyItMatters.length > 70 ? item.whyItMatters.substring(0, 67) + '...' : item.whyItMatters;
+          pdf.text(`  ${whyText}`, col1 + 2, currentY + 8);
+          pdf.setTextColor(0, 0, 0);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(9);
+        }
+        
+        currentY += rowHeight;
       });
       
       currentY += 8;
@@ -597,54 +639,48 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
   yPosition = addExplainedTerms(full.keyClauses, yPosition);
   yPosition = addSectionDivider(yPosition);
 
-  // E) Risk Coverage
+  // E) Key Details (Combined section)
+  if (full.obligations.length > 0 || full.paymentsAndCosts.length > 0 || full.renewalAndTermination.length > 0) {
+    yPosition = addSectionHeading('Key Details', yPosition);
+    
+    if (full.obligations.length > 0) {
+      yPosition = addSubsectionHeading('Obligations', yPosition);
+      yPosition = addBulletList(full.obligations, yPosition);
+    }
+    
+    if (full.paymentsAndCosts.length > 0) {
+      yPosition = addSubsectionHeading('Payments and Costs', yPosition);
+      yPosition = addBulletList(full.paymentsAndCosts, yPosition);
+    }
+    
+    if (full.renewalAndTermination.length > 0) {
+      yPosition = addSubsectionHeading('Renewal and Termination', yPosition);
+      yPosition = addBulletList(full.renewalAndTermination, yPosition);
+    }
+    
+    yPosition = addSectionDivider(yPosition);
+  }
+
+  // F) Risk Coverage
   if (full.riskCoverage && full.riskCoverage.matrix && full.riskCoverage.matrix.length > 0) {
     yPosition = addSectionHeading('Risk Coverage', yPosition);
     yPosition = addRiskCoverage(full.riskCoverage, yPosition);
     yPosition = addSectionDivider(yPosition);
   }
 
-  // F) Obligations
-  if (full.obligations.length > 0) {
-    yPosition = addSectionHeading('Obligations', yPosition);
-    yPosition = addBulletList(full.obligations, yPosition);
-    yPosition = addSectionDivider(yPosition);
-  }
-
-  // G) Payments and Costs
-  if (full.paymentsAndCosts.length > 0) {
-    yPosition = addSectionHeading('Payments and Costs', yPosition);
-    yPosition = addBulletList(full.paymentsAndCosts, yPosition);
-    yPosition = addSectionDivider(yPosition);
-  }
-
-  // H) Renewal and Termination
-  if (full.renewalAndTermination.length > 0) {
-    yPosition = addSectionHeading('Renewal and Termination', yPosition);
-    yPosition = addBulletList(full.renewalAndTermination, yPosition);
-    yPosition = addSectionDivider(yPosition);
-  }
-
-  // I) Liability and Risks
+  // G) Liability and Risks
   yPosition = addSectionHeading('Liability and Risks', yPosition);
   yPosition = addDetailedRisks(full.liabilityAndRisks, yPosition);
   yPosition = addSectionDivider(yPosition);
 
-  // J) Recommendations
-  if (full.recommendations.length > 0) {
-    yPosition = addSectionHeading('Recommendations', yPosition);
-    yPosition = addBulletList(full.recommendations, yPosition);
-    yPosition = addSectionDivider(yPosition);
-  }
-
-  // K) Professional Advice Note
+  // H) Professional Advice Note
   yPosition = addSectionHeading('Professional Advice Note', yPosition);
   pdf.setFont('helvetica', 'italic');
   yPosition = addContentText(full.professionalAdviceNote, yPosition);
   pdf.setFont('helvetica', 'normal');
   yPosition = addSectionDivider(yPosition);
 
-  // L) Footer disclaimer
+  // I) Footer disclaimer
   // Check if we need a new page for the disclaimer
   if (yPosition > pageHeight - margin - 40) {
     if (currentPage < maxPages) {

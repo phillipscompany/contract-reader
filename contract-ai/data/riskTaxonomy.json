@@ -238,5 +238,197 @@
         "defaultSeverity": "medium"
       }
     ]
+  },
+  "NDA (Non-Disclosure Agreement)": {
+    "categories": [
+      {
+        "id": "confidential_info_definition",
+        "label": "Definition of Confidential Information",
+        "keywords": ["confidential", "proprietary", "trade secret", "information"],
+        "whyItMatters": "Determines what information is protected and scope of obligations.",
+        "evidence": "Specific definition of confidential information and exclusions.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "exclusions",
+        "label": "Exclusions",
+        "keywords": ["exclusion", "exception", "public", "known"],
+        "whyItMatters": "Defines what information is not subject to confidentiality obligations.",
+        "evidence": "List of excluded information types (public domain, independently developed, etc.).",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "permitted_disclosures",
+        "label": "Permitted Disclosures",
+        "keywords": ["permitted", "authorized", "required", "legal"],
+        "whyItMatters": "Allows necessary sharing while maintaining protection.",
+        "evidence": "Circumstances where disclosure is allowed (legal requirements, advisors, etc.).",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "duration",
+        "label": "Duration of Confidentiality",
+        "keywords": ["duration", "term", "period", "expiry"],
+        "whyItMatters": "How long confidentiality obligations last.",
+        "evidence": "Specific time period or indefinite duration clause.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "return_destruction",
+        "label": "Return/Destruction of Materials",
+        "keywords": ["return", "destroy", "delete", "materials"],
+        "whyItMatters": "Ensures confidential materials are properly disposed of.",
+        "evidence": "Obligations to return or destroy confidential materials upon termination.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "recipient_obligations",
+        "label": "Recipient Obligations",
+        "keywords": ["obligation", "duty", "protect", "safeguard"],
+        "whyItMatters": "Defines how confidential information must be handled.",
+        "evidence": "Specific duties to protect and limit use of confidential information.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "use_restrictions",
+        "label": "Use Restrictions",
+        "keywords": ["use", "purpose", "restriction", "limited"],
+        "whyItMatters": "Limits how confidential information can be used.",
+        "evidence": "Permitted uses and prohibited activities with confidential information.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "remedies",
+        "label": "Remedies",
+        "keywords": ["remedy", "injunction", "damages", "breach"],
+        "whyItMatters": "Available legal recourse for confidentiality breaches.",
+        "evidence": "Injunctive relief, monetary damages, and other enforcement mechanisms.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "mutual_vs_oneway",
+        "label": "Mutual vs One-Way",
+        "keywords": ["mutual", "one-way", "unilateral", "bilateral"],
+        "whyItMatters": "Determines if both parties have confidentiality obligations.",
+        "evidence": "Whether the agreement is mutual or imposes obligations on only one party.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "governing_law_jurisdiction",
+        "label": "Governing Law & Jurisdiction",
+        "keywords": ["governing law", "jurisdiction", "venue", "disputes"],
+        "whyItMatters": "Determines which laws apply and where disputes are resolved.",
+        "evidence": "Chosen law and forum for resolving disputes.",
+        "defaultSeverity": "medium"
+      }
+    ]
+  },
+  "Employment Contract": {
+    "categories": [
+      {
+        "id": "job_title_duties",
+        "label": "Job Title & Duties",
+        "keywords": ["title", "duties", "responsibilities", "role"],
+        "whyItMatters": "Defines scope of work and expectations.",
+        "evidence": "Specific job title and detailed job description or duties.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "start_date_probation",
+        "label": "Start Date & Probation",
+        "keywords": ["start date", "probation", "trial", "period"],
+        "whyItMatters": "Employment timeline and probationary terms.",
+        "evidence": "Start date and any probationary period with conditions.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "salary_bonuses",
+        "label": "Salary & Bonuses",
+        "keywords": ["salary", "wage", "bonus", "compensation"],
+        "whyItMatters": "Total compensation and payment structure.",
+        "evidence": "Base salary, bonus structure, and payment frequency.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "benefits",
+        "label": "Benefits",
+        "keywords": ["benefits", "health", "pension", "vacation"],
+        "whyItMatters": "Additional compensation and employee benefits.",
+        "evidence": "Health insurance, retirement, vacation, and other benefits.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "working_hours_overtime",
+        "label": "Working Hours & Overtime",
+        "keywords": ["hours", "overtime", "schedule", "time"],
+        "whyItMatters": "Work schedule and overtime compensation.",
+        "evidence": "Standard hours, overtime rates, and scheduling requirements.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "place_of_work",
+        "label": "Place of Work",
+        "keywords": ["location", "office", "remote", "workplace"],
+        "whyItMatters": "Work location and remote work arrangements.",
+        "evidence": "Primary work location and any remote work policies.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "probation_notice_periods",
+        "label": "Probation & Notice Periods",
+        "keywords": ["notice", "termination", "resignation", "period"],
+        "whyItMatters": "Termination procedures and notice requirements.",
+        "evidence": "Notice periods for resignation and termination by either party.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "termination_grounds",
+        "label": "Termination Grounds",
+        "keywords": ["termination", "cause", "grounds", "dismissal"],
+        "whyItMatters": "Valid reasons for employment termination.",
+        "evidence": "Specific grounds for termination with or without cause.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "non_compete_solicit",
+        "label": "Non-Compete / Non-Solicit",
+        "keywords": ["non-compete", "non-solicit", "restrictive", "covenant"],
+        "whyItMatters": "Post-employment restrictions on competition and solicitation.",
+        "evidence": "Scope, duration, and geographic limitations of restrictions.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "confidentiality_ip",
+        "label": "Confidentiality & IP Ownership",
+        "keywords": ["confidential", "intellectual property", "invention", "assignment"],
+        "whyItMatters": "Protection of company information and ownership of work products.",
+        "evidence": "Confidentiality obligations and IP assignment clauses.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "performance_reviews",
+        "label": "Performance Reviews",
+        "keywords": ["performance", "review", "evaluation", "assessment"],
+        "whyItMatters": "Performance evaluation process and criteria.",
+        "evidence": "Frequency and process for performance reviews and evaluations.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "disciplinary_grievance",
+        "label": "Disciplinary & Grievance Procedures",
+        "keywords": ["disciplinary", "grievance", "procedure", "appeal"],
+        "whyItMatters": "Process for handling workplace disputes and disciplinary actions.",
+        "evidence": "Steps for disciplinary procedures and grievance resolution.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "governing_law",
+        "label": "Governing Law",
+        "keywords": ["governing law", "jurisdiction", "employment law"],
+        "whyItMatters": "Which employment laws and regulations apply.",
+        "evidence": "Chosen jurisdiction and applicable employment legislation.",
+        "defaultSeverity": "medium"
+      }
+    ]
   }
 }

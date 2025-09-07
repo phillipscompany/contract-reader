@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import { extractTextFromBuffer } from '../../lib/extractText';
-import { summarizeContractDemo, summarizeContractFull, type DemoResult, type FullResult } from '../../lib/summarizeContract';
+import { summarizeContractDemo, summarizeContractFull, sanitizeFullResult, type DemoResult, type FullResult } from '../../lib/summarizeContract';
 import fs from 'fs';
 
 export const config = {
@@ -156,13 +156,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Sanitize response to remove any unexpected keys that might have been added by the model
+    const sanitizedFullResult = sanitizeFullResult(fullResult);
+
     // Return unified response shape - only full mode
     return res.status(200).json({
       name: file.originalFilename || 'unknown',
       size: file.size,
       type: file.mimetype,
       mode: mode,
-      full: fullResult,
+      full: sanitizedFullResult,
       meta: {
         email: intakeEmail || undefined,
         location: {
