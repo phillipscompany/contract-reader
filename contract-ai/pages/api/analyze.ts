@@ -173,6 +173,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           region: intakeRegion || undefined
         },
         contractType: intakeContractType || undefined,
+        intakeContractType: intakeContractType || undefined,
+        detectedContractType: sanitizedFullResult.detectedContractType || undefined,
+        finalContractType: sanitizedFullResult.finalContractType || undefined,
         // Note: pages count could be added here if needed in the future
       },
     });

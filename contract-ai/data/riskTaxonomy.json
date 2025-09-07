@@ -430,5 +430,153 @@
         "defaultSeverity": "medium"
       }
     ]
+  },
+  "Business Services": {
+    "categories": [
+      {
+        "id": "scope_services",
+        "label": "Scope of Services",
+        "keywords": ["scope", "services", "deliverables", "statement of work", "SOW"],
+        "whyItMatters": "Defines what is and isn't included to prevent scope creep.",
+        "evidence": "Section listing services/deliverables or SOW reference.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "service_levels",
+        "label": "Service Levels & Uptime",
+        "keywords": ["SLA", "uptime", "availability", "response time", "credits"],
+        "whyItMatters": "Promises about performance and remedies if missed.",
+        "evidence": "SLA metrics, service credits, response/restore targets.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "data_protection",
+        "label": "Data Protection & Confidentiality",
+        "keywords": ["data", "confidential", "personal data", "DPA", "privacy"],
+        "whyItMatters": "Handling of sensitive or personal data.",
+        "evidence": "Confidentiality terms, data processing clauses, security duties.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "ip_ownership",
+        "label": "IP Ownership & Licence",
+        "keywords": ["intellectual property", "license", "ownership", "work product"],
+        "whyItMatters": "Who owns deliverables and what rights each party has.",
+        "evidence": "IP assignment/licence clauses; restrictions.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "fees_payment",
+        "label": "Fees, Payment & Late Charges",
+        "keywords": ["fees", "charges", "invoice", "payment terms", "late fee"],
+        "whyItMatters": "Cash flow and hidden costs.",
+        "evidence": "Rate cards, invoicing schedule, penalties, taxes.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "term_termination",
+        "label": "Term & Termination Rights",
+        "keywords": ["term", "termination", "for convenience", "for cause"],
+        "whyItMatters": "Exit options and risk of lock-in.",
+        "evidence": "Initial term, renewals, notice periods, convenience termination.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "auto_renewal",
+        "label": "Auto-Renewal & Notice",
+        "keywords": ["auto-renew", "renewal", "notice"],
+        "whyItMatters": "Unwanted renewals and deadlines to cancel.",
+        "evidence": "Renewal cycle and notice timing.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "acceptance",
+        "label": "Acceptance Criteria",
+        "keywords": ["acceptance", "testing", "sign-off", "criteria"],
+        "whyItMatters": "When deliverables are deemed accepted.",
+        "evidence": "Acceptance process, review periods, deemed acceptance.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "change_control",
+        "label": "Change Control",
+        "keywords": ["change order", "variation", "amend"],
+        "whyItMatters": "Process and pricing for new work.",
+        "evidence": "Change request workflow and pricing rules.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "warranties",
+        "label": "Warranties & Disclaimers",
+        "keywords": ["warranty", "merchantability", "fitness", "disclaimer"],
+        "whyItMatters": "What the vendor promises—and excludes.",
+        "evidence": "Warranty scope/duration and disclaimers.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "liability_cap",
+        "label": "Liability Cap & Exclusions",
+        "keywords": ["liability", "cap", "consequential", "indirect"],
+        "whyItMatters": "Exposure to damages and excluded losses.",
+        "evidence": "Cap amount/basis and excluded damage types.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "indemnities",
+        "label": "Indemnities (e.g., IP Infringement)",
+        "keywords": ["indemnify", "indemnity", "defend", "hold harmless"],
+        "whyItMatters": "Who covers third-party claims (e.g., IP, data breach).",
+        "evidence": "Indemnity scope, procedures, limitations.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "subcontracting_assignment",
+        "label": "Subcontracting & Assignment",
+        "keywords": ["subcontract", "assign", "transfer"],
+        "whyItMatters": "Who can do the work and transfer the contract.",
+        "evidence": "Consent requirements and restrictions.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "security_compliance",
+        "label": "Security & Compliance",
+        "keywords": ["security", "standards", "controls", "audit"],
+        "whyItMatters": "Operational safeguards and compliance duties.",
+        "evidence": "Security commitments, audits, certifications references.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "support_maintenance",
+        "label": "Support & Maintenance",
+        "keywords": ["support", "maintenance", "updates", "tickets"],
+        "whyItMatters": "Post-go-live care and response times.",
+        "evidence": "Support hours, ticket SLAs, update policy.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "dr_bcp",
+        "label": "Disaster Recovery & BCP",
+        "keywords": ["DR", "business continuity", "backup", "RTO", "RPO"],
+        "whyItMatters": "Continuity during outages.",
+        "evidence": "DR/BCP obligations and testing.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "audit_rights",
+        "label": "Audit & Verification Rights",
+        "keywords": ["audit", "inspect", "verify"],
+        "whyItMatters": "Ability to check compliance and costs.",
+        "evidence": "Audit scope, notice, frequency, costs.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "governing_law",
+        "label": "Governing Law & Disputes",
+        "keywords": ["governing law", "jurisdiction", "venue", "arbitration"],
+        "whyItMatters": "Where/how disputes are resolved.",
+        "evidence": "Chosen law, forum, process.",
+        "defaultSeverity": "medium"
+      }
+    ]
   }
 }

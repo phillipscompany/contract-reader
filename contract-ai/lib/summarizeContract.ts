@@ -40,6 +40,9 @@ export interface FullResult {
     }>;
     topRisks: Array<{ title: string; severity: Severity }>;
   };
+  intakeContractType: string;
+  detectedContractType: string;
+  finalContractType: string;
 }
 
 interface ContractError {
@@ -60,6 +63,67 @@ const SHARED_SYSTEM_PROMPT = `You are an experienced contracts lawyer. Your job 
 function truncateText(text: string, maxChars: number = 50000): string {
   if (text.length <= maxChars) return text;
   return text.substring(0, maxChars) + '... [truncated]';
+}
+
+// Helper function to detect contract type from text
+async function detectContractType(text: string): Promise<string> {
+  const truncatedText = truncateText(text, 10000); // Smaller limit for classification
+  
+  const prompt = `Classify this contract as one of: Residential Lease, Freelance / Services, NDA (Non-Disclosure Agreement), Employment Contract, Business Services, Other. Respond with only the label.
+
+Contract text:
+${truncatedText}
+
+Respond with only the label.`;
+
+  try {
+    const responseText = await makeOpenAICall([
+      { role: "system", content: "You are a contract classification expert. Respond with only the contract type label." },
+      { role: "user", content: prompt }
+    ], 50);
+
+    // Normalize the response to match our taxonomy keys
+    const detectedType = responseText.trim().toLowerCase();
+    
+    // Map AI response to our taxonomy keys
+    const typeMapping: Record<string, string> = {
+      'residential lease': 'Residential Lease',
+      'freelance/services': 'Freelance / Services',
+      'freelance': 'Freelance / Services',
+      'services': 'Freelance / Services',
+      'nda': 'NDA (Non-Disclosure Agreement)',
+      'employment contract': 'Employment Contract',
+      'employment': 'Employment Contract',
+      'business services': 'Business Services',
+      'business': 'Business Services',
+      'vendor': 'Business Services',
+      'msa': 'Business Services',
+      'saas': 'Business Services',
+      'b2b services': 'Business Services',
+      'b2b': 'Business Services',
+      'vendor agreement': 'Business Services',
+      'master service agreement': 'Business Services',
+      'software as a service': 'Business Services',
+      'professional services': 'Business Services',
+      'consulting agreement': 'Business Services',
+      'service agreement': 'Business Services',
+      'other': 'Other'
+    };
+
+    // Find the best match
+    for (const [key, value] of Object.entries(typeMapping)) {
+      if (detectedType.includes(key) || key.includes(detectedType)) {
+        return value;
+      }
+    }
+
+    // Default fallback
+    return 'Other';
+    
+  } catch (error) {
+    console.log('Contract type detection failed:', error);
+    return 'Other'; // Fallback on error
+  }
 }
 
 // Helper function to sanitize outputs
@@ -101,7 +165,10 @@ export function sanitizeFullResult(result: any): FullResult {
         })).filter(r => r.clause && r.whyItMatters && r.howItAffectsYou)
       : [],
     professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim(),
-    riskCoverage: sanitizeRiskCoverage(result.riskCoverage)
+    riskCoverage: sanitizeRiskCoverage(result.riskCoverage),
+    intakeContractType: String(result.intakeContractType || '').trim(),
+    detectedContractType: String(result.detectedContractType || '').trim(),
+    finalContractType: String(result.finalContractType || '').trim()
   };
 }
 
@@ -187,7 +254,7 @@ function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any
 }
 
 // Helper function to post-process full result
-function postProcessFullResult(result: any, riskCategories: RiskCategory[], categoryLabels: string[], contractTypeHint?: string): any {
+function postProcessFullResult(result: any, riskCategories: RiskCategory[], categoryLabels: string[], contractTypeHint?: string, detectedContractType?: string, finalContractType?: string): any {
   // Ensure riskCoverage exists
   if (!result.riskCoverage) {
     result.riskCoverage = {
@@ -216,7 +283,7 @@ function postProcessFullResult(result: any, riskCategories: RiskCategory[], cate
     // Add missing categories with default values
     missingCategories.forEach(categoryLabel => {
       const category = riskCategories.find(cat => cat.label === categoryLabel);
-      result.riskCoverage.      matrix.push({
+      result.riskCoverage.matrix.push({
         category: categoryLabel,
         status: 'not_mentioned',
         severity: category?.defaultSeverity || 'medium',
@@ -246,9 +313,14 @@ function postProcessFullResult(result: any, riskCategories: RiskCategory[], cate
   }
 
   // Set contract types and reviewed categories
-  result.riskCoverage.contractTypes = [contractTypeHint || 'detected'];
+  result.riskCoverage.contractTypes = [finalContractType || contractTypeHint || 'detected'];
   result.riskCoverage.reviewedCategories = categoryLabels;
   result.riskCoverage.unreviewedCategories = [];
+
+  // Add contract type fields
+  result.intakeContractType = contractTypeHint || '';
+  result.detectedContractType = detectedContractType || '';
+  result.finalContractType = finalContractType || '';
 
   return result;
 }
@@ -333,8 +405,21 @@ Contract text: ${truncatedText}`;
 export async function summarizeContractFull(text: string, options: { contractTypeHint?: string } = {}): Promise<FullResult> {
   const truncatedText = truncateText(text, 50000); // Larger limit for full analysis
   
-  // Load risk categories based on contract type hint
-  const riskCategories = loadRiskCategories(options.contractTypeHint || '');
+  // Detect contract type from text
+  const detectedContractType = await detectContractType(text);
+  
+  // Determine final contract type based on user selection and detection
+  let finalContractType: string;
+  if (options.contractTypeHint === 'Other') {
+    // If user selected "Other", use detected type
+    finalContractType = detectedContractType;
+  } else {
+    // Always use user selection as final type
+    finalContractType = options.contractTypeHint || detectedContractType;
+  }
+  
+  // Load risk categories based on final contract type
+  const riskCategories = loadRiskCategories(finalContractType);
   const categoryLabels = riskCategories.map(cat => cat.label);
   
   // Build category information for the prompt
@@ -415,7 +500,7 @@ Return ONLY the JSON object, no additional text.`;
     const result = parseJSONWithRetry(responseText);
     
     // Post-process: validate matrix length and compute topRisks if missing
-    const processedResult = postProcessFullResult(result, riskCategories, categoryLabels, options.contractTypeHint);
+    const processedResult = postProcessFullResult(result, riskCategories, categoryLabels, options.contractTypeHint, detectedContractType, finalContractType);
     
     return sanitizeFullResult(processedResult);
     
@@ -458,7 +543,7 @@ Contract text: ${truncatedText}`;
         ], 1500);
 
         const retryResult = parseJSONWithRetry(retryResponse, true);
-        const processedRetryResult = postProcessFullResult(retryResult, riskCategories, categoryLabels, options.contractTypeHint);
+        const processedRetryResult = postProcessFullResult(retryResult, riskCategories, categoryLabels, options.contractTypeHint, detectedContractType, finalContractType);
         return sanitizeFullResult(processedRetryResult);
       } catch (retryError: any) {
         console.log({ scope: "openai", code: "JSON_PARSE_FAILED", httpStatus: "parse_error", tokenCount: truncatedText.length });

@@ -26,6 +26,9 @@ interface ResultsFullProps {
       region?: string;
     };
     contractType?: string;
+    intakeContractType?: string;
+    detectedContractType?: string;
+    finalContractType?: string;
     pages?: number;
   };
 }
@@ -79,8 +82,24 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
     );
   };
 
+  // Check for contract type mismatch
+  const showMismatchBanner = meta?.intakeContractType && 
+    meta?.detectedContractType && 
+    meta.intakeContractType !== meta.detectedContractType && 
+    meta.intakeContractType !== "Other";
+
   return (
     <div className="results-container">
+      {/* Contract Type Mismatch Banner */}
+      {showMismatchBanner && (
+        <div className="mismatch-banner">
+          <AlertTriangle size={20} className="banner-icon" />
+          <div className="banner-content">
+            <strong>⚠️ Note:</strong> You selected <strong>{meta.intakeContractType}</strong>, but we detected this may be a <strong>{meta.detectedContractType}</strong>. Please double-check.
+          </div>
+        </div>
+      )}
+
       {/* A) Executive Summary Section */}
       <div className="results-section">
         <SectionHeader icon={FileText} title="Executive Summary" />

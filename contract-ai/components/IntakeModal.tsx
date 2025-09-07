@@ -23,10 +23,10 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
   ];
 
   const contractTypes = [
-    'Lease',
-    'Freelance/Contractor',
-    'Employment',
-    'NDA',
+    'Residential Lease',
+    'Freelance / Services',
+    'Employment Contract',
+    'NDA (Non-Disclosure Agreement)',
     'Business Services',
     'Other'
   ];
@@ -245,6 +245,14 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
                 </option>
               ))}
             </select>
+            <p style={{ 
+              color: 'var(--muted)', 
+              fontSize: '12px', 
+              margin: '6px 0 0 0',
+              lineHeight: '1.4'
+            }}>
+              💡 <strong>Business Services</strong> = MSAs, SaaS, vendor/supplier agreements.
+            </p>
             {errors.contractType && (
               <p style={{ color: '#ef4444', fontSize: '12px', margin: '4px 0 0 0' }}>
                 {errors.contractType}

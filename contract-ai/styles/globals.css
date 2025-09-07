@@ -315,6 +315,36 @@ a { color: inherit; }
   color: var(--text);
 }
 
+/* Contract Type Mismatch Banner */
+.mismatch-banner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.banner-icon {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.banner-content {
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.banner-content strong {
+  color: #78350f;
+  font-weight: 600;
+}
+
 /* Upsell Banner */
 .upsell-banner {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
