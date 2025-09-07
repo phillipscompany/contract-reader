@@ -1517,3 +1517,517 @@ footer .footer-copyright {
     padding: 16px;
   }
 }
+
+/* FAQ Page Styles */
+.faq-wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.faq-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.faq-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.faq-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.faq-search {
+  margin-bottom: 32px;
+}
+
+.faq-search__input-wrapper {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.faq-search__icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.faq-search__input {
+  width: 100%;
+  padding: 12px 16px 12px 48px;
+  border: 2px solid var(--border-light);
+  border-radius: 12px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.faq-search__input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.faq-accordion {
+  margin-bottom: 40px;
+}
+
+.faq-item {
+  margin-bottom: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.faq-item:hover {
+  border-color: var(--border-medium);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.faq-item__button {
+  width: 100%;
+  padding: 20px 24px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.2s ease;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.faq-item__button:hover {
+  background: var(--bg-subtle);
+}
+
+.faq-item__button:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.faq-item__button--expanded {
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.faq-item__question {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.faq-item__chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.faq-item__button--expanded .faq-item__chevron {
+  transform: rotate(180deg);
+}
+
+.faq-item__content {
+  padding: 0 24px 24px 24px;
+  background: white;
+}
+
+.faq-item__content p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.faq-no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.faq-contact {
+  text-align: center;
+  padding: 32px 20px;
+  background: var(--bg-subtle);
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+
+.faq-contact p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.faq-back {
+  text-align: center;
+}
+
+.faq-back__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 12px 24px;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.faq-back__link:hover {
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .faq-wrap {
+    padding: 20px 16px;
+  }
+  
+  .faq-title {
+    font-size: 2rem;
+  }
+  
+  .faq-subtitle {
+    font-size: 1rem;
+  }
+  
+  .faq-item__button {
+    padding: 16px 20px;
+    font-size: 1rem;
+  }
+  
+  .faq-item__content {
+    padding: 0 20px 20px 20px;
+  }
+  
+  .faq-search__input-wrapper {
+    max-width: 100%;
+  }
+}
+
+/* Risk Coverage Styles */
+.coverage__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.chip-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.chip-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.chip-value--favorable {
+  color: #059669;
+}
+
+.chip-value--unfavorable {
+  color: #dc2626;
+}
+
+.chip-value--ambiguous {
+  color: #d97706;
+}
+
+.chip-value--not-mentioned {
+  color: #6b7280;
+}
+
+.coverage__toggle {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle:hover {
+  background: var(--border);
+  transform: translateY(-1px);
+}
+
+.coverage__table {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 2fr 2fr;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.table-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 2fr 2fr;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background: var(--bg-secondary);
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.table-cell--category {
+  font-weight: 500;
+}
+
+.table-cell--status,
+.table-cell--severity {
+  justify-content: flex-start;
+}
+
+.table-cell--evidence,
+.table-cell--action {
+  color: var(--text-secondary);
+}
+
+.truncated-text {
+  cursor: help;
+}
+
+/* Badge Status Variants */
+.badge--status-favorable {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.badge--status-unfavorable {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.badge--status-ambiguous {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fed7aa;
+}
+
+.badge--status-not-mentioned {
+  background: #f9fafb;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+/* Badge Severity Variants */
+.badge--sev-high {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  font-weight: 600;
+}
+
+.badge--sev-medium {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fed7aa;
+  font-weight: 600;
+}
+
+.badge--sev-low {
+  background: #f9fafb;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  font-weight: 600;
+}
+
+/* Top Risks Section */
+.coverage__top-risks {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.coverage__top-risks h4 {
+  margin: 0 0 16px 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.top-risks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.top-risk-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.top-risk-item .risk-title {
+  font-weight: 500;
+  flex: 1;
+}
+
+.top-risk-item .risk-action {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  flex: 2;
+}
+
+/* Responsive Design for Coverage Table */
+@media (max-width: 768px) {
+  .coverage__summary {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .summary-chip {
+    justify-content: space-between;
+  }
+  
+  .coverage__toggle {
+    justify-content: center;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .table-header {
+    display: none;
+  }
+  
+  .table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .table-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .table-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .table-cell--category::before {
+    content: "Category";
+  }
+  
+  .table-cell--status::before {
+    content: "Status";
+  }
+  
+  .table-cell--severity::before {
+    content: "Severity";
+  }
+  
+  .table-cell--evidence::before {
+    content: "Evidence";
+  }
+  
+  .table-cell--action::before {
+    content: "Recommended Action";
+  }
+  
+  .top-risk-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .top-risk-item .risk-title,
+  .top-risk-item .risk-action {
+    flex: none;
+  }
+}

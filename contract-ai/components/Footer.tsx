@@ -8,6 +8,10 @@ export default function Footer() {
       <div className="container">
         {/* Legal Links */}
         <div className="footer-links">
+          <Link href="/faq">
+            FAQ
+          </Link>
+          
           <Link href="/privacy">
             Privacy Policy
           </Link>

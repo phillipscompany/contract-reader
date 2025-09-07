@@ -426,6 +426,125 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
     return y + 6; // Add spacing after divider
   };
 
+  // Helper function to add risk coverage section
+  const addRiskCoverage = (coverage: FullResult['riskCoverage'], y: number): number => {
+    if (!coverage || !coverage.matrix || coverage.matrix.length === 0) {
+      return y;
+    }
+
+    let currentY = y;
+
+    // Count statuses for summary
+    const statusCounts = coverage.matrix.reduce((acc, item) => {
+      acc[item.status] = (acc[item.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Create summary line
+    const summaryParts: string[] = [];
+    if (statusCounts.present_favorable) summaryParts.push(`${statusCounts.present_favorable} favorable`);
+    if (statusCounts.present_unfavorable) summaryParts.push(`${statusCounts.present_unfavorable} unfavorable`);
+    if (statusCounts.ambiguous) summaryParts.push(`${statusCounts.ambiguous} ambiguous`);
+    if (statusCounts.not_mentioned) summaryParts.push(`${statusCounts.not_mentioned} not mentioned`);
+    
+    const summaryText = `Risk Coverage Summary: ${summaryParts.join(', ')} (${coverage.reviewedCategories.length} total categories reviewed)`;
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    currentY = addWrappedText(summaryText, currentY, 11, contentWidth, 1.15);
+    currentY += paragraphSpacing;
+
+    // Add top risks if available
+    if (coverage.topRisks && coverage.topRisks.length > 0) {
+      currentY = addSubsectionHeading('Top Risks', currentY);
+      
+      coverage.topRisks.slice(0, 5).forEach((risk, index) => {
+        if (currentY > pageHeight - margin - 30) {
+          if (currentPage >= maxPages) {
+            currentY = addWrappedText('... [continued]', currentY, 11, contentWidth, 1.15);
+            return currentY;
+          }
+          pdf.addPage();
+          currentPage++;
+          currentY = margin;
+        }
+        
+        const riskText = `• ${risk.title} (${risk.severity}): ${risk.action}`;
+        currentY = addWrappedText(riskText, currentY, 11, contentWidth, 1.15);
+        currentY += paragraphSpacing;
+      });
+      
+      currentY += paragraphSpacing;
+    }
+
+    // Check if we have space for the condensed table
+    const estimatedTableHeight = coverage.matrix.length * 15 + 20; // Rough estimate
+    const remainingSpace = pageHeight - currentY - margin - 30;
+    
+    if (remainingSpace > estimatedTableHeight && currentPage < maxPages) {
+      // Add condensed table
+      currentY = addSubsectionHeading('Risk Coverage Matrix', currentY);
+      
+      // Table header
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(10);
+      const headerY = currentY;
+      pdf.text('Category', margin, headerY);
+      pdf.text('Status', margin + 60, headerY);
+      pdf.text('Severity', margin + 100, headerY);
+      pdf.text('Action', margin + 140, headerY);
+      
+      // Draw header line
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.3);
+      pdf.line(margin, headerY + 2, pageWidth - margin, headerY + 2);
+      
+      currentY = headerY + 8;
+      
+      // Table rows
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      
+      coverage.matrix.forEach((item, index) => {
+        if (currentY > pageHeight - margin - 20) {
+          if (currentPage >= maxPages) {
+            currentY = addWrappedText('... [table continued]', currentY, 9, contentWidth, 1.1);
+            return currentY;
+          }
+          pdf.addPage();
+          currentPage++;
+          currentY = margin + 8;
+        }
+        
+        // Truncate text to fit columns
+        const category = item.category.length > 25 ? item.category.substring(0, 22) + '...' : item.category;
+        const status = item.status.replace('present_', '').replace('_', ' ');
+        const severity = item.severity;
+        const action = item.recommendedAction.length > 35 ? item.recommendedAction.substring(0, 32) + '...' : item.recommendedAction;
+        
+        pdf.text(category, margin, currentY);
+        pdf.text(status, margin + 60, currentY);
+        pdf.text(severity, margin + 100, currentY);
+        pdf.text(action, margin + 140, currentY);
+        
+        currentY += 6;
+      });
+      
+      currentY += 8;
+    } else {
+      // Add note about table truncation
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'italic');
+      pdf.setTextColor(120, 120, 120);
+      currentY = addWrappedText('Note: Full risk coverage matrix available in web interface.', currentY, 10, contentWidth, 1.1);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFont('helvetica', 'normal');
+      currentY += paragraphSpacing;
+    }
+
+    return currentY;
+  };
+
   // A) Title and Meta Information
   pdf.setFontSize(24);
   pdf.setFont('helvetica', 'bold');
@@ -478,47 +597,54 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
   yPosition = addExplainedTerms(full.keyClauses, yPosition);
   yPosition = addSectionDivider(yPosition);
 
-  // E) Obligations
+  // E) Risk Coverage
+  if (full.riskCoverage && full.riskCoverage.matrix && full.riskCoverage.matrix.length > 0) {
+    yPosition = addSectionHeading('Risk Coverage', yPosition);
+    yPosition = addRiskCoverage(full.riskCoverage, yPosition);
+    yPosition = addSectionDivider(yPosition);
+  }
+
+  // F) Obligations
   if (full.obligations.length > 0) {
     yPosition = addSectionHeading('Obligations', yPosition);
     yPosition = addBulletList(full.obligations, yPosition);
     yPosition = addSectionDivider(yPosition);
   }
 
-  // F) Payments and Costs
+  // G) Payments and Costs
   if (full.paymentsAndCosts.length > 0) {
     yPosition = addSectionHeading('Payments and Costs', yPosition);
     yPosition = addBulletList(full.paymentsAndCosts, yPosition);
     yPosition = addSectionDivider(yPosition);
   }
 
-  // G) Renewal and Termination
+  // H) Renewal and Termination
   if (full.renewalAndTermination.length > 0) {
     yPosition = addSectionHeading('Renewal and Termination', yPosition);
     yPosition = addBulletList(full.renewalAndTermination, yPosition);
     yPosition = addSectionDivider(yPosition);
   }
 
-  // H) Liability and Risks
+  // I) Liability and Risks
   yPosition = addSectionHeading('Liability and Risks', yPosition);
   yPosition = addDetailedRisks(full.liabilityAndRisks, yPosition);
   yPosition = addSectionDivider(yPosition);
 
-  // I) Recommendations
+  // J) Recommendations
   if (full.recommendations.length > 0) {
     yPosition = addSectionHeading('Recommendations', yPosition);
     yPosition = addBulletList(full.recommendations, yPosition);
     yPosition = addSectionDivider(yPosition);
   }
 
-  // J) Professional Advice Note
+  // K) Professional Advice Note
   yPosition = addSectionHeading('Professional Advice Note', yPosition);
   pdf.setFont('helvetica', 'italic');
   yPosition = addContentText(full.professionalAdviceNote, yPosition);
   pdf.setFont('helvetica', 'normal');
   yPosition = addSectionDivider(yPosition);
 
-  // K) Footer disclaimer
+  // L) Footer disclaimer
   // Check if we need a new page for the disclaimer
   if (yPosition > pageHeight - margin - 40) {
     if (currentPage < maxPages) {

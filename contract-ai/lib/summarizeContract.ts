@@ -1,4 +1,9 @@
 import OpenAI from 'openai';
+import { loadRiskCategories, type RiskCategory } from './riskTaxonomy';
+
+// Risk coverage types
+export type CoverageStatus = "present_favorable" | "present_unfavorable" | "ambiguous" | "not_mentioned";
+export type Severity = "high" | "medium" | "low";
 
 // Types for Demo (short) analysis
 export interface DemoResult {
@@ -23,6 +28,20 @@ export interface FullResult {
   }>; // Each risk with context
   recommendations: string[]; // Practical steps: clarify, renegotiate, ask
   professionalAdviceNote: string; // Reminder to seek legal counsel
+  riskCoverage: {
+    contractTypes: string[]; // detected or from intake
+    reviewedCategories: string[]; // labels of categories provided to the model
+    unreviewedCategories: string[]; // if any were skipped
+    matrix: Array<{
+      category: string; // label
+      status: CoverageStatus;
+      severity: Severity;
+      evidence: string; // short snippet or clause ref; "" if none
+      whyItMatters: string;
+      recommendedAction: string; // ask for doc, negotiate, clarify, etc.
+    }>;
+    topRisks: Array<{ title: string; severity: Severity; action: string }>;
+  };
 }
 
 interface ContractError {
@@ -86,7 +105,53 @@ function sanitizeFullResult(result: any): FullResult {
     recommendations: Array.isArray(result.recommendations)
       ? result.recommendations.slice(0, 10).map((r: any) => String(r || '').substring(0, 200).trim()).filter(Boolean)
       : [],
-    professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim()
+    professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim(),
+    riskCoverage: sanitizeRiskCoverage(result.riskCoverage)
+  };
+}
+
+// Helper function to sanitize risk coverage data
+function sanitizeRiskCoverage(riskCoverage: any): FullResult['riskCoverage'] {
+  if (!riskCoverage || typeof riskCoverage !== 'object') {
+    return {
+      contractTypes: [],
+      reviewedCategories: [],
+      unreviewedCategories: [],
+      matrix: [],
+      topRisks: []
+    };
+  }
+
+  return {
+    contractTypes: Array.isArray(riskCoverage.contractTypes)
+      ? riskCoverage.contractTypes.map((t: any) => String(t || '').trim()).filter(Boolean)
+      : [],
+    reviewedCategories: Array.isArray(riskCoverage.reviewedCategories)
+      ? riskCoverage.reviewedCategories.map((c: any) => String(c || '').trim()).filter(Boolean)
+      : [],
+    unreviewedCategories: Array.isArray(riskCoverage.unreviewedCategories)
+      ? riskCoverage.unreviewedCategories.map((c: any) => String(c || '').trim()).filter(Boolean)
+      : [],
+    matrix: Array.isArray(riskCoverage.matrix)
+      ? riskCoverage.matrix.slice(0, 20).map((item: any) => ({
+          category: String(item?.category || '').trim(),
+          status: (['present_favorable', 'present_unfavorable', 'ambiguous', 'not_mentioned'].includes(item?.status)) 
+            ? item.status : 'not_mentioned',
+          severity: (['high', 'medium', 'low'].includes(item?.severity)) 
+            ? item.severity : 'medium',
+          evidence: String(item?.evidence || '').substring(0, 200).trim(),
+          whyItMatters: String(item?.whyItMatters || '').substring(0, 300).trim(),
+          recommendedAction: String(item?.recommendedAction || '').substring(0, 200).trim()
+        })).filter(m => m.category)
+      : [],
+    topRisks: Array.isArray(riskCoverage.topRisks)
+      ? riskCoverage.topRisks.slice(0, 5).map((risk: any) => ({
+          title: String(risk?.title || '').substring(0, 150).trim(),
+          severity: (['high', 'medium', 'low'].includes(risk?.severity)) 
+            ? risk.severity : 'medium',
+          action: String(risk?.action || '').substring(0, 200).trim()
+        })).filter(r => r.title)
+      : []
   };
 }
 
@@ -126,6 +191,75 @@ function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any
     }
     throw new Error('Invalid JSON response from OpenAI API');
   }
+}
+
+// Helper function to post-process full result
+function postProcessFullResult(result: any, riskCategories: RiskCategory[], categoryLabels: string[], contractTypeHint?: string): any {
+  // Ensure riskCoverage exists
+  if (!result.riskCoverage) {
+    result.riskCoverage = {
+      contractTypes: [],
+      reviewedCategories: [],
+      unreviewedCategories: [],
+      matrix: [],
+      topRisks: []
+    };
+  }
+
+  // Validate matrix length
+  const expectedLength = categoryLabels.length;
+  const actualLength = result.riskCoverage.matrix?.length || 0;
+  
+  if (actualLength !== expectedLength) {
+    // If matrix length doesn't match, retry with stricter instructions
+    throw new Error('MATRIX_LENGTH_MISMATCH');
+  }
+
+  // Ensure all categories are covered
+  const matrixCategories = result.riskCoverage.matrix?.map((item: any) => item.category) || [];
+  const missingCategories = categoryLabels.filter(label => !matrixCategories.includes(label));
+  
+  if (missingCategories.length > 0) {
+    // Add missing categories with default values
+    missingCategories.forEach(categoryLabel => {
+      const category = riskCategories.find(cat => cat.label === categoryLabel);
+      result.riskCoverage.matrix.push({
+        category: categoryLabel,
+        status: 'not_mentioned',
+        severity: category?.defaultSeverity || 'medium',
+        evidence: '',
+        whyItMatters: category?.whyItMatters || 'This category was not addressed in the contract.',
+        recommendedAction: 'Ask for clarification or documentation regarding this area.'
+      });
+    });
+  }
+
+  // Compute topRisks if missing or empty
+  if (!result.riskCoverage.topRisks || result.riskCoverage.topRisks.length === 0) {
+    const riskItems = result.riskCoverage.matrix?.filter((item: any) => 
+      ['present_unfavorable', 'ambiguous', 'not_mentioned'].includes(item.status)
+    ) || [];
+    
+    // Sort by severity (high -> medium -> low) and take top 5
+    const severityOrder = { high: 3, medium: 2, low: 1 };
+    riskItems.sort((a: any, b: any) => 
+      (severityOrder[b.severity as keyof typeof severityOrder] || 0) - 
+      (severityOrder[a.severity as keyof typeof severityOrder] || 0)
+    );
+    
+    result.riskCoverage.topRisks = riskItems.slice(0, 5).map((item: any) => ({
+      title: item.category,
+      severity: item.severity,
+      action: item.recommendedAction
+    }));
+  }
+
+  // Set contract types and reviewed categories
+  result.riskCoverage.contractTypes = [contractTypeHint || 'detected'];
+  result.riskCoverage.reviewedCategories = categoryLabels;
+  result.riskCoverage.unreviewedCategories = [];
+
+  return result;
 }
 
 // Demo function - fast, light preview
@@ -205,8 +339,17 @@ Contract text: ${truncatedText}`;
 }
 
 // Full function - lawyer's memo style analysis
-export async function summarizeContractFull(text: string): Promise<FullResult> {
+export async function summarizeContractFull(text: string, options: { contractTypeHint?: string } = {}): Promise<FullResult> {
   const truncatedText = truncateText(text, 50000); // Larger limit for full analysis
+  
+  // Load risk categories based on contract type hint
+  const riskCategories = loadRiskCategories(options.contractTypeHint || '');
+  const categoryLabels = riskCategories.map(cat => cat.label);
+  
+  // Build category information for the prompt
+  const categoryInfo = riskCategories.map(cat => 
+    `- ${cat.label}: ${cat.whyItMatters} (Look for: ${cat.evidence})`
+  ).join('\n');
   
   const prompt = `Analyze the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
@@ -228,8 +371,40 @@ export async function summarizeContractFull(text: string): Promise<FullResult> {
     }
   ],
   "recommendations": ["Practical step 1: clarify or renegotiate", "Question to ask", "Thing to watch out for"],
-  "professionalAdviceNote": "Reminder to seek qualified legal counsel for specific advice"
+  "professionalAdviceNote": "Reminder to seek qualified legal counsel for specific advice",
+  "riskCoverage": {
+    "contractTypes": ["detected contract type"],
+    "reviewedCategories": ["list of all category labels provided"],
+    "unreviewedCategories": [],
+    "matrix": [
+      {
+        "category": "category label",
+        "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned",
+        "severity": "high|medium|low",
+        "evidence": "short snippet or clause reference, empty string if none",
+        "whyItMatters": "why this category matters for this contract type",
+        "recommendedAction": "specific action like 'ask for documentation', 'negotiate terms', 'clarify scope', etc."
+      }
+    ],
+    "topRisks": [
+      {
+        "title": "risk title",
+        "severity": "high|medium|low",
+        "action": "recommended action"
+      }
+    ]
+  }
 }
+
+CRITICAL REQUIREMENTS FOR RISK COVERAGE:
+- You MUST review EVERY category in the provided list and emit one matrix entry per category.
+- If a category is not mentioned in the contract, set status='not_mentioned' and still fill whyItMatters + recommendedAction.
+- Ambiguity counts as risk; use 'ambiguous' when unclear.
+- No URLs or law firm names. Plain English. JSON only.
+- The matrix array must have exactly ${categoryLabels.length} entries, one for each category.
+
+Categories to review:
+${categoryInfo}
 
 Contract text to analyze:
 ${truncatedText}
@@ -243,13 +418,17 @@ Return ONLY the JSON object, no additional text.`;
     ], 2000);
 
     const result = parseJSONWithRetry(responseText);
-    return sanitizeFullResult(result);
+    
+    // Post-process: validate matrix length and compute topRisks if missing
+    const processedResult = postProcessFullResult(result, riskCategories, categoryLabels, options.contractTypeHint);
+    
+    return sanitizeFullResult(processedResult);
     
   } catch (error: any) {
-    if (error.message === 'JSON_PARSE_RETRY') {
+    if (error.message === 'JSON_PARSE_RETRY' || error.message === 'MATRIX_LENGTH_MISMATCH') {
       // Retry with stricter instruction
       try {
-        const retryPrompt = `Return valid JSON exactly matching this schema - no extra text:
+        const retryPrompt = `Return valid JSON exactly matching this schema - no extra text. CRITICAL: The riskCoverage.matrix must have exactly ${categoryLabels.length} entries, one for each category.
 
 {
   "executiveSummary": "2-3 paragraphs like a lawyer's note",
@@ -260,18 +439,31 @@ Return ONLY the JSON object, no additional text.`;
   "renewalAndTermination": ["renewal1", "termination1"],
   "liabilityAndRisks": [{"clause": "clause1", "whyItMatters": "why1", "howItAffectsYou": "how1"}],
   "recommendations": ["recommendation1", "recommendation2"],
-  "professionalAdviceNote": "advice note"
+  "professionalAdviceNote": "advice note",
+  "riskCoverage": {
+    "contractTypes": ["detected contract type"],
+    "reviewedCategories": ["${categoryLabels.join('", "')}"],
+    "unreviewedCategories": [],
+    "matrix": [
+      ${categoryLabels.map(label => `{"category": "${label}", "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned", "severity": "high|medium|low", "evidence": "snippet or empty", "whyItMatters": "why it matters", "recommendedAction": "action to take"}`).join(',\n      ')}
+    ],
+    "topRisks": [{"title": "risk1", "severity": "high", "action": "action1"}]
+  }
 }
+
+Categories to review (MUST include all ${categoryLabels.length}):
+${categoryInfo}
 
 Contract text: ${truncatedText}`;
 
         const retryResponse = await makeOpenAICall([
-          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema." },
+          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema. The riskCoverage.matrix must have exactly " + categoryLabels.length + " entries." },
           { role: "user", content: retryPrompt }
         ], 1500);
 
         const retryResult = parseJSONWithRetry(retryResponse, true);
-        return sanitizeFullResult(retryResult);
+        const processedRetryResult = postProcessFullResult(retryResult, riskCategories, categoryLabels, options.contractTypeHint);
+        return sanitizeFullResult(processedRetryResult);
       } catch (retryError: any) {
         console.log({ scope: "openai", code: "JSON_PARSE_FAILED", httpStatus: "parse_error", tokenCount: truncatedText.length });
         throw { code: "UNKNOWN", message: "We couldn't complete the analysis right now. Please try again." };

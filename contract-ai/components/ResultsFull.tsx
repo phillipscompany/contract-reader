@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { downloadFullAnalysisPdf } from '../lib/pdf';
 import type { FullResult } from '../lib/summarizeContract';
+import RiskCoverage from './RiskCoverage';
 import { 
   FileText, 
   Users, 
@@ -117,7 +118,12 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* D) Obligations Section */}
+      {/* D) Risk Coverage Section */}
+      {fullResult.riskCoverage && fullResult.riskCoverage.matrix.length > 0 && (
+        <RiskCoverage coverage={fullResult.riskCoverage} />
+      )}
+
+      {/* E) Obligations Section */}
       {fullResult.obligations.length > 0 && (
         <div className="results-section">
           <SectionHeader icon={ClipboardCheck} title="Obligations" />
@@ -131,7 +137,7 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* E) Payments and Costs Section */}
+      {/* F) Payments and Costs Section */}
       {fullResult.paymentsAndCosts.length > 0 && (
         <div className="results-section">
           <SectionHeader icon={BadgeDollarSign} title="Payments and Costs" />
@@ -145,7 +151,7 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* F) Renewal and Termination Section */}
+      {/* G) Renewal and Termination Section */}
       {fullResult.renewalAndTermination.length > 0 && (
         <div className="results-section">
           <SectionHeader icon={RefreshCw} title="Renewal and Termination" />
@@ -159,7 +165,7 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* G) Liability and Risks Section */}
+      {/* H) Liability and Risks Section */}
       {fullResult.liabilityAndRisks.length > 0 && (
         <div className="results-section">
           <SectionHeader icon={AlertTriangle} title="Liability and Risks" />
@@ -185,7 +191,7 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* H) Recommendations Section */}
+      {/* I) Recommendations Section */}
       {fullResult.recommendations.length > 0 && (
         <div className="results-section">
           <SectionHeader icon={Lightbulb} title="Recommendations" />
@@ -199,7 +205,7 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
         </div>
       )}
 
-      {/* I) Professional Advice Note Section */}
+      {/* J) Professional Advice Note Section */}
       <div className="results-section">
         <SectionHeader icon={Scale} title="Professional Advice Note" />
         <SectionCard>

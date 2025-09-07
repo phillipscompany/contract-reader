@@ -1,0 +1,242 @@
+{
+  "Residential Lease": {
+    "categories": [
+      {
+        "id": "rent_increases",
+        "label": "Rent & Increases",
+        "keywords": ["rent", "increase", "index", "CPI", "uplift"],
+        "whyItMatters": "Controls total cost and predictability.",
+        "evidence": "Clause text stating rent amount and increase method/cap.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "deposit",
+        "label": "Deposit",
+        "keywords": ["deposit", "bond"],
+        "whyItMatters": "Protects landlord; caps deductions.",
+        "evidence": "Amount, scheme/escrow, return conditions.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "utilities",
+        "label": "Utilities & Bills",
+        "keywords": ["utilities", "water", "electric", "gas", "internet"],
+        "whyItMatters": "Unexpected monthly costs.",
+        "evidence": "Which party pays which utilities.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "repairs",
+        "label": "Repairs & Maintenance",
+        "keywords": ["repair", "maintenance", "wear and tear"],
+        "whyItMatters": "Out-of-pocket risk.",
+        "evidence": "Responsibility allocation.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "habitability_safety",
+        "label": "Habitability & Safety",
+        "keywords": ["safety", "smoke alarm", "carbon monoxide", "fire", "cladding", "mould"],
+        "whyItMatters": "Health/safety exposure.",
+        "evidence": "Any warranty or safety statement.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "landlord_entry",
+        "label": "Landlord Entry",
+        "keywords": ["entry", "notice", "inspection"],
+        "whyItMatters": "Privacy and access control.",
+        "evidence": "Notice period and allowed reasons.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "subletting",
+        "label": "Subletting & Assignment",
+        "keywords": ["sublet", "assign"],
+        "whyItMatters": "Flexibility and breach risk.",
+        "evidence": "Permission/consent rules.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "break_clause",
+        "label": "Break Clause / Early Termination",
+        "keywords": ["break", "terminate early", "notice"],
+        "whyItMatters": "Exit options and penalties.",
+        "evidence": "Notice window, fees.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "renewal_notice",
+        "label": "Renewal & Notice",
+        "keywords": ["renew", "auto-renew", "notice"],
+        "whyItMatters": "Lock-in and auto-renew traps.",
+        "evidence": "Automatic renewals and notice periods.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "fees",
+        "label": "Fees & Penalties",
+        "keywords": ["fee", "charge", "penalty", "late"],
+        "whyItMatters": "Hidden charges.",
+        "evidence": "List of fees and triggers.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "insurance",
+        "label": "Insurance",
+        "keywords": ["insurance", "contents", "liability"],
+        "whyItMatters": "Coverage gaps.",
+        "evidence": "Required policies and party responsible.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "pets_alterations",
+        "label": "Pets & Alterations",
+        "keywords": ["pet", "animal", "alteration"],
+        "whyItMatters": "Restrictions and fees.",
+        "evidence": "Permission and conditions.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "parking_rules",
+        "label": "Parking & House Rules",
+        "keywords": ["parking", "rules", "bylaws"],
+        "whyItMatters": "Usage limitations.",
+        "evidence": "Allocation and penalties.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "disputes_jurisdiction",
+        "label": "Disputes & Jurisdiction",
+        "keywords": ["dispute", "arbitration", "jurisdiction", "governing law"],
+        "whyItMatters": "Where/how conflicts are handled.",
+        "evidence": "Forum and process.",
+        "defaultSeverity": "medium"
+      }
+    ]
+  },
+  "Freelance / Services": {
+    "categories": [
+      {
+        "id": "scope",
+        "label": "Scope & Deliverables",
+        "keywords": ["scope", "deliverables", "SOW"],
+        "whyItMatters": "Prevents scope creep.",
+        "evidence": "Deliverable list, acceptance criteria.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "timeline",
+        "label": "Timeline & Milestones",
+        "keywords": ["milestone", "deadline", "timeline"],
+        "whyItMatters": "Payment/penalty triggers.",
+        "evidence": "Dates and milestone definitions.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "payment",
+        "label": "Payment & Late Fees",
+        "keywords": ["invoice", "payment", "net", "late fee"],
+        "whyItMatters": "Cash flow risk.",
+        "evidence": "Rates, schedule, penalties.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "expenses",
+        "label": "Expenses",
+        "keywords": ["expense", "reimburse"],
+        "whyItMatters": "Out-of-pocket risk.",
+        "evidence": "Pre-approval and caps.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "ip_ownership",
+        "label": "IP Ownership & Licence",
+        "keywords": ["intellectual property", "copyright", "assign", "license"],
+        "whyItMatters": "Who owns the work.",
+        "evidence": "Assignment/licence clause.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "moral_rights",
+        "label": "Moral Rights / Attribution",
+        "keywords": ["moral rights", "attribution"],
+        "whyItMatters": "Credit and alterations.",
+        "evidence": "Waiver/consent language.",
+        "defaultSeverity": "low"
+      },
+      {
+        "id": "confidentiality",
+        "label": "Confidentiality",
+        "keywords": ["confidential", "NDA", "secrecy"],
+        "whyItMatters": "Info protection obligations.",
+        "evidence": "Definition, duration, exclusions.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "non_solicit_compete",
+        "label": "Non-Solicit / Non-Compete",
+        "keywords": ["non-solicit", "non-compete", "restrictive covenant"],
+        "whyItMatters": "Limits future work.",
+        "evidence": "Scope, duration, geography.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "change_control",
+        "label": "Revisions & Change Control",
+        "keywords": ["revision", "change order"],
+        "whyItMatters": "Avoids free extra work.",
+        "evidence": "Process and pricing.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "acceptance",
+        "label": "Acceptance Criteria",
+        "keywords": ["acceptance", "sign-off"],
+        "whyItMatters": "When is work 'done'.",
+        "evidence": "Criteria and review window.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "termination",
+        "label": "Termination / Kill Fee",
+        "keywords": ["terminate", "kill fee"],
+        "whyItMatters": "Compensation if cancelled.",
+        "evidence": "Notice and fees.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "liability_indemnity",
+        "label": "Liability & Indemnity",
+        "keywords": ["liability", "indemnify", "cap"],
+        "whyItMatters": "Exposure to claims.",
+        "evidence": "Caps and exclusions.",
+        "defaultSeverity": "high"
+      },
+      {
+        "id": "warranties",
+        "label": "Warranties",
+        "keywords": ["warranty", "warrant"],
+        "whyItMatters": "Promises you make.",
+        "evidence": "Scope and duration.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "contractor_status",
+        "label": "Independent Contractor Status",
+        "keywords": ["contractor", "employment", "tax"],
+        "whyItMatters": "Tax/employment risk.",
+        "evidence": "No employment relationship.",
+        "defaultSeverity": "medium"
+      },
+      {
+        "id": "governing_law",
+        "label": "Governing Law & Venue",
+        "keywords": ["governing law", "venue", "jurisdiction"],
+        "whyItMatters": "Where disputes are heard.",
+        "evidence": "Chosen law and forum.",
+        "defaultSeverity": "medium"
+      }
+    ]
+  }
+}

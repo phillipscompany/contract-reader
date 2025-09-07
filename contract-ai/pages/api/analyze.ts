@@ -107,7 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Always use full analysis mode
         const cappedText = sanitizedText.length > 50000 ? sanitizedText.substring(0, 50000) + '... [truncated]' : sanitizedText;
-        fullResult = await summarizeContractFull(cappedText);
+        fullResult = await summarizeContractFull(cappedText, { contractTypeHint: intakeContractType });
 
         // Demo mode logic commented out for future payment integration
         // if (mode === 'demo') {

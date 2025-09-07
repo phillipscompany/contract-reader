@@ -161,7 +161,7 @@ export default function Home() {
 
         {/* <TrustedBy /> */}
 
-        <section className="workflow">
+        {/* <section className="workflow">
           <h2 className="workflow__title">How it works</h2>
           <div className="workflow__path">
             <div className="workflow__step">
@@ -184,7 +184,7 @@ export default function Home() {
               <p className="workflow__step-text">Download a clear, comprehensive PDF summary highlighting what matters most.</p>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
     </>
   );

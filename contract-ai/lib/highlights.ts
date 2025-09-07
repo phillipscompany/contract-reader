@@ -22,43 +22,49 @@ export function deriveHighlights(full: FullResult): string[] {
     }
   };
 
-  // 1. Add first 1-2 amounts mentioned
-  if (full.keyDetails.amountsMentioned.length > 0) {
-    const firstAmount = full.keyDetails.amountsMentioned[0];
-    addHighlight(truncate(firstAmount));
+  // 1. Add first 1-2 payment/cost items
+  if (full.paymentsAndCosts.length > 0) {
+    const firstPayment = full.paymentsAndCosts[0];
+    addHighlight(truncate(firstPayment));
     
-    if (full.keyDetails.amountsMentioned.length > 1 && highlights.length < 5) {
-      const secondAmount = full.keyDetails.amountsMentioned[1];
-      addHighlight(truncate(secondAmount));
+    if (full.paymentsAndCosts.length > 1 && highlights.length < 5) {
+      const secondPayment = full.paymentsAndCosts[1];
+      addHighlight(truncate(secondPayment));
     }
   }
 
-  // 2. Add first 1-2 dates mentioned
-  if (full.keyDetails.datesMentioned.length > 0) {
-    const firstDate = full.keyDetails.datesMentioned[0];
-    addHighlight(truncate(firstDate));
+  // 2. Add first 1-2 renewal/termination items
+  if (full.renewalAndTermination.length > 0) {
+    const firstRenewal = full.renewalAndTermination[0];
+    addHighlight(truncate(firstRenewal));
     
-    if (full.keyDetails.datesMentioned.length > 1 && highlights.length < 5) {
-      const secondDate = full.keyDetails.datesMentioned[1];
-      addHighlight(truncate(secondDate));
+    if (full.renewalAndTermination.length > 1 && highlights.length < 5) {
+      const secondRenewal = full.renewalAndTermination[1];
+      addHighlight(truncate(secondRenewal));
     }
   }
 
-  // 3. Add first 1-2 risk titles
-  if (full.risks.length > 0) {
-    const firstRisk = full.risks[0].title;
+  // 3. Add first 1-2 top risks from risk coverage
+  if (full.riskCoverage.topRisks.length > 0) {
+    const firstRisk = full.riskCoverage.topRisks[0].title;
     addHighlight(truncate(firstRisk));
     
-    if (full.risks.length > 1 && highlights.length < 5) {
-      const secondRisk = full.risks[1].title;
+    if (full.riskCoverage.topRisks.length > 1 && highlights.length < 5) {
+      const secondRisk = full.riskCoverage.topRisks[1].title;
       addHighlight(truncate(secondRisk));
     }
   }
 
-  // 4. Add first termination/renewal snippet if present
-  if (full.keyDetails.terminationOrRenewal.length > 0 && highlights.length < 5) {
-    const firstTermination = full.keyDetails.terminationOrRenewal[0];
-    addHighlight(truncate(firstTermination));
+  // 4. Add first key clause if present
+  if (full.keyClauses.length > 0 && highlights.length < 5) {
+    const firstClause = full.keyClauses[0].clause;
+    addHighlight(truncate(firstClause));
+  }
+
+  // 5. Add first obligation if present
+  if (full.obligations.length > 0 && highlights.length < 5) {
+    const firstObligation = full.obligations[0];
+    addHighlight(truncate(firstObligation));
   }
 
   return highlights;
