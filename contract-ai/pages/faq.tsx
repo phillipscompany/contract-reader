@@ -13,7 +13,7 @@ const faqData: FAQItem[] = [
   {
     id: '1',
     question: 'Why not just use ChatGPT?',
-    answer: 'Privacy first: ChatGPT can train on your data, we don\'t. We delete files instantly so we never see your contract information. ChatGPT answers can vary, ours always gives a well-structured, clean, downloadable PDF format that can be sent directly to others. No prompt engineering required — simply drop the contract and you\'re away!'
+    answer: 'The short answer is: ChatGPT can (and does) train on your data, we don\'t. We delete files instantly so we never see your contract information. ChatGPT answers vary, our service always returns a well-structured, repeatable and downloadable PDF that can be sent directly to others. Forget typing in long prompts — simply drop the contract and you\'re away!'
   },
   {
     id: '2',

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import FileUploader from '../components/FileUploader';
 import IntakeModal from '../components/IntakeModal';
 import TrustedBy from '../components/TrustedBy';
+import EarlyStageBanner from '../components/EarlyStageBanner';
 import { fileToBase64 } from '../lib/base64';
 
 interface IntakeData {
@@ -74,6 +75,7 @@ export default function Home() {
 
   return (
     <>
+      <EarlyStageBanner />
       <IntakeModal 
         open={showIntakeModal}
         onClose={handleIntakeClose}
@@ -140,7 +142,7 @@ export default function Home() {
             <div className="feature__icon" aria-hidden>🔒</div>
             <h3 className="feature__title">Stay Secure</h3>
             <p className="feature__text">
-              We follow strict standards when handling your files. Documents are processed in-memory and deleted right after analysis.
+              We'll never store your contract information. Documents are processed in-memory and deleted immediately after analysis.
             </p>
           </article>
           <article className="feature">

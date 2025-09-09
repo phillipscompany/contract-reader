@@ -1,0 +1,1339 @@
+
+> contract-ai@0.1.0 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/charlesphillips/Documents/contract-reader/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/charlesphillips/Documents/contract-reader/contract-ai/package-lock.json
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.50.211:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1911ms
+ ✓ Compiled / in 382ms (356 modules)
+ GET / 200 in 697ms
+ ○ Compiling /results ...
+ ✓ Compiled /results in 1156ms (597 modules)
+ ✓ Compiled /api/analyze in 93ms (206 modules)
+ POST /api/analyze 200 in 23788ms
+{
+  scope: 'openai',
+  code: 'JSON_PARSE_FAILED',
+  httpStatus: 'parse_error',
+  tokenCount: 2166
+}
+ POST /api/analyze 500 in 43765ms
+ POST /api/analyze 200 in 24438ms
+ POST /api/analyze 200 in 24728ms
+ ✓ Compiled in 311ms (597 modules)
+ ✓ Compiled in 160ms (597 modules)
+ ✓ Compiled in 140ms (597 modules)
+ ✓ Compiled in 137ms (597 modules)
+ ✓ Compiled in 131ms (597 modules)
+ ✓ Compiled in 136ms (597 modules)
+ ✓ Compiled in 83ms (597 modules)
+ ✓ Compiled in 336ms (597 modules)
+ ✓ Compiled in 444ms (597 modules)
+ GET / 200 in 36ms
+ GET / 200 in 4ms
+ GET / 200 in 5ms
+ ✓ Compiled in 472ms (597 modules)
+ ✓ Compiled /api/analyze in 230ms (206 modules)
+Warning: TT: undefined function: 21
+ POST /api/analyze 200 in 24244ms
+{
+  scope: 'openai',
+  code: 'JSON_PARSE_FAILED',
+  httpStatus: 'parse_error',
+  tokenCount: 2166
+}
+ POST /api/analyze 500 in 58393ms
+ POST /api/analyze 200 in 27813ms
+ ✓ Compiled in 683ms (597 modules)
+ ✓ Compiled in 257ms (597 modules)
+ ✓ Compiled in 533ms (597 modules)
+ ✓ Compiled in 149ms (599 modules)
+ ✓ Compiled in 893ms (599 modules)
+ ✓ Compiled in 120ms (599 modules)
+ ✓ Compiled in 292ms (599 modules)
+ ✓ Compiled in 129ms (599 modules)
+ ✓ Compiled in 146ms (599 modules)
+ ✓ Compiled in 435ms (599 modules)
+ ✓ Compiled in 117ms (599 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ✓ Compiled /_error in 190ms (719 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 1533ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 174ms (719 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 19ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 235ms (719 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 10ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 147ms (719 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 13ms
+ ✓ Compiled in 119ms (719 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 9ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 227ms (719 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 24ms
+ ✓ Compiled in 222ms (714 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled / in 75ms (719 modules)
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './chunks/vendor-chunks/next.js'
+Require stack:
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/webpack-runtime.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/require.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/load-components.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/utils.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/options.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/swc/index.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/parse-module.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/build/analysis/get-page-static-info.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/router-server.js
+- /Users/charlesphillips/Documents/contract-reader/contract-ai/node_modules/next/dist/server/lib/start-server.js
+    at c.f.require (.next/server/webpack-runtime.js:1:959)
+    at <unknown> (.next/server/webpack-runtime.js:1:432)
+    at Array.reduce (<anonymous>)
+    at c.e (.next/server/webpack-runtime.js:1:411)
+    at Array.map (<anonymous>)
+    at c.X (.next/server/webpack-runtime.js:1:732)
+    at <unknown> (.next/server/pages/_app.js:109:47) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET / 500 in 54ms
+ GET / 404 in 12ms
+ GET / 404 in 4ms
+ GET / 404 in 9ms
+ GET / 404 in 4ms
+ GET / 404 in 4ms
+ GET / 404 in 2ms
+ GET / 404 in 4ms
+ GET / 404 in 5ms
+ GET / 404 in 3ms
+ GET / 404 in 5ms
+ GET / 404 in 3ms
+ GET / 404 in 6ms
+ GET / 404 in 4ms
+ ✓ Compiled in 1070ms (719 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 277ms
+ GET / 500 in 13ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 45ms
+ GET / 500 in 16ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 43ms
+ GET / 500 in 14ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 126ms
+ GET / 500 in 16ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 45ms
+ GET / 500 in 16ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 197ms
+ GET / 500 in 15ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 33ms
+ GET / 500 in 13ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 28ms
+ GET / 500 in 9ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 322ms
+ GET / 500 in 57ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 50ms
+ GET / 500 in 13ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 56ms
+ GET / 500 in 18ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 40ms
+ GET / 500 in 12ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 46ms
+ GET / 500 in 15ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 30ms
+ GET / 500 in 9ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 29ms
+ GET / 500 in 13ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 28ms
+ GET / 500 in 9ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 38ms
+ GET / 500 in 13ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 32ms
+ GET / 500 in 10ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/charlesphillips/Documents/contract-reader/contract-ai/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 30ms
+ GET / 500 in 12ms
+ ✓ Compiled in 130ms (298 modules)
+ ✓ Compiled in 55ms (298 modules)
+ ✓ Compiled in 44ms (298 modules)
+[?25h

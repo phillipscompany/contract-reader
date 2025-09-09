@@ -2,8 +2,8 @@ import OpenAI from 'openai';
 import { loadRiskCategories, type RiskCategory } from './riskTaxonomy';
 
 // Risk coverage types
-export type CoverageStatus = "present_favorable" | "present_unfavorable" | "ambiguous" | "not_mentioned";
-export type Severity = "high" | "medium" | "low";
+export type CoverageStatus = "present_favourable" | "present_unfavourable" | "ambiguous" | "not_mentioned";
+export type PotentialSeverity = "high" | "medium" | "low";
 
 // Types for Demo (short) analysis
 export interface DemoResult {
@@ -34,11 +34,12 @@ export interface FullResult {
     matrix: Array<{
       category: string; // label
       status: CoverageStatus;
-      severity: Severity;
-      evidence: string; // short snippet or clause ref; "" if none
+      potentialSeverity: PotentialSeverity;
+      severity?: PotentialSeverity; // backward compatibility
+      evidence: string; // MUST be a direct quote: "…"
       whyItMatters: string;
     }>;
-    topRisks: Array<{ title: string; severity: Severity }>;
+    topRisks: Array<{ title: string; potentialSeverity: PotentialSeverity; severity?: PotentialSeverity }>; // backward compatibility
   };
   intakeContractType: string;
   detectedContractType: string;
@@ -197,10 +198,10 @@ function sanitizeRiskCoverage(riskCoverage: any): FullResult['riskCoverage'] {
     matrix: Array.isArray(riskCoverage.matrix)
       ? riskCoverage.matrix.slice(0, 20).map((item: any) => ({
           category: String(item?.category || '').trim(),
-          status: (['present_favorable', 'present_unfavorable', 'ambiguous', 'not_mentioned'].includes(item?.status)) 
+          status: (['present_favourable', 'present_unfavourable', 'ambiguous', 'not_mentioned'].includes(item?.status)) 
             ? item.status : 'not_mentioned',
-          severity: (['high', 'medium', 'low'].includes(item?.severity)) 
-            ? item.severity : 'medium',
+          potentialSeverity: (['high', 'medium', 'low'].includes(item?.potentialSeverity || item?.severity)) 
+            ? (item.potentialSeverity || item.severity) : 'medium',
           evidence: String(item?.evidence || '').substring(0, 200).trim(),
           whyItMatters: String(item?.whyItMatters || '').substring(0, 300).trim()
         })).filter(m => m.category)
@@ -208,8 +209,8 @@ function sanitizeRiskCoverage(riskCoverage: any): FullResult['riskCoverage'] {
     topRisks: Array.isArray(riskCoverage.topRisks)
       ? riskCoverage.topRisks.slice(0, 5).map((risk: any) => ({
           title: String(risk?.title || '').substring(0, 150).trim(),
-          severity: (['high', 'medium', 'low'].includes(risk?.severity)) 
-            ? risk.severity : 'medium'
+          potentialSeverity: (['high', 'medium', 'low'].includes(risk?.potentialSeverity || risk?.severity)) 
+            ? (risk.potentialSeverity || risk.severity) : 'medium'
         })).filter(r => r.title)
       : []
   };
@@ -240,10 +241,113 @@ async function makeOpenAICall(messages: any[], maxTokens: number): Promise<strin
   return responseText;
 }
 
+// Helper function to validate and sanitize risk coverage data
+function validateAndSanitizeRiskCoverage(riskCoverage: any): any {
+  if (!riskCoverage || typeof riskCoverage !== 'object') {
+    return riskCoverage;
+  }
+
+  // Sanitize matrix items
+  if (Array.isArray(riskCoverage.matrix)) {
+    riskCoverage.matrix = riskCoverage.matrix.map((item: any) => {
+      // Map severity to potentialSeverity if needed
+      if (item.severity && !item.potentialSeverity) {
+        item.potentialSeverity = item.severity;
+        delete item.severity;
+      }
+
+      // Sanitize evidence field
+      if (item.evidence && typeof item.evidence === 'string') {
+        let evidence = item.evidence.trim();
+        
+        // If evidence is not empty and not properly quoted, wrap it in quotes
+        if (evidence && !evidence.startsWith('"') && !evidence.endsWith('"')) {
+          evidence = `"${evidence}"`;
+        }
+        
+        // Trim whitespace around quotes: " text " → "text"
+        if (evidence.startsWith('"') && evidence.endsWith('"') && evidence.length > 2) {
+          const innerContent = evidence.slice(1, -1).trim();
+          evidence = `"${innerContent}"`;
+        }
+        
+        item.evidence = evidence;
+      }
+
+      return item;
+    });
+  }
+
+  // Sanitize topRisks items
+  if (Array.isArray(riskCoverage.topRisks)) {
+    riskCoverage.topRisks = riskCoverage.topRisks.map((risk: any) => {
+      // Map severity to potentialSeverity if needed
+      if (risk.severity && !risk.potentialSeverity) {
+        risk.potentialSeverity = risk.severity;
+        delete risk.severity;
+      }
+      return risk;
+    });
+  }
+
+  return riskCoverage;
+}
+
+// Helper function to validate risk coverage schema
+function validateRiskCoverageSchema(riskCoverage: any): boolean {
+  if (!riskCoverage || typeof riskCoverage !== 'object') {
+    return false;
+  }
+
+  // Validate matrix
+  if (Array.isArray(riskCoverage.matrix)) {
+    for (const item of riskCoverage.matrix) {
+      // Check that potentialSeverity is present and valid
+      if (!item.potentialSeverity || !['high', 'medium', 'low'].includes(item.potentialSeverity)) {
+        return false;
+      }
+
+      // Check evidence format: either empty string or properly quoted
+      if (item.evidence && typeof item.evidence === 'string') {
+        const evidence = item.evidence.trim();
+        if (evidence && (!evidence.startsWith('"') || !evidence.endsWith('"') || evidence.length < 3)) {
+          return false;
+        }
+      }
+    }
+  }
+
+  // Validate topRisks
+  if (Array.isArray(riskCoverage.topRisks)) {
+    for (const risk of riskCoverage.topRisks) {
+      if (!risk.potentialSeverity || !['high', 'medium', 'low'].includes(risk.potentialSeverity)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 // Helper function to parse JSON with retry logic
 function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any {
   try {
-    return JSON.parse(responseText);
+    const parsed = JSON.parse(responseText);
+    
+    // Sanitize the parsed result
+    if (parsed.riskCoverage) {
+      parsed.riskCoverage = validateAndSanitizeRiskCoverage(parsed.riskCoverage);
+      
+      // Validate the sanitized result
+      if (!validateRiskCoverageSchema(parsed.riskCoverage)) {
+        if (!isRetry) {
+          throw new Error('SCHEMA_VALIDATION_FAILED');
+        }
+        throw new Error('Invalid risk coverage schema after sanitization');
+      }
+    }
+    
+    return parsed;
   } catch (error) {
     if (!isRetry) {
       // Retry once with stricter instruction
@@ -286,7 +390,7 @@ function postProcessFullResult(result: any, riskCategories: RiskCategory[], cate
       result.riskCoverage.matrix.push({
         category: categoryLabel,
         status: 'not_mentioned',
-        severity: category?.defaultSeverity || 'medium',
+        potentialSeverity: category?.defaultSeverity || 'medium',
         evidence: '',
         whyItMatters: category?.whyItMatters || 'This category was not addressed in the contract.'
       });
@@ -296,19 +400,21 @@ function postProcessFullResult(result: any, riskCategories: RiskCategory[], cate
   // Compute topRisks if missing or empty
   if (!result.riskCoverage.topRisks || result.riskCoverage.topRisks.length === 0) {
     const riskItems = result.riskCoverage.matrix?.filter((item: any) => 
-      ['present_unfavorable', 'ambiguous', 'not_mentioned'].includes(item.status)
+      ['present_unfavourable', 'ambiguous', 'not_mentioned'].includes(item.status)
     ) || [];
     
-    // Sort by severity (high -> medium -> low) and take top 5
+    // Sort by potentialSeverity (high -> medium -> low) and take top 5
     const severityOrder = { high: 3, medium: 2, low: 1 };
-    riskItems.sort((a: any, b: any) => 
-      (severityOrder[b.severity as keyof typeof severityOrder] || 0) - 
-      (severityOrder[a.severity as keyof typeof severityOrder] || 0)
-    );
+    riskItems.sort((a: any, b: any) => {
+      const aSeverity = a.potentialSeverity || a.severity || 'medium';
+      const bSeverity = b.potentialSeverity || b.severity || 'medium';
+      return (severityOrder[bSeverity as keyof typeof severityOrder] || 0) - 
+             (severityOrder[aSeverity as keyof typeof severityOrder] || 0);
+    });
     
     result.riskCoverage.topRisks = riskItems.slice(0, 5).map((item: any) => ({
       title: item.category,
-      severity: item.severity
+      potentialSeverity: item.potentialSeverity || item.severity || 'medium'
     }));
   }
 
@@ -427,10 +533,10 @@ export async function summarizeContractFull(text: string, options: { contractTyp
     `- ${cat.label}: ${cat.whyItMatters} (Look for: ${cat.evidence})`
   ).join('\n');
   
-  const prompt = `Analyze the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
+  const prompt = `Analyse the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
 {
-  "executiveSummary": "2-3 paragraphs like a lawyer's note summarizing the contract's purpose, key terms, and overall implications",
+  "executiveSummary": "2-3 paragraphs like a lawyer's note summarising the contract's purpose, key terms, and overall implications",
   "partiesAndPurpose": "Clear explanation of who is involved in this contract and what the main purpose is",
   "keyClauses": [
     {"clause": "Important clause name", "explanation": "Plain English explanation of what this clause means and its implications"},
@@ -454,16 +560,16 @@ export async function summarizeContractFull(text: string, options: { contractTyp
     "matrix": [
       {
         "category": "category label",
-        "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned",
-        "severity": "high|medium|low",
-        "evidence": "short snippet or clause reference, empty string if none",
+        "status": "present_favourable|present_unfavourable|ambiguous|not_mentioned",
+        "potentialSeverity": "high|medium|low",
+        "evidence": "MUST be copied verbatim from the provided contract text and wrapped in straight double quotes. Do NOT paraphrase. If you cannot find a direct sentence/phrase, set to empty string",
         "whyItMatters": "why this category matters for this contract type"
       }
     ],
     "topRisks": [
       {
         "title": "risk title",
-        "severity": "high|medium|low"
+        "potentialSeverity": "high|medium|low"
       }
     ]
   }
@@ -473,6 +579,8 @@ CRITICAL REQUIREMENTS FOR RISK COVERAGE:
 - You MUST review EVERY category in the provided list and emit one matrix entry per category.
 - If a category is not mentioned in the contract, set status='not_mentioned' and still fill whyItMatters.
 - Ambiguity counts as risk; use 'ambiguous' when unclear.
+- Return potentialSeverity (high/medium/low) — this is an estimate of potential impact, not legal advice.
+- evidence MUST be copied verbatim from the provided contract text and wrapped in straight double quotes. Do NOT paraphrase. If you cannot find a direct sentence/phrase, set evidence to an empty string.
 - No URLs or law firm names. Plain English. JSON only.
 - The matrix array must have exactly ${categoryLabels.length} entries, one for each category.
 
@@ -505,7 +613,7 @@ Return ONLY the JSON object, no additional text.`;
     return sanitizeFullResult(processedResult);
     
   } catch (error: any) {
-    if (error.message === 'JSON_PARSE_RETRY' || error.message === 'MATRIX_LENGTH_MISMATCH') {
+    if (error.message === 'JSON_PARSE_RETRY' || error.message === 'MATRIX_LENGTH_MISMATCH' || error.message === 'SCHEMA_VALIDATION_FAILED') {
       // Retry with stricter instruction
       try {
         const retryPrompt = `Return valid JSON exactly matching this schema - no extra text. CRITICAL: The riskCoverage.matrix must have exactly ${categoryLabels.length} entries, one for each category.
@@ -524,11 +632,21 @@ Return ONLY the JSON object, no additional text.`;
     "reviewedCategories": ["${categoryLabels.join('", "')}"],
     "unreviewedCategories": [],
     "matrix": [
-      ${categoryLabels.map(label => `{"category": "${label}", "status": "present_favorable|present_unfavorable|ambiguous|not_mentioned", "severity": "high|medium|low", "evidence": "snippet or empty", "whyItMatters": "why it matters"}`).join(',\n      ')}
+      ${categoryLabels.map(label => `{"category": "${label}", "status": "present_favourable|present_unfavourable|ambiguous|not_mentioned", "potentialSeverity": "high|medium|low", "evidence": "direct quote in double quotes or empty", "whyItMatters": "why it matters"}`).join(',\n      ')}
     ],
-    "topRisks": [{"title": "risk1", "severity": "high"}]
+    "topRisks": [{"title": "risk1", "potentialSeverity": "high"}]
   }
 }
+
+CRITICAL EVIDENCE REQUIREMENTS:
+- evidence MUST be either an empty string "" OR a direct quote from the contract wrapped in double quotes
+- Examples: "" or "The Tenant shall pay rent on the first of each month"
+- Do NOT paraphrase or summarize - copy the exact text from the contract
+- If no relevant text is found, use empty string ""
+
+CRITICAL FIELD REQUIREMENTS:
+- Use potentialSeverity (NOT severity) for all risk assessments
+- potentialSeverity must be exactly "high", "medium", or "low"
 
 IMPORTANT: Do NOT include "recommendations", "recommendedAction", or "action" fields. Provide neutral explanations only.
 
@@ -538,7 +656,7 @@ ${categoryInfo}
 Contract text: ${truncatedText}`;
 
         const retryResponse = await makeOpenAICall([
-          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema. The riskCoverage.matrix must have exactly " + categoryLabels.length + " entries." },
+          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema. The riskCoverage.matrix must have exactly " + categoryLabels.length + " entries. Use potentialSeverity (NOT severity) and ensure evidence is either empty string or properly quoted direct quotes from the contract." },
           { role: "user", content: retryPrompt }
         ], 1500);
 

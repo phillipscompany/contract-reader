@@ -5,7 +5,7 @@
 ## Pages & UX
 1. **Landing** – Hero headline, subtext, "Upload Your Contract."
 2. **Upload** – Drag-and-drop PDF/DOCX; notes on supported files and deletion.
-3. **Processing** – Spinner: "Analyzing your contract with AI…"
+3. **Processing** – Spinner: "Analysing your contract with AI…"
 4. **Results** – Two panels:
    - Plain-English Summary: what the contract is about, parties, length/renewal
    - **Key Things to Watch Out For:** unusual fees, auto-renewals, restrictions/penalties, your obligations
@@ -14,7 +14,7 @@
 5. **Pricing** – 1 free demo (first page only), full analysis $5 via Stripe, optional credits bundle.
 
 ## Data Flow (concept)
-Upload → Extract text (PDF/DOCX) → AI summarization (pre-engineered prompt) → Structured output (summary + risks) → Render results → Optional PDF export → Delete buffers.
+Upload → Extract text (PDF/DOCX) → AI summarisation (pre-engineered prompt) → Structured output (summary + risks) → Render results → Optional PDF export → Delete buffers.
 
 ## Security & Privacy (requirements)
 - Accept only PDF/DOCX; validate MIME and size; reject large/malicious files.
@@ -23,7 +23,7 @@ Upload → Extract text (PDF/DOCX) → AI summarization (pre-engineered prompt) 
 - Clear disclaimer that this is not legal advice.
 
 ## Pricing & Gating
-- **Free demo:** analyze the first page only (one time per user/device).
+- **Free demo:** analyse the first page only (one time per user/device).
 - **Paid:** full contract analysis for $5/document via Stripe Checkout.
 - Optional: credits bundle for repeat users.
 

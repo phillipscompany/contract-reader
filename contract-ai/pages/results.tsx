@@ -32,7 +32,7 @@ interface ErrorResponse {
   };
 }
 
-type ProgressStep = 'UPLOADING' | 'EXTRACTING' | 'SUMMARIZING' | 'DONE' | 'ERROR';
+type ProgressStep = 'UPLOADING' | 'EXTRACTING' | 'ANALYSING' | 'DONE' | 'ERROR';
 
 export default function Results() {
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +43,7 @@ export default function Results() {
   const [progressStep, setProgressStep] = useState<ProgressStep>('UPLOADING');
   const router = useRouter();
 
-  const doUploadFetch = async (): Promise<ApiResponse> => {
+  const doTextExtraction = async (): Promise<{ text: string; filename: string; fileSize: number; fileType: string }> => {
     // Get the pending upload from sessionStorage
     const pendingUpload = sessionStorage.getItem('pendingUpload');
     
@@ -69,6 +69,33 @@ export default function Results() {
 
     const file = base64ToBlob(uploadData.base64, uploadData.type);
     
+    // Create FormData and send to text extraction API
+    const formData = new FormData();
+    formData.append('file', file, uploadData.name);
+
+    // Set EXTRACTING state before making the request
+    setProgressStep('EXTRACTING');
+
+    const response = await fetch('/api/extract-text', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData: ErrorResponse = await response.json();
+      throw { code: errorData.error.code, message: errorData.error.message };
+    }
+
+    const result = await response.json();
+    return {
+      text: result.text,
+      filename: result.filename,
+      fileSize: result.fileSize,
+      fileType: result.fileType
+    };
+  };
+
+  const doTextAnalysis = async (text: string, filename: string, fileSize: number, fileType: string): Promise<ApiResponse> => {
     // Get intake data from localStorage
     const intakeData = localStorage.getItem('intake');
     let intakeEmail = '';
@@ -87,23 +114,22 @@ export default function Results() {
         console.warn('Failed to parse intake data:', error);
       }
     }
-    
-    // Create FormData and send to API
-    const formData = new FormData();
-    formData.append('file', file, uploadData.name);
-    formData.append('intakeEmail', intakeEmail);
-    formData.append('intakeCountry', intakeCountry);
-    formData.append('intakeRegion', intakeRegion);
-    formData.append('intakeContractType', intakeContractType);
-    // Always use full mode now (demo mode commented out for future payment integration)
-    // formData.append('mode', 'demo'); // For now, always use demo mode
 
-    // Set EXTRACTING state before making the request
-    setProgressStep('EXTRACTING');
+    // Set ANALYSING state before making the request
+    setProgressStep('ANALYSING');
 
-    const response = await fetch('/api/analyze', {
+    const response = await fetch('/api/analyze-text', {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text,
+        contractTypeHint: intakeContractType,
+        email: intakeEmail,
+        country: intakeCountry,
+        region: intakeRegion
+      }),
     });
 
     if (!response.ok) {
@@ -111,11 +137,17 @@ export default function Results() {
       throw { code: errorData.error.code, message: errorData.error.message };
     }
 
-    // Set SUMMARIZING state before processing the response
-    setProgressStep('SUMMARIZING');
-
-    const result = await response.json();
-    return result;
+    const analysisResult = await response.json();
+    
+    // Return in the same format as the original API
+    return {
+      name: filename,
+      size: fileSize,
+      type: fileType,
+      mode: 'full' as const,
+      full: analysisResult.full,
+      meta: analysisResult.meta
+    };
   };
 
   const processUpload = async () => {
@@ -125,7 +157,21 @@ export default function Results() {
       setIsFromCache(false);
       setProgressStep('UPLOADING');
       
-      const result = await withBackoff(doUploadFetch, {
+      // Step 1: Extract text from the uploaded file
+      const extractionResult = await withBackoff(doTextExtraction, {
+        retries: 2,
+        base: 600, // 600ms base delay
+        factor: 2, // Exponential factor
+        jitter: true // Add jitter
+      });
+      
+      // Step 2: Analyze the extracted text with AI
+      const result = await withBackoff(() => doTextAnalysis(
+        extractionResult.text,
+        extractionResult.filename,
+        extractionResult.fileSize,
+        extractionResult.fileType
+      ), {
         retries: 2,
         base: 600, // 600ms base delay
         factor: 2, // Exponential factor
@@ -215,11 +261,38 @@ export default function Results() {
   }, []);
 
   if (isLoading) {
+    // Determine the main loading message based on current stage
+    const getLoadingMessage = () => {
+      switch (progressStep) {
+        case 'UPLOADING':
+          return 'Uploading your contract...';
+        case 'EXTRACTING':
+          return 'Extracting text from your document...';
+        case 'ANALYSING':
+          return 'Analysing with AI...';
+        default:
+          return 'Processing your contract...';
+      }
+    };
+
+    const getLoadingDescription = () => {
+      switch (progressStep) {
+        case 'UPLOADING':
+          return 'Preparing your file for analysis.';
+        case 'EXTRACTING':
+          return 'Reading the text content from your document.';
+        case 'ANALYSING':
+          return 'Our AI is reading through your document to identify key points and risks.';
+        default:
+          return 'Please wait while we process your contract.';
+      }
+    };
+
     return (
       <main className="results-container">
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <h1>Analyzing Your Contract...</h1>
-          <p>Our AI is reading through your document to identify key points and risks.</p>
+          <h1>{getLoadingMessage()}</h1>
+          <p>{getLoadingDescription()}</p>
           
           {/* Progress Steps */}
           <div className="progress">
@@ -231,9 +304,9 @@ export default function Results() {
               <div className="progress__step-icon">📄</div>
               <div className="progress__step-text">Extracting text</div>
             </div>
-            <div className={`progress__step ${progressStep === 'SUMMARIZING' ? 'progress__step--active' : ''}`}>
+            <div className={`progress__step ${progressStep === 'ANALYSING' ? 'progress__step--active' : ''}`}>
               <div className="progress__step-icon">🤖</div>
-              <div className="progress__step-text">Summarizing with AI</div>
+              <div className="progress__step-text">Analysing with AI</div>
             </div>
           </div>
           

@@ -389,8 +389,8 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
 
     // Create summary line with consistent status labels
     const summaryParts: string[] = [];
-    if (statusCounts.present_favorable) summaryParts.push(`${statusCounts.present_favorable} favorable`);
-    if (statusCounts.present_unfavorable) summaryParts.push(`${statusCounts.present_unfavorable} unfavorable`);
+    if (statusCounts.present_favourable) summaryParts.push(`${statusCounts.present_favourable} favourable`);
+    if (statusCounts.present_unfavourable) summaryParts.push(`${statusCounts.present_unfavourable} unfavourable`);
     if (statusCounts.ambiguous) summaryParts.push(`${statusCounts.ambiguous} ambiguous`);
     if (statusCounts.not_mentioned) summaryParts.push(`${statusCounts.not_mentioned} not mentioned`);
     
@@ -406,7 +406,7 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       currentY = addSubsectionHeading('Top Risks', currentY);
       
       coverage.topRisks.forEach((risk, index) => {
-        const riskText = `• ${risk.title} (${risk.severity})`;
+        const riskText = `• ${risk.title} (${risk.potentialSeverity || risk.severity})`;
         currentY = addWrappedText(riskText, currentY, 11, contentWidth, 1.15);
         currentY += paragraphSpacing;
       });
@@ -416,6 +416,7 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
 
     // Add comprehensive risk coverage table
     currentY = addSubsectionHeading('Risk Coverage by Category', currentY);
+    
     
     // Create a detailed table with all information
     coverage.matrix.forEach((item, index) => {
@@ -427,7 +428,7 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
       // Status and Severity on same line
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
-      const statusSeverity = `Status: ${item.status.replace('_', ' ')} | Severity: ${item.severity}`;
+      const statusSeverity = `Status: ${item.status.replace('_', ' ')} | Potential Severity: ${item.potentialSeverity || item.severity}`;
       currentY = addWrappedText(statusSeverity, currentY, 10, contentWidth, 1.1);
       
       // Evidence (if present)
@@ -436,7 +437,14 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
         pdf.setFontSize(10);
         currentY = addWrappedText('Evidence:', currentY, 10, contentWidth, 1.1);
         pdf.setFont('helvetica', 'normal');
-        currentY = addWrappedText(item.evidence, currentY, 10, contentWidth - 10, 1.1);
+        
+        // Ensure evidence is properly quoted
+        let evidenceText = item.evidence.trim();
+        if (evidenceText && !evidenceText.startsWith('"') && !evidenceText.endsWith('"')) {
+          evidenceText = `"${evidenceText}"`;
+        }
+        
+        currentY = addWrappedText(evidenceText, currentY, 10, contentWidth - 10, 1.1);
       }
       
       // Why it matters

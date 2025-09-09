@@ -12,7 +12,7 @@ export default function UploadPage() {
         <div style={{ marginTop: 20 }}>
           <p>File ready: {file.name}</p>
           <button disabled className="btn btn--primary" style={{ marginTop: 10 }}>
-            Analyze Contract (coming soon)
+            Analyse Contract (coming soon)
           </button>
         </div>
       )}

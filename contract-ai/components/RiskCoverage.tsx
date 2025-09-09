@@ -17,35 +17,35 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
 
   // Filter matrix based on toggle
   const filteredMatrix = showOnlyRisks 
-    ? coverage.matrix.filter(item => item.status !== 'present_favorable')
+    ? coverage.matrix.filter(item => item.status !== 'present_favourable')
     : coverage.matrix;
 
   // Helper function to get status badge color class
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'present_favorable': return 'badge badge--status-favorable';
-      case 'present_unfavorable': return 'badge badge--status-unfavorable';
+      case 'present_favourable': return 'badge badge--status-favorable';
+      case 'present_unfavourable': return 'badge badge--status-unfavorable';
       case 'ambiguous': return 'badge badge--status-ambiguous';
       case 'not_mentioned': return 'badge badge--status-not-mentioned';
       default: return 'badge badge--status-not-mentioned';
     }
   };
 
-  // Helper function to get severity badge color class
-  const getSeverityBadgeClass = (severity: string) => {
-    switch (severity) {
-      case 'high': return 'badge badge--sev-high';
-      case 'medium': return 'badge badge--sev-medium';
-      case 'low': return 'badge badge--sev-low';
-      default: return 'badge badge--sev-medium';
+  // Helper function to get potential severity dot class
+  const getPotentialSeverityDotClass = (potentialSeverity: string) => {
+    switch (potentialSeverity) {
+      case 'high': return 'sev-dot sev-dot--high';
+      case 'medium': return 'sev-dot sev-dot--med';
+      case 'low': return 'sev-dot sev-dot--low';
+      default: return 'sev-dot sev-dot--med';
     }
   };
 
   // Helper function to get status display text
   const getStatusDisplayText = (status: string) => {
     switch (status) {
-      case 'present_favorable': return 'Favorable';
-      case 'present_unfavorable': return 'Unfavorable';
+      case 'present_favourable': return 'Favourable';
+      case 'present_unfavourable': return 'Unfavourable';
       case 'ambiguous': return 'Ambiguous';
       case 'not_mentioned': return 'Not Mentioned';
       default: return 'Unknown';
@@ -81,12 +81,12 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
             <span className="chip-value">{coverage.reviewedCategories.length}</span>
           </div>
           <div className="summary-chip">
-            <span className="chip-label">Favorable:</span>
-            <span className="chip-value chip-value--favorable">{statusCounts.present_favorable || 0}</span>
+            <span className="chip-label">Favourable:</span>
+            <span className="chip-value chip-value--favorable">{statusCounts.present_favourable || 0}</span>
           </div>
           <div className="summary-chip">
-            <span className="chip-label">Unfavorable:</span>
-            <span className="chip-value chip-value--unfavorable">{statusCounts.present_unfavorable || 0}</span>
+            <span className="chip-label">Unfavourable:</span>
+            <span className="chip-value chip-value--unfavorable">{statusCounts.present_unfavourable || 0}</span>
           </div>
           <div className="summary-chip">
             <span className="chip-label">Ambiguous:</span>
@@ -96,6 +96,22 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
             <span className="chip-label">Not Mentioned:</span>
             <span className="chip-value chip-value--not-mentioned">{statusCounts.not_mentioned || 0}</span>
           </div>
+        </div>
+
+        {/* Legend */}
+        <div className="coverage-legend">
+          <span className="legend-item">
+            <span className="sev-dot sev-dot--high" aria-label="High potential severity"></span>
+            <span className="legend-text">High potential severity</span>
+          </span>
+          <span className="legend-item">
+            <span className="sev-dot sev-dot--med" aria-label="Medium potential severity"></span>
+            <span className="legend-text">Medium potential severity</span>
+          </span>
+          <span className="legend-item">
+            <span className="sev-dot sev-dot--low" aria-label="Low potential severity"></span>
+            <span className="legend-text">Low potential severity</span>
+          </span>
         </div>
 
         {/* Toggle for showing only risks */}
@@ -126,11 +142,10 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
                 </div>
                 <div className="table-cell table-cell--severity">
                   <span 
-                    className={getSeverityBadgeClass(item.severity)}
-                    aria-label={`Severity: ${item.severity}`}
-                  >
-                    {item.severity}
-                  </span>
+                    className={getPotentialSeverityDotClass(item.potentialSeverity || item.severity)}
+                    aria-label={`Potential Severity: ${item.potentialSeverity || item.severity}`}
+                    title={`Potential Severity: ${item.potentialSeverity || item.severity}`}
+                  ></span>
                 </div>
                 <div className="table-cell table-cell--evidence">
                   <TruncatedText text={item.evidence || 'No evidence provided'} />
@@ -147,9 +162,11 @@ export default function RiskCoverage({ coverage }: RiskCoverageProps) {
             <div className="top-risks-list">
               {coverage.topRisks.map((risk, index) => (
                 <div key={index} className="top-risk-item">
-                  <span className={getSeverityBadgeClass(risk.severity)}>
-                    {risk.severity}
-                  </span>
+                  <span 
+                    className={getPotentialSeverityDotClass(risk.potentialSeverity || risk.severity)}
+                    aria-label={`Potential Severity: ${risk.potentialSeverity || risk.severity}`}
+                    title={`Potential Severity: ${risk.potentialSeverity || risk.severity}`}
+                  ></span>
                   <span className="risk-title">{risk.title}</span>
                 </div>
               ))}

@@ -152,7 +152,7 @@
       {
         "id": "ip_ownership",
         "label": "IP Ownership & Licence",
-        "keywords": ["intellectual property", "copyright", "assign", "license"],
+        "keywords": ["intellectual property", "copyright", "assign", "licence"],
         "whyItMatters": "Who owns the work.",
         "evidence": "Assignment/licence clause.",
         "defaultSeverity": "high"
@@ -460,7 +460,7 @@
       {
         "id": "ip_ownership",
         "label": "IP Ownership & Licence",
-        "keywords": ["intellectual property", "license", "ownership", "work product"],
+        "keywords": ["intellectual property", "licence", "ownership", "work product"],
         "whyItMatters": "Who owns deliverables and what rights each party has.",
         "evidence": "IP assignment/licence clauses; restrictions.",
         "defaultSeverity": "high"
