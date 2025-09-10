@@ -37,7 +37,7 @@ export interface FullResult {
     }>;
   }>;
   intakeContractType: string;
-  detectedContractType: string;
+  detectedContractType: { label: string; confidence: number };
   finalContractType: string;
 }
 
@@ -173,9 +173,83 @@ function enhanceBucketsWithDetection(buckets: any[], bucketDefs: Bucket[], contr
   return enhancedBuckets;
 }
 
-// Helper function to detect contract type from text
-async function detectContractType(text: string): Promise<string> {
+// Helper function to detect contract type with confidence scoring
+async function detectContractTypeWithConfidence(text: string): Promise<{ label: string; confidence: number }> {
   const truncatedText = truncateText(text, 10000); // Smaller limit for classification
+  
+  const prompt = `Classify this contract as EXACTLY one of these types and provide a confidence score:
+
+Contract Types:
+- "Residential Lease" - Features: rent, deposit, landlord, tenant, lease term, property address, maintenance responsibilities
+- "Freelance / Services" - Features: SOW (Statement of Work), invoices, IP ownership, deliverables, hourly/daily rates, independent contractor
+- "NDA (Non-Disclosure Agreement)" - Features: confidentiality, non-disclosure, trade secrets, remedies, disclosure restrictions
+- "Employment Contract" - Features: salary, probation period, notice period, benefits, job title, employment terms
+- "Business Services" - Features: SLA (Service Level Agreement), uptime guarantees, liability caps, auto-renewal, B2B services, vendor agreements
+- "Other" - Any other contract type not fitting the above categories
+
+Guidance:
+- Consider the primary purpose and key features of the contract
+- Look for specific terminology and clauses that indicate the contract type
+- Confidence should reflect your certainty based on the text evidence (0.0 = very uncertain, 1.0 = very certain)
+- If multiple types seem possible, choose the most prominent one and adjust confidence accordingly
+
+Contract text:
+${truncatedText}
+
+Respond with valid JSON only:
+{ "label": "<exact type from list above>", "confidence": <number between 0.0 and 1.0> }`;
+
+  try {
+    const responseText = await makeOpenAICall([
+      { role: "system", content: "You are a contract classification expert. Respond with valid JSON only containing the label and confidence score." },
+      { role: "user", content: prompt }
+    ], 100);
+
+    // Parse JSON response
+    const result = JSON.parse(responseText.trim());
+    
+    // Validate the response structure
+    if (!result.label || typeof result.confidence !== 'number') {
+      throw new Error('Invalid response structure');
+    }
+
+    // Validate label is one of the allowed types
+    const allowedTypes = [
+      'Residential Lease',
+      'Freelance / Services', 
+      'NDA (Non-Disclosure Agreement)',
+      'Employment Contract',
+      'Business Services',
+      'Other'
+    ];
+
+    if (!allowedTypes.includes(result.label)) {
+      throw new Error(`Invalid label: ${result.label}`);
+    }
+
+    // Validate confidence is between 0 and 1
+    if (result.confidence < 0 || result.confidence > 1) {
+      throw new Error(`Invalid confidence: ${result.confidence}`);
+    }
+
+    return {
+      label: result.label,
+      confidence: Math.round(result.confidence * 100) / 100 // Round to 2 decimal places
+    };
+
+  } catch (error) {
+    console.error('Contract type detection with confidence failed:', error);
+    // Fallback to basic detection
+    return {
+      label: await detectContractTypeFallback(text),
+      confidence: 0.5
+    };
+  }
+}
+
+// Fallback function for basic contract type detection (without confidence)
+async function detectContractTypeFallback(text: string): Promise<string> {
+  const truncatedText = truncateText(text, 10000);
   
   const prompt = `Classify this contract as one of: Residential Lease, Freelance / Services, NDA (Non-Disclosure Agreement), Employment Contract, Business Services, Other. Respond with only the label.
 
@@ -229,7 +303,7 @@ Respond with only the label.`;
     return 'Other';
     
   } catch (error) {
-    console.log('Contract type detection failed:', error);
+    console.log('Fallback contract type detection failed:', error);
     return 'Other'; // Fallback on error
   }
 }
@@ -275,7 +349,14 @@ export function sanitizeFullResult(result: any): FullResult {
     professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim(),
     buckets: sanitizeBuckets(result.buckets),
     intakeContractType: String(result.intakeContractType || '').trim(),
-    detectedContractType: String(result.detectedContractType || '').trim(),
+    detectedContractType: result.detectedContractType && typeof result.detectedContractType === 'object' 
+      ? {
+          label: String(result.detectedContractType.label || '').trim(),
+          confidence: typeof result.detectedContractType.confidence === 'number' 
+            ? Math.round(result.detectedContractType.confidence * 100) / 100 
+            : 0.5
+        }
+      : { label: 'Other', confidence: 0.5 },
     finalContractType: String(result.finalContractType || '').trim()
   };
 }
@@ -420,19 +501,29 @@ Contract text: ${truncatedText}`;
 export async function summarizeContractFull(text: string, options: { contractTypeHint?: string } = {}): Promise<FullResult> {
   const truncatedText = truncateText(text, 50000); // Larger limit for full analysis
   
-  // Detect contract type from text
-  const detectedContractType = await detectContractType(text);
-  console.log('API Debug - detectedContractType:', detectedContractType);
+  // Detect contract type from text with confidence
+  const contractTypeResult = await detectContractTypeWithConfidence(text);
+  console.log('API Debug - detectedContractType:', contractTypeResult.label);
+  console.log('API Debug - confidence:', contractTypeResult.confidence);
   
-  // Determine final contract type based on user selection and detection
+  // Smart contract type decision logic
+  const intakeContractType = options.contractTypeHint || '';
   let finalContractType: string;
-  if (options.contractTypeHint === 'Other') {
-    // If user selected "Other", use detected type
-    finalContractType = detectedContractType;
+  
+  if (intakeContractType === 'Other') {
+    // If user selected "Other", use detected type (any confidence)
+    finalContractType = contractTypeResult.label;
+    console.log('API Debug - Using detected type (user selected "Other"):', finalContractType);
+  } else if (contractTypeResult.label !== intakeContractType && contractTypeResult.confidence >= 0.80) {
+    // If detected type differs from user selection AND confidence is high (≥0.80), use detected type
+    finalContractType = contractTypeResult.label;
+    console.log('API Debug - Using detected type (high confidence override):', finalContractType, 'confidence:', contractTypeResult.confidence);
   } else {
-    // Always use user selection as final type
-    finalContractType = options.contractTypeHint || detectedContractType;
+    // Otherwise, use user's selection
+    finalContractType = intakeContractType || contractTypeResult.label;
+    console.log('API Debug - Using user selection:', finalContractType);
   }
+  
   console.log('API Debug - finalContractType:', finalContractType);
   
   // Load bucket definitions for the contract type
@@ -530,8 +621,8 @@ Return ONLY the JSON object, no additional text.`;
     result.buckets = enhanceBucketsWithDetection(result.buckets, bucketDefs, truncatedText);
     
     // Add contract type fields
-    result.intakeContractType = options.contractTypeHint || '';
-    result.detectedContractType = detectedContractType;
+    result.intakeContractType = intakeContractType;
+    result.detectedContractType = contractTypeResult;
     result.finalContractType = finalContractType;
     
     return sanitizeFullResult(result);
@@ -589,8 +680,8 @@ Contract text: ${truncatedText}`;
         retryResult.buckets = enhanceBucketsWithDetection(retryResult.buckets, bucketDefs, truncatedText);
         
         // Add contract type fields
-        retryResult.intakeContractType = options.contractTypeHint || '';
-        retryResult.detectedContractType = detectedContractType;
+        retryResult.intakeContractType = intakeContractType;
+        retryResult.detectedContractType = contractTypeResult;
         retryResult.finalContractType = finalContractType;
         
         return sanitizeFullResult(retryResult);

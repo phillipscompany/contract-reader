@@ -159,25 +159,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Sanitize response to remove any unexpected keys that might have been added by the model
     const sanitizedFullResult = sanitizeFullResult(fullResult);
 
-    // Return unified response shape - only full mode
+    // Return structured response with detection metadata and buckets
     return res.status(200).json({
-      name: file.originalFilename || 'unknown',
-      size: file.size,
-      type: file.mimetype,
-      mode: mode,
-      full: sanitizedFullResult,
+      ok: true,
+      intakeContractType: sanitizedFullResult.intakeContractType,
+      detectedContractType: sanitizedFullResult.detectedContractType,
+      finalContractType: sanitizedFullResult.finalContractType,
+      buckets: sanitizedFullResult.buckets,
+      // Keep additional metadata for backward compatibility
       meta: {
+        name: file.originalFilename || 'unknown',
+        size: file.size,
+        type: file.mimetype,
+        mode: mode,
         email: intakeEmail || undefined,
         location: {
           country: intakeCountry || undefined,
           region: intakeRegion || undefined
-        },
-        contractType: intakeContractType || undefined,
-        intakeContractType: intakeContractType || undefined,
-        detectedContractType: sanitizedFullResult.detectedContractType || undefined,
-        finalContractType: sanitizedFullResult.finalContractType || undefined,
-        // Note: pages count could be added here if needed in the future
+        }
       },
+      // Keep full result for backward compatibility
+      full: sanitizedFullResult
     });
   } catch (error) {
     console.error('File upload error:', error);

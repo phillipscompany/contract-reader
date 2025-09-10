@@ -10,7 +10,9 @@ import {
   AlertTriangle, 
   Scale,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  X,
+  Info
 } from 'lucide-react';
 
 interface ResultsFullProps {
@@ -24,13 +26,14 @@ interface ResultsFullProps {
     };
     contractType?: string;
     intakeContractType?: string;
-    detectedContractType?: string;
+    detectedContractType?: { label: string; confidence: number };
     finalContractType?: string;
     pages?: number;
   };
 }
 
 export default function ResultsFull({ fullResult, sourceFilename, meta }: ResultsFullProps) {
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   // Helper component for section headers
   const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
@@ -79,21 +82,54 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
     );
   };
 
-  // Check for contract type mismatch
-  const showMismatchBanner = meta?.intakeContractType && 
-    meta?.detectedContractType && 
-    meta.intakeContractType !== meta.detectedContractType && 
-    meta.intakeContractType !== "Other";
+  // Check for contract type mismatch and determine banner type
+  const intakeType = meta?.intakeContractType || fullResult.intakeContractType;
+  const detectedType = meta?.detectedContractType || fullResult.detectedContractType;
+  const finalType = meta?.finalContractType || fullResult.finalContractType;
+  
+  const showMismatchBanner = !bannerDismissed && 
+    intakeType && 
+    detectedType && 
+    intakeType !== detectedType.label && 
+    intakeType !== "Other";
+
+  const didSwitch = finalType === detectedType.label;
+  const confidencePercent = Math.round((detectedType.confidence || 0) * 100);
 
   return (
     <div className="results-container">
       {/* Contract Type Mismatch Banner */}
       {showMismatchBanner && (
-        <div className="mismatch-banner">
-          <AlertTriangle size={20} className="banner-icon" />
+        <div 
+          className={`contract-type-banner ${didSwitch ? 'banner-info' : 'banner-warning'}`}
+          role="status"
+          aria-live="polite"
+        >
           <div className="banner-content">
-            <strong>⚠️ Note:</strong> You selected <strong>{meta.intakeContractType}</strong>, but we detected this may be a <strong>{meta.detectedContractType}</strong>. Please double-check.
+            {didSwitch ? (
+              <Info size={20} className="banner-icon" />
+            ) : (
+              <AlertTriangle size={20} className="banner-icon" />
+            )}
+            <div className="banner-text">
+              {didSwitch ? (
+                <>
+                  <strong>Note:</strong> You selected <strong>'{intakeType}'</strong>, but we're confident this is a <strong>'{detectedType.label}'</strong> (confidence {confidencePercent}%). We've used that for the analysis.
+                </>
+              ) : (
+                <>
+                  You selected <strong>'{intakeType}'</strong>, but this may be a <strong>'{detectedType.label}'</strong> (confidence {confidencePercent}%). We analysed it as <strong>'{intakeType}'</strong> as requested.
+                </>
+              )}
+            </div>
           </div>
+          <button 
+            className="banner-dismiss"
+            onClick={() => setBannerDismissed(true)}
+            aria-label="Dismiss banner"
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
 

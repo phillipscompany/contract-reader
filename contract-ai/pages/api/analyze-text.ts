@@ -72,20 +72,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Sanitize response to remove any unexpected keys that might have been added by the model
     const sanitizedFullResult = sanitizeFullResult(fullResult);
 
-    // Return the analysis results
+    // Return structured response with detection metadata and buckets
     return res.status(200).json({
-      success: true,
-      full: sanitizedFullResult,
+      ok: true,
+      intakeContractType: sanitizedFullResult.intakeContractType,
+      detectedContractType: sanitizedFullResult.detectedContractType,
+      finalContractType: sanitizedFullResult.finalContractType,
+      buckets: sanitizedFullResult.buckets,
+      // Keep additional metadata for backward compatibility
       meta: {
         email: email || undefined,
         location: {
           country: country || undefined,
           region: region || undefined
-        },
-        contractType: contractTypeHint || undefined,
-        detectedContractType: sanitizedFullResult.detectedContractType || undefined,
-        finalContractType: sanitizedFullResult.finalContractType || undefined,
+        }
       },
+      // Keep full result for backward compatibility
+      full: sanitizedFullResult
     });
 
   } catch (error) {
