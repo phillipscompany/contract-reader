@@ -1,0 +1,131 @@
+{
+  "Residential Lease": [
+    { "bucketName": "Money", "items": [
+      { "riskId": "rent_increases", "riskName": "Rent amount & increases" },
+      { "riskId": "deposit", "riskName": "Deposit & deductions" },
+      { "riskId": "fees", "riskName": "Fees & penalties" },
+      { "riskId": "utilities", "riskName": "Utilities & bills" }
+    ]},
+    { "bucketName": "Dates & timelines", "items": [
+      { "riskId": "break_clause", "riskName": "Break clause / early termination" },
+      { "riskId": "renewal_notice", "riskName": "Renewal & notice" },
+      { "riskId": "landlord_entry", "riskName": "Landlord entry notice" }
+    ]},
+    { "bucketName": "Responsibilities", "items": [
+      { "riskId": "repairs", "riskName": "Repairs & maintenance" },
+      { "riskId": "pets_alterations", "riskName": "Pets & alterations" },
+      { "riskId": "parking_rules", "riskName": "Parking & house rules" },
+      { "riskId": "insurance", "riskName": "Insurance responsibilities" }
+    ]},
+    { "bucketName": "Safety & standards", "items": [
+      { "riskId": "habitability_safety", "riskName": "Habitability & safety" }
+    ]},
+    { "bucketName": "Legal & disputes", "items": [
+      { "riskId": "subletting", "riskName": "Subletting & assignment" },
+      { "riskId": "disputes_jurisdiction", "riskName": "Disputes & jurisdiction" }
+    ]}
+  ],
+
+  "Freelance / Services": [
+    { "bucketName": "Scope & delivery", "items": [
+      { "riskId": "scope", "riskName": "Scope & deliverables" },
+      { "riskId": "acceptance", "riskName": "Acceptance criteria" },
+      { "riskId": "change_control", "riskName": "Revisions & change control" },
+      { "riskId": "timeline", "riskName": "Timeline & milestones" }
+    ]},
+    { "bucketName": "Money", "items": [
+      { "riskId": "payment", "riskName": "Payment terms & late fees" },
+      { "riskId": "expenses", "riskName": "Expenses & approvals" }
+    ]},
+    { "bucketName": "Rights & restrictions", "items": [
+      { "riskId": "ip_ownership", "riskName": "IP ownership & licence" },
+      { "riskId": "moral_rights", "riskName": "Moral rights / attribution" },
+      { "riskId": "confidentiality", "riskName": "Confidentiality" },
+      { "riskId": "non_solicit_compete", "riskName": "Non-solicit / non-compete" }
+    ]},
+    { "bucketName": "Risk & termination", "items": [
+      { "riskId": "termination", "riskName": "Termination / kill fee" },
+      { "riskId": "liability_indemnity", "riskName": "Liability & indemnity" },
+      { "riskId": "warranties", "riskName": "Warranties" },
+      { "riskId": "contractor_status", "riskName": "Independent contractor status & taxes" }
+    ]},
+    { "bucketName": "Legal", "items": [
+      { "riskId": "governing_law", "riskName": "Governing law & venue" }
+    ]}
+  ],
+
+  "NDA (Non-Disclosure Agreement)": [
+    { "bucketName": "Scope", "items": [
+      { "riskId": "definition_confidential", "riskName": "Definition of confidential information" },
+      { "riskId": "exclusions", "riskName": "Exclusions (public/prior/independent)" }
+    ]},
+    { "bucketName": "Use & sharing", "items": [
+      { "riskId": "permitted_disclosures", "riskName": "Permitted disclosures" },
+      { "riskId": "use_restrictions", "riskName": "Use restrictions" },
+      { "riskId": "return_destruction", "riskName": "Return/destruction of materials" }
+    ]},
+    { "bucketName": "Timeframe", "items": [
+      { "riskId": "duration", "riskName": "Duration of confidentiality" },
+      { "riskId": "mutual_one_way", "riskName": "Mutual vs one-way" }
+    ]},
+    { "bucketName": "Legal", "items": [
+      { "riskId": "remedies", "riskName": "Remedies (injunction/damages)" },
+      { "riskId": "governing_law", "riskName": "Governing law & jurisdiction" }
+    ]}
+  ],
+
+  "Employment Contract": [
+    { "bucketName": "Role & hours", "items": [
+      { "riskId": "job_title_duties", "riskName": "Job title & duties" },
+      { "riskId": "working_hours", "riskName": "Working hours & overtime" },
+      { "riskId": "place_of_work", "riskName": "Place of work / remote" }
+    ]},
+    { "bucketName": "Money & benefits", "items": [
+      { "riskId": "salary_bonuses", "riskName": "Salary & bonuses" },
+      { "riskId": "benefits", "riskName": "Benefits & leave" }
+    ]},
+    { "bucketName": "Dates & notices", "items": [
+      { "riskId": "start_probation", "riskName": "Start date & probation" },
+      { "riskId": "notice_termination", "riskName": "Notice periods & termination grounds" }
+    ]},
+    { "bucketName": "Rights & restrictions", "items": [
+      { "riskId": "confidentiality_ip", "riskName": "Confidentiality & IP ownership" },
+      { "riskId": "non_compete_solicit", "riskName": "Non-compete / non-solicit" }
+    ]},
+    { "bucketName": "Process & legal", "items": [
+      { "riskId": "performance_reviews", "riskName": "Performance reviews" },
+      { "riskId": "disciplinary_grievance", "riskName": "Disciplinary & grievance procedures" },
+      { "riskId": "governing_law", "riskName": "Governing law" }
+    ]}
+  ],
+
+  "Business Services": [
+    { "bucketName": "Service & performance", "items": [
+      { "riskId": "scope_services", "riskName": "Scope of services / SOW" },
+      { "riskId": "service_levels", "riskName": "Service levels & uptime" },
+      { "riskId": "support_maintenance", "riskName": "Support & maintenance" },
+      { "riskId": "acceptance", "riskName": "Acceptance criteria" },
+      { "riskId": "change_control", "riskName": "Change control" }
+    ]},
+    { "bucketName": "Money", "items": [
+      { "riskId": "fees_payment", "riskName": "Fees, payment & late charges" },
+      { "riskId": "auto_renewal", "riskName": "Auto-renewal & notice" }
+    ]},
+    { "bucketName": "Data & security", "items": [
+      { "riskId": "data_protection", "riskName": "Data protection & confidentiality" },
+      { "riskId": "security_compliance", "riskName": "Security & compliance" },
+      { "riskId": "dr_bcp", "riskName": "Disaster recovery & business continuity" },
+      { "riskId": "audit_rights", "riskName": "Audit & verification rights" }
+    ]},
+    { "bucketName": "Rights & risk", "items": [
+      { "riskId": "ip_ownership", "riskName": "IP ownership & licence" },
+      { "riskId": "liability_cap", "riskName": "Liability cap & exclusions" },
+      { "riskId": "indemnities", "riskName": "Indemnities" },
+      { "riskId": "subcontracting_assignment", "riskName": "Subcontracting & assignment" }
+    ]},
+    { "bucketName": "Term & legal", "items": [
+      { "riskId": "term_termination", "riskName": "Term & termination" },
+      { "riskId": "governing_law", "riskName": "Governing law & disputes" }
+    ]}
+  ]
+}

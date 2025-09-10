@@ -373,182 +373,55 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
     return y + 6; // Add spacing after divider
   };
 
-  // Helper function to add continuous table with repeating headers
-  const addContinuousTable = (headers: string[], rows: string[][], y: number, columnWidths: number[]): number => {
-    const tableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-    const startX = margin; // Left-align table instead of centering
-    
-    let currentY = y;
-    const cellPaddingV = 8; // Vertical padding (6-8pt as specified)
-    const cellPaddingH = 10; // Horizontal padding (8-10pt as specified)
-    const headerHeight = 14;
-    const lineHeight = 4.5;
-    
-    // Helper function to draw header row
-    const drawHeader = (yPos: number) => {
-      // Draw header background - slightly darker grey
-      pdf.setFillColor(240, 240, 240);
-      pdf.rect(startX, yPos - headerHeight + 2, tableWidth, headerHeight, 'F');
-      
-      // Draw header text with bold font
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'bold');
-      let xPos = startX;
-      headers.forEach((header, index) => {
-        const maxWidth = columnWidths[index] - (cellPaddingH * 2);
-        const lines = pdf.splitTextToSize(header, maxWidth);
-        lines.forEach((line, lineIndex) => {
-          pdf.text(line, xPos + cellPaddingH, yPos + (lineIndex * lineHeight));
-        });
-        xPos += columnWidths[index];
-      });
-      return yPos + 2;
-    };
-    
-    // Draw initial header
-    currentY = drawHeader(currentY);
-    
-    // Process all rows in a single continuous table
-    rows.forEach((row, rowIndex) => {
-      // Calculate row height first - ensure all text fits within cell bounds
-      let maxLinesInRow = 1;
-      row.forEach((cell, cellIndex) => {
-        const maxWidth = columnWidths[cellIndex] - (cellPaddingH * 2);
-        const lines = pdf.splitTextToSize(cell, maxWidth);
-        maxLinesInRow = Math.max(maxLinesInRow, lines.length);
-      });
-      
-      const rowHeight = Math.max(10, maxLinesInRow * lineHeight + cellPaddingV);
-      
-      // Check if we need a new page (allow splitting to avoid large gaps)
-      if (currentY + rowHeight > pageHeight - margin - 15) {
-        pdf.addPage();
-        currentY = margin;
-        
-        // Redraw header on new page
-        currentY = drawHeader(currentY);
-      }
-      
-      // Zebra striping with very light grey on even rows
-      if (rowIndex % 2 === 1) {
-        pdf.setFillColor(248, 248, 248);
-        pdf.rect(startX, currentY - rowHeight + 2, tableWidth, rowHeight, 'F');
-      }
-      
-      // Draw row text with smaller font (1pt smaller than body text)
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      let xPos = startX;
-      
-      row.forEach((cell, cellIndex) => {
-        // Split long text to fit in column - clamp to cell bounds
-        const maxWidth = columnWidths[cellIndex] - (cellPaddingH * 2);
-        const lines = pdf.splitTextToSize(cell, maxWidth);
-        
-        // Draw all lines for this cell - ensure no overflow
-        lines.forEach((line, lineIndex) => {
-          // Clamp drawing area to cell bounds
-          const textX = xPos + cellPaddingH;
-          const textY = currentY + (lineIndex * lineHeight);
-          pdf.text(line, textX, textY);
-        });
-        
-        xPos += columnWidths[cellIndex];
-      });
-      
-      currentY += rowHeight;
-    });
-    
-    return currentY + 3; // Reduced spacing after table
-  };
 
-  // Helper function to add risk coverage with polished design
-  const addRiskCoverage = (coverage: FullResult['riskCoverage'], y: number): number => {
-    if (!coverage || !coverage.matrix || coverage.matrix.length === 0) {
+  // Helper function to add risk coverage with bucketed lists
+  const addRiskCoverage = (buckets: FullResult['buckets'], y: number): number => {
+    if (!buckets || buckets.length === 0) {
       return y;
     }
 
     let currentY = y;
 
-    // A) Risk Coverage Summary Table - single continuous table with proper column widths
-    const headers = ['Category', 'Status', 'Potential Severity'];
-    
-    // Calculate table width and column widths as specified
-    const tableWidth = contentWidth; // Use full content width
-    const categoryWidth = tableWidth * 0.5; // 50% of table width
-    const statusWidth = tableWidth * 0.25; // 25% of table width  
-    const severityWidth = tableWidth * 0.25; // 25% of table width
-    const columnWidths = [categoryWidth, statusWidth, severityWidth];
-    
-    // Prepare table data with status mapping and non-breaking spaces
-    const tableRows: string[][] = [];
-    
-    // Sort so "Not mentioned" items appear after "Mentioned" items
-    const sortedMatrix = [...coverage.matrix].sort((a, b) => {
-      const aMentioned = a.status !== 'not_mentioned';
-      const bMentioned = b.status !== 'not_mentioned';
-      if (aMentioned === bMentioned) return 0;
-      return aMentioned ? -1 : 1;
-    });
-    
-    sortedMatrix.forEach((item) => {
-      // Map status for PDF with non-breaking space to prevent line breaks
-      const mappedStatus = item.status === 'not_mentioned' ? 'Not\u00A0mentioned' : 'Mentioned';
-      
-      // Capitalize first letter of severity
-      const severity = (item.potentialSeverity || item.severity || 'medium').charAt(0).toUpperCase() + 
-                      (item.potentialSeverity || item.severity || 'medium').slice(1);
-      
-      tableRows.push([
-        item.category,
-        mappedStatus,
-        severity
-      ]);
-    });
-    
-    currentY = addContinuousTable(headers, tableRows, currentY, columnWidths);
-    
-    // B) Things we couldn't find in your contract (renamed section)
-    const notMentionedItems = coverage.matrix.filter(item => item.status === 'not_mentioned');
-    
-    if (notMentionedItems.length > 0) {
-      currentY = addSubsectionHeading('Things we couldn\'t find in your contract', currentY);
-      
-      notMentionedItems.forEach((item, index) => {
-        // Smart pagination - allow notes to flow across pages to avoid large gaps
-        if (currentY > pageHeight - margin - 30) {
-          pdf.addPage();
-          currentY = margin;
-        }
-        
-        // Title with severity - cleaner format
-        const severity = (item.potentialSeverity || item.severity || 'medium').charAt(0).toUpperCase() + 
-                        (item.potentialSeverity || item.severity || 'medium').slice(1);
-        const title = `${item.category} — Potential severity: ${severity}`;
-        
+    // Process each bucket in order
+    buckets.forEach((bucket, bucketIndex) => {
+      // Print bucket name as subheading (consistent with other subsections)
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(70, 99, 217); // Primary color
+      currentY = addWrappedText(bucket.bucketName, currentY, 14, contentWidth, 1.2);
+      pdf.setTextColor(0, 0, 0); // Reset to black
+      pdf.setFont('helvetica', 'normal');
+      currentY += paragraphSpacing; // Consistent spacing after bucket title
+
+      // Process each risk in the bucket
+      bucket.risks.forEach((risk, riskIndex) => {
+        // Set font for risk items (consistent with rest of document)
         pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'bold');
-        currentY = addWrappedText(title, currentY, 11, contentWidth, 1.15);
-        
-        // Why it matters - short paragraph (2-3 sentences max) - ONLY this section
-        if (item.whyItMatters && item.whyItMatters.trim()) {
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(10);
-          let whyItMattersText = item.whyItMatters.trim();
-          
-          // Soft trim by sentence count (don't truncate mid-sentence)
-          const sentences = whyItMattersText.split(/[.!?]+/).filter(s => s.trim());
-          if (sentences.length > 3) {
-            whyItMattersText = sentences.slice(0, 3).join('. ') + '.';
-          }
-          
-          currentY = addWrappedText(whyItMattersText, currentY, 10, contentWidth, 1.1);
+        pdf.setFont('helvetica', 'normal');
+
+        // Format the risk line based on mentioned status
+        let riskLine: string;
+        if (risk.mentioned) {
+          // Mentioned: "• {riskName} — {keyInfo}"
+          const keyInfo = risk.keyInfo && risk.keyInfo.trim() 
+            ? risk.keyInfo.trim() 
+            : 'Mentioned in this contract.';
+          riskLine = `• ${risk.riskName} — ${keyInfo}`;
+        } else {
+          // Not mentioned: "• {riskName} — Not mentioned in this contract."
+          riskLine = `• ${risk.riskName} — Not mentioned in this contract.`;
         }
-        
-        // Tightened vertical rhythm - smaller spacing between notes
-        currentY += 6;
+
+        // Add the risk line with consistent formatting
+        currentY = addWrappedText(riskLine, currentY, 11, contentWidth, 1.15);
+        currentY += paragraphSpacing; // Consistent spacing between risk items
       });
-    }
+
+      // Consistent spacing between buckets (but not after the last bucket)
+      if (bucketIndex < buckets.length - 1) {
+        currentY += sectionSpacing;
+      }
+    });
 
     return currentY;
   };
@@ -628,9 +501,9 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
   }
 
   // F) Risk Coverage
-  if (full.riskCoverage && full.riskCoverage.matrix && full.riskCoverage.matrix.length > 0) {
-    yPosition = addSectionHeading('Risk Coverage', yPosition);
-    yPosition = addRiskCoverage(full.riskCoverage, yPosition);
+  if (full.buckets && full.buckets.length > 0) {
+    yPosition = addSectionHeading('Risk overview by category', yPosition);
+    yPosition = addRiskCoverage(full.buckets, yPosition);
     yPosition = addSectionDivider(yPosition);
   }
 

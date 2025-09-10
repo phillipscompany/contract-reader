@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { downloadFullAnalysisPdf } from '../lib/pdf';
 import type { FullResult } from '../lib/summarizeContract';
-import RiskCoverage from './RiskCoverage';
+import BucketPreview from './BucketPreview';
 import { 
   FileText, 
   Users, 
   BookOpen, 
   ClipboardCheck, 
-  BadgeDollarSign, 
-  RefreshCw, 
   AlertTriangle, 
-  Lightbulb,
   Scale,
   ChevronDown,
   ChevronUp
@@ -179,8 +176,20 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
       )}
 
       {/* E) Risk Coverage Section */}
-      {fullResult.riskCoverage && fullResult.riskCoverage.matrix.length > 0 && (
-        <RiskCoverage coverage={fullResult.riskCoverage} />
+      {(() => {
+        console.log('ResultsFull - fullResult.buckets:', fullResult.buckets);
+        console.log('ResultsFull - buckets length:', fullResult.buckets?.length);
+        return null;
+      })()}
+      {fullResult.buckets && fullResult.buckets.length > 0 && (
+        <div className="results-section">
+          <BucketPreview buckets={fullResult.buckets} />
+        </div>
+      )}
+      {(!fullResult.buckets || fullResult.buckets.length === 0) && (
+        <div className="results-section">
+          <p>Debug: No buckets found. fullResult.buckets = {JSON.stringify(fullResult.buckets)}</p>
+        </div>
       )}
 
       {/* F) Liability and Risks Section */}

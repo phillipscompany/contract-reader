@@ -1,9 +1,9 @@
 import OpenAI from 'openai';
-import { loadRiskCategories, type RiskCategory } from './riskTaxonomy';
+import { loadBucketDefs, type Bucket } from './buckets';
+import { detectMentioned, extractFacts, formatKeyInfo } from './riskDetect';
 
-// Risk coverage types
-export type CoverageStatus = "present_favourable" | "present_unfavourable" | "ambiguous" | "not_mentioned";
-export type PotentialSeverity = "high" | "medium" | "low";
+
+
 
 // Types for Demo (short) analysis
 export interface DemoResult {
@@ -27,28 +27,28 @@ export interface FullResult {
     howItAffectsYou: string
   }>; // Each risk with context
   professionalAdviceNote: string; // Reminder to seek legal counsel
-  riskCoverage: {
-    contractTypes: string[]; // detected or from intake
-    reviewedCategories: string[]; // labels of categories provided to the model
-    unreviewedCategories: string[]; // if any were skipped
-    matrix: Array<{
-      category: string; // label
-      status: CoverageStatus;
-      potentialSeverity: PotentialSeverity;
-      severity?: PotentialSeverity; // backward compatibility
-      evidence: string; // MUST be a direct quote: "…"
-      whyItMatters: string;
+  buckets: Array<{
+    bucketName: string;
+    risks: Array<{
+      riskId: string;
+      riskName: string;
+      mentioned: boolean;
+      keyInfo: string; // if mentioned, a single short plain-English sentence; else ""
     }>;
-    topRisks: Array<{ title: string; potentialSeverity: PotentialSeverity; severity?: PotentialSeverity }>; // backward compatibility
-  };
+  }>;
   intakeContractType: string;
   detectedContractType: string;
   finalContractType: string;
 }
 
-interface ContractError {
+class ContractError extends Error {
   code: 'RATE_LIMIT' | 'AUTH' | 'TIMEOUT' | 'UNKNOWN';
-  message: string;
+  
+  constructor(code: 'RATE_LIMIT' | 'AUTH' | 'TIMEOUT' | 'UNKNOWN', message: string) {
+    super(message);
+    this.code = code;
+    this.name = 'ContractError';
+  }
 }
 
 // Shared system guardrails for both functions
@@ -64,6 +64,113 @@ const SHARED_SYSTEM_PROMPT = `You are an experienced contracts lawyer. Your job 
 function truncateText(text: string, maxChars: number = 50000): string {
   if (text.length <= maxChars) return text;
   return text.substring(0, maxChars) + '... [truncated]';
+}
+
+// Helper function to validate bucket structure (LAW3)
+function validateBucketStructure(buckets: any[], bucketDefs: any[]): boolean {
+  if (!Array.isArray(buckets) || !Array.isArray(bucketDefs)) {
+    return false;
+  }
+
+  // Get all required riskIds from bucket definitions
+  const requiredRiskIds = new Set(bucketDefs.flatMap(bucket => bucket.items.map(item => item.riskId)));
+  
+  // Get all riskIds from the response
+  const responseRiskIds = new Set(buckets.flatMap(bucket => bucket.risks?.map(risk => risk.riskId) || []));
+  
+  // Check if all required riskIds are present and no extra ones
+  if (requiredRiskIds.size !== responseRiskIds.size) {
+    return false;
+  }
+  
+  for (const riskId of requiredRiskIds) {
+    if (!responseRiskIds.has(riskId)) {
+      return false;
+    }
+  }
+  
+  // Check structure of each bucket and risk
+  for (const bucket of buckets) {
+    if (!bucket.bucketName || !Array.isArray(bucket.risks)) {
+      return false;
+    }
+    
+    for (const risk of bucket.risks) {
+      if (!risk.riskId || !risk.riskName || typeof risk.mentioned !== 'boolean' || typeof risk.keyInfo !== 'string') {
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}
+
+// Helper function to enhance buckets with risk detection validation
+function enhanceBucketsWithDetection(buckets: any[], bucketDefs: Bucket[], contractText: string): FullResult['buckets'] {
+  if (!buckets || !bucketDefs) {
+    return [];
+  }
+
+  const enhancedBuckets: FullResult['buckets'] = [];
+
+  // Process each bucket definition to ensure complete coverage
+  bucketDefs.forEach(bucketDef => {
+    const existingBucket = buckets.find(b => b.bucketName === bucketDef.bucketName);
+    const enhancedRisks: FullResult['buckets'][0]['risks'] = [];
+
+    // Process each risk in the bucket definition
+    bucketDef.items.forEach(riskDef => {
+      let risk = existingBucket?.risks?.find((r: any) => r.riskId === riskDef.riskId);
+      
+      // If risk doesn't exist in model response, create a placeholder
+      if (!risk) {
+        risk = {
+          riskId: riskDef.riskId,
+          riskName: riskDef.riskName,
+          mentioned: false,
+          keyInfo: ''
+        };
+      }
+
+      // Validate mentioned status using risk detection
+      const detectedMentioned = detectMentioned(contractText, riskDef.riskId);
+      if (detectedMentioned && !risk.mentioned) {
+        // Model said not mentioned but we detected it - flip to mentioned
+        risk.mentioned = true;
+        console.log(`Risk detection: Flipped ${riskDef.riskId} to mentioned`);
+      }
+
+      // Enhance keyInfo if mentioned but keyInfo is weak/empty
+      if (risk.mentioned && (!risk.keyInfo || risk.keyInfo.length < 12)) {
+        const facts = extractFacts(contractText, riskDef.riskId);
+        const generatedKeyInfo = formatKeyInfo(riskDef.riskId, facts);
+        if (generatedKeyInfo) {
+          risk.keyInfo = generatedKeyInfo;
+          console.log(`Risk detection: Enhanced keyInfo for ${riskDef.riskId}: ${generatedKeyInfo}`);
+        }
+      }
+
+      // Ensure keyInfo is a single sentence
+      if (risk.keyInfo) {
+        const sentences = risk.keyInfo.split(/[.!?]+/).filter(s => s.trim());
+        risk.keyInfo = sentences[0]?.trim() + (sentences[0] ? '.' : '');
+      }
+
+      enhancedRisks.push({
+        riskId: risk.riskId,
+        riskName: risk.riskName,
+        mentioned: risk.mentioned,
+        keyInfo: risk.keyInfo || ''
+      });
+    });
+
+    enhancedBuckets.push({
+      bucketName: bucketDef.bucketName,
+      risks: enhancedRisks
+    });
+  });
+
+  return enhancedBuckets;
 }
 
 // Helper function to detect contract type from text
@@ -166,54 +273,31 @@ export function sanitizeFullResult(result: any): FullResult {
         })).filter(r => r.clause && r.whyItMatters && r.howItAffectsYou)
       : [],
     professionalAdviceNote: (result.professionalAdviceNote || 'This tool provides AI-powered plain-English explanations. It is not legal advice.').substring(0, 500).trim(),
-    riskCoverage: sanitizeRiskCoverage(result.riskCoverage),
+    buckets: sanitizeBuckets(result.buckets),
     intakeContractType: String(result.intakeContractType || '').trim(),
     detectedContractType: String(result.detectedContractType || '').trim(),
     finalContractType: String(result.finalContractType || '').trim()
   };
 }
 
-// Helper function to sanitize risk coverage data
-function sanitizeRiskCoverage(riskCoverage: any): FullResult['riskCoverage'] {
-  if (!riskCoverage || typeof riskCoverage !== 'object') {
-    return {
-      contractTypes: [],
-      reviewedCategories: [],
-      unreviewedCategories: [],
-      matrix: [],
-      topRisks: []
-    };
+
+// Helper function to sanitize buckets data
+function sanitizeBuckets(buckets: any): FullResult['buckets'] {
+  if (!Array.isArray(buckets)) {
+    return [];
   }
 
-  return {
-    contractTypes: Array.isArray(riskCoverage.contractTypes)
-      ? riskCoverage.contractTypes.map((t: any) => String(t || '').trim()).filter(Boolean)
-      : [],
-    reviewedCategories: Array.isArray(riskCoverage.reviewedCategories)
-      ? riskCoverage.reviewedCategories.map((c: any) => String(c || '').trim()).filter(Boolean)
-      : [],
-    unreviewedCategories: Array.isArray(riskCoverage.unreviewedCategories)
-      ? riskCoverage.unreviewedCategories.map((c: any) => String(c || '').trim()).filter(Boolean)
-      : [],
-    matrix: Array.isArray(riskCoverage.matrix)
-      ? riskCoverage.matrix.slice(0, 20).map((item: any) => ({
-          category: String(item?.category || '').trim(),
-          status: (['present_favourable', 'present_unfavourable', 'ambiguous', 'not_mentioned'].includes(item?.status)) 
-            ? item.status : 'not_mentioned',
-          potentialSeverity: (['high', 'medium', 'low'].includes(item?.potentialSeverity || item?.severity)) 
-            ? (item.potentialSeverity || item.severity) : 'medium',
-          evidence: String(item?.evidence || '').substring(0, 200).trim(),
-          whyItMatters: String(item?.whyItMatters || '').substring(0, 300).trim()
-        })).filter(m => m.category)
-      : [],
-    topRisks: Array.isArray(riskCoverage.topRisks)
-      ? riskCoverage.topRisks.slice(0, 5).map((risk: any) => ({
-          title: String(risk?.title || '').substring(0, 150).trim(),
-          potentialSeverity: (['high', 'medium', 'low'].includes(risk?.potentialSeverity || risk?.severity)) 
-            ? (risk.potentialSeverity || risk.severity) : 'medium'
-        })).filter(r => r.title)
+  return buckets.slice(0, 10).map((bucket: any) => ({
+    bucketName: String(bucket?.bucketName || '').trim(),
+    risks: Array.isArray(bucket?.risks) 
+      ? bucket.risks.slice(0, 20).map((risk: any) => ({
+          riskId: String(risk?.riskId || '').trim(),
+          riskName: String(risk?.riskName || '').trim(),
+          mentioned: Boolean(risk?.mentioned),
+          keyInfo: String(risk?.keyInfo || '').substring(0, 200).trim()
+        })).filter(r => r.riskId && r.riskName)
       : []
-  };
+  })).filter(b => b.bucketName && b.risks.length > 0);
 }
 
 // Helper function to make OpenAI API call with retry logic
@@ -241,112 +325,10 @@ async function makeOpenAICall(messages: any[], maxTokens: number): Promise<strin
   return responseText;
 }
 
-// Helper function to validate and sanitize risk coverage data
-function validateAndSanitizeRiskCoverage(riskCoverage: any): any {
-  if (!riskCoverage || typeof riskCoverage !== 'object') {
-    return riskCoverage;
-  }
-
-  // Sanitize matrix items
-  if (Array.isArray(riskCoverage.matrix)) {
-    riskCoverage.matrix = riskCoverage.matrix.map((item: any) => {
-      // Map severity to potentialSeverity if needed
-      if (item.severity && !item.potentialSeverity) {
-        item.potentialSeverity = item.severity;
-        delete item.severity;
-      }
-
-      // Sanitize evidence field
-      if (item.evidence && typeof item.evidence === 'string') {
-        let evidence = item.evidence.trim();
-        
-        // If evidence is not empty and not properly quoted, wrap it in quotes
-        if (evidence && !evidence.startsWith('"') && !evidence.endsWith('"')) {
-          evidence = `"${evidence}"`;
-        }
-        
-        // Trim whitespace around quotes: " text " → "text"
-        if (evidence.startsWith('"') && evidence.endsWith('"') && evidence.length > 2) {
-          const innerContent = evidence.slice(1, -1).trim();
-          evidence = `"${innerContent}"`;
-        }
-        
-        item.evidence = evidence;
-      }
-
-      return item;
-    });
-  }
-
-  // Sanitize topRisks items
-  if (Array.isArray(riskCoverage.topRisks)) {
-    riskCoverage.topRisks = riskCoverage.topRisks.map((risk: any) => {
-      // Map severity to potentialSeverity if needed
-      if (risk.severity && !risk.potentialSeverity) {
-        risk.potentialSeverity = risk.severity;
-        delete risk.severity;
-      }
-      return risk;
-    });
-  }
-
-  return riskCoverage;
-}
-
-// Helper function to validate risk coverage schema
-function validateRiskCoverageSchema(riskCoverage: any): boolean {
-  if (!riskCoverage || typeof riskCoverage !== 'object') {
-    return false;
-  }
-
-  // Validate matrix
-  if (Array.isArray(riskCoverage.matrix)) {
-    for (const item of riskCoverage.matrix) {
-      // Check that potentialSeverity is present and valid
-      if (!item.potentialSeverity || !['high', 'medium', 'low'].includes(item.potentialSeverity)) {
-        return false;
-      }
-
-      // Check evidence format: either empty string or properly quoted
-      if (item.evidence && typeof item.evidence === 'string') {
-        const evidence = item.evidence.trim();
-        if (evidence && (!evidence.startsWith('"') || !evidence.endsWith('"') || evidence.length < 3)) {
-          return false;
-        }
-      }
-    }
-  }
-
-  // Validate topRisks
-  if (Array.isArray(riskCoverage.topRisks)) {
-    for (const risk of riskCoverage.topRisks) {
-      if (!risk.potentialSeverity || !['high', 'medium', 'low'].includes(risk.potentialSeverity)) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 // Helper function to parse JSON with retry logic
 function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any {
   try {
     const parsed = JSON.parse(responseText);
-    
-    // Sanitize the parsed result
-    if (parsed.riskCoverage) {
-      parsed.riskCoverage = validateAndSanitizeRiskCoverage(parsed.riskCoverage);
-      
-      // Validate the sanitized result
-      if (!validateRiskCoverageSchema(parsed.riskCoverage)) {
-        if (!isRetry) {
-          throw new Error('SCHEMA_VALIDATION_FAILED');
-        }
-        throw new Error('Invalid risk coverage schema after sanitization');
-      }
-    }
-    
     return parsed;
   } catch (error) {
     if (!isRetry) {
@@ -357,79 +339,6 @@ function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any
   }
 }
 
-// Helper function to post-process full result
-function postProcessFullResult(result: any, riskCategories: RiskCategory[], categoryLabels: string[], contractTypeHint?: string, detectedContractType?: string, finalContractType?: string): any {
-  // Ensure riskCoverage exists
-  if (!result.riskCoverage) {
-    result.riskCoverage = {
-      contractTypes: [],
-      reviewedCategories: [],
-      unreviewedCategories: [],
-      matrix: [],
-      topRisks: []
-    };
-  }
-
-  // Validate matrix length
-  const expectedLength = categoryLabels.length;
-  const actualLength = result.riskCoverage.matrix?.length || 0;
-  
-  if (actualLength !== expectedLength) {
-    // If matrix length doesn't match, retry with stricter instructions
-    throw new Error('MATRIX_LENGTH_MISMATCH');
-  }
-
-  // Ensure all categories are covered
-  const matrixCategories = result.riskCoverage.matrix?.map((item: any) => item.category) || [];
-  const missingCategories = categoryLabels.filter(label => !matrixCategories.includes(label));
-  
-  if (missingCategories.length > 0) {
-    // Add missing categories with default values
-    missingCategories.forEach(categoryLabel => {
-      const category = riskCategories.find(cat => cat.label === categoryLabel);
-      result.riskCoverage.matrix.push({
-        category: categoryLabel,
-        status: 'not_mentioned',
-        potentialSeverity: category?.defaultSeverity || 'medium',
-        evidence: '',
-        whyItMatters: category?.whyItMatters || 'This category was not addressed in the contract.'
-      });
-    });
-  }
-
-  // Compute topRisks if missing or empty
-  if (!result.riskCoverage.topRisks || result.riskCoverage.topRisks.length === 0) {
-    const riskItems = result.riskCoverage.matrix?.filter((item: any) => 
-      ['present_unfavourable', 'ambiguous', 'not_mentioned'].includes(item.status)
-    ) || [];
-    
-    // Sort by potentialSeverity (high -> medium -> low) and take top 5
-    const severityOrder = { high: 3, medium: 2, low: 1 };
-    riskItems.sort((a: any, b: any) => {
-      const aSeverity = a.potentialSeverity || a.severity || 'medium';
-      const bSeverity = b.potentialSeverity || b.severity || 'medium';
-      return (severityOrder[bSeverity as keyof typeof severityOrder] || 0) - 
-             (severityOrder[aSeverity as keyof typeof severityOrder] || 0);
-    });
-    
-    result.riskCoverage.topRisks = riskItems.slice(0, 5).map((item: any) => ({
-      title: item.category,
-      potentialSeverity: item.potentialSeverity || item.severity || 'medium'
-    }));
-  }
-
-  // Set contract types and reviewed categories
-  result.riskCoverage.contractTypes = [finalContractType || contractTypeHint || 'detected'];
-  result.riskCoverage.reviewedCategories = categoryLabels;
-  result.riskCoverage.unreviewedCategories = [];
-
-  // Add contract type fields
-  result.intakeContractType = contractTypeHint || '';
-  result.detectedContractType = detectedContractType || '';
-  result.finalContractType = finalContractType || '';
-
-  return result;
-}
 
 // Demo function - fast, light preview
 export async function summarizeContractDemo(text: string): Promise<DemoResult> {
@@ -513,6 +422,7 @@ export async function summarizeContractFull(text: string, options: { contractTyp
   
   // Detect contract type from text
   const detectedContractType = await detectContractType(text);
+  console.log('API Debug - detectedContractType:', detectedContractType);
   
   // Determine final contract type based on user selection and detection
   let finalContractType: string;
@@ -523,15 +433,22 @@ export async function summarizeContractFull(text: string, options: { contractTyp
     // Always use user selection as final type
     finalContractType = options.contractTypeHint || detectedContractType;
   }
+  console.log('API Debug - finalContractType:', finalContractType);
   
-  // Load risk categories based on final contract type
-  const riskCategories = loadRiskCategories(finalContractType);
-  const categoryLabels = riskCategories.map(cat => cat.label);
+  // Load bucket definitions for the contract type
+  const bucketDefs = loadBucketDefs(finalContractType);
+  console.log('API Debug - loaded bucket definitions:', bucketDefs);
   
-  // Build category information for the prompt
-  const categoryInfo = riskCategories.map(cat => 
-    `- ${cat.label}: ${cat.whyItMatters} (Look for: ${cat.evidence})`
-  ).join('\n');
+  if (!bucketDefs || bucketDefs.length === 0) {
+    throw new ContractError('UNKNOWN', `No bucket definitions found for contract type: ${finalContractType}`);
+  }
+  
+  // Build bucket information for the prompt
+  const bucketInfo = bucketDefs.map(bucket => 
+    `"${bucket.bucketName}": [${bucket.items.map(item => 
+      `{"riskId": "${item.riskId}", "riskName": "${item.riskName}"}`
+    ).join(', ')}]`
+  ).join(',\n    ');
   
   const prompt = `Analyse the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
@@ -553,36 +470,32 @@ export async function summarizeContractFull(text: string, options: { contractTyp
     }
   ],
   "professionalAdviceNote": "Reminder to seek qualified legal counsel for specific advice",
-  "riskCoverage": {
-    "contractTypes": ["detected contract type"],
-    "reviewedCategories": ["list of all category labels provided"],
-    "unreviewedCategories": [],
-    "matrix": [
-      {
-        "category": "category label",
-        "status": "present_favourable|present_unfavourable|ambiguous|not_mentioned",
-        "potentialSeverity": "high|medium|low",
-        "evidence": "MUST be copied verbatim from the provided contract text and wrapped in straight double quotes. Do NOT paraphrase. If you cannot find a direct sentence/phrase, set to empty string",
-        "whyItMatters": "why this category matters for this contract type"
-      }
-    ],
-    "topRisks": [
-      {
-        "title": "risk title",
-        "potentialSeverity": "high|medium|low"
-      }
-    ]
-  }
+  "buckets": [
+    {
+      "bucketName": "Bucket Name",
+      "risks": [
+        {
+          "riskId": "risk_id",
+          "riskName": "Risk Name",
+          "mentioned": true,
+          "keyInfo": "Short sentence explaining what the contract says about this risk, or empty string if not mentioned"
+        }
+      ]
+    }
+  ]
 }
 
-CRITICAL REQUIREMENTS FOR RISK COVERAGE:
-- You MUST review EVERY category in the provided list and emit one matrix entry per category.
-- If a category is not mentioned in the contract, set status='not_mentioned' and still fill whyItMatters.
-- Ambiguity counts as risk; use 'ambiguous' when unclear.
-- Return potentialSeverity (high/medium/low) — this is an estimate of potential impact, not legal advice.
-- evidence MUST be copied verbatim from the provided contract text and wrapped in straight double quotes. Do NOT paraphrase. If you cannot find a direct sentence/phrase, set evidence to an empty string.
-- No URLs or law firm names. Plain English. JSON only.
-- The matrix array must have exactly ${categoryLabels.length} entries, one for each category.
+
+CRITICAL BUCKET REQUIREMENTS:
+- Contract Type: ${finalContractType}
+- You must scan the contract for each riskId listed below and set mentioned=true if the contract contains a clause covering that risk, else false.
+- If mentioned=true, produce one short sentence in British English in keyInfo explaining exactly what the contract says about this risk.
+- If mentioned=false, keyInfo must be an empty string "".
+- No legal advice, no links, just factual statements about what the contract says.
+- You must include ALL riskIds exactly as provided - do not add extra risks or buckets.
+
+Required buckets and risks:
+    ${bucketInfo}
 
 IMPORTANT GUARDRAILS:
 - Do NOT provide recommendations or prescriptive advice.
@@ -590,9 +503,6 @@ IMPORTANT GUARDRAILS:
 - Do NOT include "recommendedAction" or "action" fields in your response.
 - Provide neutral explanations only - explain what exists, not what to do about it.
 - Focus on factual analysis and neutral explanations of contract terms.
-
-Categories to review:
-${categoryInfo}
 
 Contract text to analyze:
 ${truncatedText}
@@ -607,16 +517,30 @@ Return ONLY the JSON object, no additional text.`;
 
     const result = parseJSONWithRetry(responseText);
     
-    // Post-process: validate matrix length and compute topRisks if missing
-    const processedResult = postProcessFullResult(result, riskCategories, categoryLabels, options.contractTypeHint, detectedContractType, finalContractType);
+    // Debug logging
+    console.log('API Debug - result.buckets:', result.buckets);
     
-    return sanitizeFullResult(processedResult);
+    // Validate bucket structure (LAW3)
+    if (!validateBucketStructure(result.buckets, bucketDefs)) {
+      console.log('API Debug - bucket validation failed, retrying...');
+      throw new Error('JSON_PARSE_RETRY');
+    }
+    
+    // Enhance buckets with risk detection validation
+    result.buckets = enhanceBucketsWithDetection(result.buckets, bucketDefs, truncatedText);
+    
+    // Add contract type fields
+    result.intakeContractType = options.contractTypeHint || '';
+    result.detectedContractType = detectedContractType;
+    result.finalContractType = finalContractType;
+    
+    return sanitizeFullResult(result);
     
   } catch (error: any) {
-    if (error.message === 'JSON_PARSE_RETRY' || error.message === 'MATRIX_LENGTH_MISMATCH' || error.message === 'SCHEMA_VALIDATION_FAILED') {
+    if (error.message === 'JSON_PARSE_RETRY') {
       // Retry with stricter instruction
       try {
-        const retryPrompt = `Return valid JSON exactly matching this schema - no extra text. CRITICAL: The riskCoverage.matrix must have exactly ${categoryLabels.length} entries, one for each category.
+        const retryPrompt = `Return valid JSON exactly matching this schema - no extra text.
 
 {
   "executiveSummary": "2-3 paragraphs like a lawyer's note",
@@ -627,42 +551,49 @@ Return ONLY the JSON object, no additional text.`;
   "renewalAndTermination": ["renewal1", "termination1"],
   "liabilityAndRisks": [{"clause": "clause1", "whyItMatters": "why1", "howItAffectsYou": "how1"}],
   "professionalAdviceNote": "advice note",
-  "riskCoverage": {
-    "contractTypes": ["detected contract type"],
-    "reviewedCategories": ["${categoryLabels.join('", "')}"],
-    "unreviewedCategories": [],
-    "matrix": [
-      ${categoryLabels.map(label => `{"category": "${label}", "status": "present_favourable|present_unfavourable|ambiguous|not_mentioned", "potentialSeverity": "high|medium|low", "evidence": "direct quote in double quotes or empty", "whyItMatters": "why it matters"}`).join(',\n      ')}
-    ],
-    "topRisks": [{"title": "risk1", "potentialSeverity": "high"}]
-  }
+  "buckets": [
+    {
+      "bucketName": "Bucket Name",
+      "risks": [
+        {
+          "riskId": "risk_id",
+          "riskName": "Risk Name", 
+          "mentioned": true,
+          "keyInfo": "Short sentence or empty string"
+        }
+      ]
+    }
+  ]
 }
 
-CRITICAL EVIDENCE REQUIREMENTS:
-- evidence MUST be either an empty string "" OR a direct quote from the contract wrapped in double quotes
-- Examples: "" or "The Tenant shall pay rent on the first of each month"
-- Do NOT paraphrase or summarize - copy the exact text from the contract
-- If no relevant text is found, use empty string ""
 
-CRITICAL FIELD REQUIREMENTS:
-- Use potentialSeverity (NOT severity) for all risk assessments
-- potentialSeverity must be exactly "high", "medium", or "low"
 
 IMPORTANT: Do NOT include "recommendations", "recommendedAction", or "action" fields. Provide neutral explanations only.
 
-Categories to review (MUST include all ${categoryLabels.length}):
-${categoryInfo}
 
 Contract text: ${truncatedText}`;
 
         const retryResponse = await makeOpenAICall([
-          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema. The riskCoverage.matrix must have exactly " + categoryLabels.length + " entries. Use potentialSeverity (NOT severity) and ensure evidence is either empty string or properly quoted direct quotes from the contract." },
+          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema." },
           { role: "user", content: retryPrompt }
         ], 1500);
 
         const retryResult = parseJSONWithRetry(retryResponse, true);
-        const processedRetryResult = postProcessFullResult(retryResult, riskCategories, categoryLabels, options.contractTypeHint, detectedContractType, finalContractType);
-        return sanitizeFullResult(processedRetryResult);
+        
+        // Validate bucket structure again
+        if (!validateBucketStructure(retryResult.buckets, bucketDefs)) {
+          throw new ContractError('UNKNOWN', 'Bucket validation failed after retry');
+        }
+        
+        // Enhance buckets with risk detection validation
+        retryResult.buckets = enhanceBucketsWithDetection(retryResult.buckets, bucketDefs, truncatedText);
+        
+        // Add contract type fields
+        retryResult.intakeContractType = options.contractTypeHint || '';
+        retryResult.detectedContractType = detectedContractType;
+        retryResult.finalContractType = finalContractType;
+        
+        return sanitizeFullResult(retryResult);
       } catch (retryError: any) {
         console.log({ scope: "openai", code: "JSON_PARSE_FAILED", httpStatus: "parse_error", tokenCount: truncatedText.length });
         throw { code: "UNKNOWN", message: "We couldn't complete the analysis right now. Please try again." };

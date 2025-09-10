@@ -44,14 +44,18 @@ export function deriveHighlights(full: FullResult): string[] {
     }
   }
 
-  // 3. Add first 1-2 top risks from risk coverage
-  if (full.riskCoverage.topRisks.length > 0) {
-    const firstRisk = full.riskCoverage.topRisks[0].title;
-    addHighlight(truncate(firstRisk));
+  // 3. Add first 1-2 mentioned risks from buckets
+  if (full.buckets && full.buckets.length > 0) {
+    const mentionedRisks = full.buckets
+      .flatMap(bucket => bucket.risks)
+      .filter(risk => risk.mentioned);
     
-    if (full.riskCoverage.topRisks.length > 1 && highlights.length < 5) {
-      const secondRisk = full.riskCoverage.topRisks[1].title;
-      addHighlight(truncate(secondRisk));
+    if (mentionedRisks.length > 0) {
+      addHighlight(truncate(mentionedRisks[0].riskName));
+      
+      if (mentionedRisks.length > 1 && highlights.length < 5) {
+        addHighlight(truncate(mentionedRisks[1].riskName));
+      }
     }
   }
 
