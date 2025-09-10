@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { loadBucketDefs, type Bucket } from './buckets';
 import { detectMentioned, extractFacts, formatKeyInfo } from './riskDetect';
+import { simplifyToSchoolEnglish, simplifyMultipleTexts } from './simplifyText';
 
 
 
@@ -58,7 +59,17 @@ const SHARED_SYSTEM_PROMPT = `You are an experienced contracts lawyer. Your job 
 - Do NOT include any URLs or links.
 - Do NOT name or recommend any law firms, lawyers, or legal services.
 - Keep content concise, factual, and plain-English.
-- Never include the original contract text in your response.`;
+- Never include the original contract text in your response.
+
+WRITING STYLE REQUIREMENTS:
+- Write in simple British English at a secondary school reading level.
+- Use short sentences. Avoid legal jargon.
+- Always explain ideas in clear words anyone can understand.
+- Keep all facts, dates, numbers, and obligations.
+- Do not remove or change information, only make it easier to read.
+- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
+- Break long sentences into shorter ones.
+- Use everyday language instead of formal legal terms.`;
 
 // Helper function to truncate text safely
 function truncateText(text: string, maxChars: number = 50000): string {
@@ -308,6 +319,73 @@ Respond with only the label.`;
   }
 }
 
+// Helper function to simplify full result text fields
+async function simplifyFullResult(result: FullResult): Promise<FullResult> {
+  try {
+    // Simplify main text fields
+    const [simplifiedSummary, simplifiedParties, simplifiedAdvice] = await Promise.all([
+      simplifyToSchoolEnglish(result.executiveSummary),
+      simplifyToSchoolEnglish(result.partiesAndPurpose),
+      simplifyToSchoolEnglish(result.professionalAdviceNote)
+    ]);
+
+    // Simplify key clauses explanations
+    const simplifiedKeyClauses = await Promise.all(
+      result.keyClauses.map(async clause => ({
+        ...clause,
+        explanation: await simplifyToSchoolEnglish(clause.explanation)
+      }))
+    );
+
+    // Simplify array fields
+    const [simplifiedObligations, simplifiedPayments, simplifiedRenewal] = await Promise.all([
+      simplifyMultipleTexts(result.obligations),
+      simplifyMultipleTexts(result.paymentsAndCosts),
+      simplifyMultipleTexts(result.renewalAndTermination)
+    ]);
+
+    // Simplify liability and risks
+    const simplifiedLiabilityRisks = await Promise.all(
+      result.liabilityAndRisks.map(async risk => ({
+        ...risk,
+        whyItMatters: await simplifyToSchoolEnglish(risk.whyItMatters),
+        howItAffectsYou: await simplifyToSchoolEnglish(risk.howItAffectsYou)
+      }))
+    );
+
+    // Simplify bucket keyInfo fields
+    const simplifiedBuckets = await Promise.all(
+      result.buckets.map(async bucket => ({
+        ...bucket,
+        risks: await Promise.all(
+          bucket.risks.map(async risk => ({
+            ...risk,
+            keyInfo: risk.keyInfo && risk.keyInfo.length > 20 
+              ? await simplifyToSchoolEnglish(risk.keyInfo)
+              : risk.keyInfo
+          }))
+        )
+      }))
+    );
+
+    return {
+      ...result,
+      executiveSummary: simplifiedSummary,
+      partiesAndPurpose: simplifiedParties,
+      professionalAdviceNote: simplifiedAdvice,
+      keyClauses: simplifiedKeyClauses,
+      obligations: simplifiedObligations,
+      paymentsAndCosts: simplifiedPayments,
+      renewalAndTermination: simplifiedRenewal,
+      liabilityAndRisks: simplifiedLiabilityRisks,
+      buckets: simplifiedBuckets
+    };
+  } catch (error) {
+    console.error('Failed to simplify full result:', error);
+    return result; // Return original result if simplification fails
+  }
+}
+
 // Helper function to sanitize outputs
 function sanitizeDemoResult(result: any): DemoResult {
   return {
@@ -434,6 +512,16 @@ export async function summarizeContractDemo(text: string): Promise<DemoResult> {
   "risks": ["3-6 brief, concrete risk points", "focus on fees, auto-renewals", "restrictions, penalties"]
 }
 
+WRITING STYLE REQUIREMENTS:
+- Write in simple British English at a secondary school reading level.
+- Use short sentences. Avoid legal jargon.
+- Always explain ideas in clear words anyone can understand.
+- Keep all facts, dates, numbers, and obligations.
+- Do not remove or change information, only make it easier to read.
+- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
+- Break long sentences into shorter ones.
+- Use everyday language instead of formal legal terms.
+
 Contract text to analyze:
 ${truncatedText}
 
@@ -460,6 +548,16 @@ Return ONLY the JSON object, no additional text.`;
   "duration": "Length of contract or renewal terms",
   "risks": ["risk1", "risk2", "risk3"]
 }
+
+WRITING STYLE REQUIREMENTS:
+- Write in simple British English at a secondary school reading level.
+- Use short sentences. Avoid legal jargon.
+- Always explain ideas in clear words anyone can understand.
+- Keep all facts, dates, numbers, and obligations.
+- Do not remove or change information, only make it easier to read.
+- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
+- Break long sentences into shorter ones.
+- Use everyday language instead of formal legal terms.
 
 Contract text: ${truncatedText}`;
 
@@ -576,6 +674,16 @@ export async function summarizeContractFull(text: string, options: { contractTyp
   ]
 }
 
+WRITING STYLE REQUIREMENTS:
+- Write in simple British English at a secondary school reading level.
+- Use short sentences. Avoid legal jargon.
+- Always explain ideas in clear words anyone can understand.
+- Keep all facts, dates, numbers, and obligations.
+- Do not remove or change information, only make it easier to read.
+- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
+- Break long sentences into shorter ones.
+- Use everyday language instead of formal legal terms.
+
 
 CRITICAL BUCKET REQUIREMENTS:
 - Contract Type: ${finalContractType}
@@ -625,7 +733,13 @@ Return ONLY the JSON object, no additional text.`;
     result.detectedContractType = contractTypeResult;
     result.finalContractType = finalContractType;
     
-    return sanitizeFullResult(result);
+    // Sanitize the result first
+    const sanitizedResult = sanitizeFullResult(result);
+    
+    // Then simplify all text fields to ensure secondary school reading level
+    const simplifiedResult = await simplifyFullResult(sanitizedResult);
+    
+    return simplifiedResult;
     
   } catch (error: any) {
     if (error.message === 'JSON_PARSE_RETRY') {
@@ -657,10 +771,17 @@ Return ONLY the JSON object, no additional text.`;
   ]
 }
 
-
+WRITING STYLE REQUIREMENTS:
+- Write in simple British English at a secondary school reading level.
+- Use short sentences. Avoid legal jargon.
+- Always explain ideas in clear words anyone can understand.
+- Keep all facts, dates, numbers, and obligations.
+- Do not remove or change information, only make it easier to read.
+- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
+- Break long sentences into shorter ones.
+- Use everyday language instead of formal legal terms.
 
 IMPORTANT: Do NOT include "recommendations", "recommendedAction", or "action" fields. Provide neutral explanations only.
-
 
 Contract text: ${truncatedText}`;
 
@@ -684,7 +805,13 @@ Contract text: ${truncatedText}`;
         retryResult.detectedContractType = contractTypeResult;
         retryResult.finalContractType = finalContractType;
         
-        return sanitizeFullResult(retryResult);
+        // Sanitize the result first
+        const sanitizedRetryResult = sanitizeFullResult(retryResult);
+        
+        // Then simplify all text fields to ensure secondary school reading level
+        const simplifiedRetryResult = await simplifyFullResult(sanitizedRetryResult);
+        
+        return simplifiedRetryResult;
       } catch (retryError: any) {
         console.log({ scope: "openai", code: "JSON_PARSE_FAILED", httpStatus: "parse_error", tokenCount: truncatedText.length });
         throw { code: "UNKNOWN", message: "We couldn't complete the analysis right now. Please try again." };

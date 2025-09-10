@@ -180,22 +180,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
-.risk-item {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 12px;
-  color: var(--text);
-  line-height: 1.5;
-  position: relative;
-}
-
-.risk-item:before {
-  content: "⚠️";
-  margin-right: 8px;
-  font-size: 14px;
-}
+/* Legacy risk-item styles removed - using bucket preview styles instead */
 
 .results-download {
   text-align: center;
@@ -1171,12 +1156,7 @@ footer .footer-copyright {
   gap: 24px;
 }
 
-.risk-item {
-  padding: 20px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  border-left: 4px solid #ef4444;
-}
+/* Legacy risk-item styles removed - using bucket preview styles instead */
 
 .risk-title {
   font-size: 1.125rem;
@@ -2516,19 +2496,20 @@ footer .footer-copyright {
 }
 
 .bucket-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .bucket-card__title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text);
-  margin: 0 0 12px 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .bucket-card__risks {
@@ -2572,6 +2553,10 @@ footer .footer-copyright {
 @media (max-width: 768px) {
   .bucket-preview__grid {
     grid-template-columns: 1fr;
+  }
+  
+  .bucket-card {
+    padding: 16px;
   }
   
   .risk-item {
