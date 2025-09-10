@@ -11,6 +11,7 @@ export default function Navbar() {
         <nav className="nav__links">
           <Link href="/" className="nav__link">Home</Link>
           <Link href="/pricing" className="nav__link">Pricing</Link>
+          <Link href="/feedback" className="nav__link">Feedback</Link>
         </nav>
       </div>
     </header>

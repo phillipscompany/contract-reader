@@ -83,9 +83,18 @@ export default function Home() {
       />
       <main className="container hero">
         <section className="hero__text">
-          <h1 className="hero__title">Know Exactly What You're Signing... Before You Sign!</h1>
+          <h1 className="hero__title">
+            Know Exactly What You're Signing... <span style={{ 
+              fontStyle: 'italic',
+              backgroundColor: 'rgba(59, 130, 246, 0.3)', 
+              padding: '2px 6px', 
+              borderRadius: '4px',
+              transform: 'skew(-5deg)',
+              display: 'inline-block'
+            }}>Before You Sign!</span>
+          </h1>
           <p className="hero__subtitle">
-            Don't fall into the trap of signing something you don't understand. Simply upload your document and our AI will explain it clearly, highlighting key risks & obligations.
+            <span style={{ fontWeight: '600' }}>Don't fall into the trap of signing something you don't understand.</span> Simply upload your document and our AI will explain it clearly, highlighting key risks & obligations.
           </p>
         </section>
 
@@ -127,7 +136,7 @@ export default function Home() {
             <FileUploader onFileSelect={handleFileSelect} />
           </div>
           <div className="drop__notes">
-            <div>🚨 Please note this is not legal advice. If unsure, seek advice from a legal professional.</div>
+            <div>🚨 Please note this is not legal advice. Always seek advice from a legal professional.</div>
           </div>
         </section>
 

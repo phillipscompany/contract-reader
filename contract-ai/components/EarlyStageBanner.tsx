@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function EarlyStageBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,25 +27,28 @@ export default function EarlyStageBanner() {
       role="region" 
       aria-label="Early-stage notice"
     >
-      <div className="early-banner__content">
-        <p className="early-banner__text">
-          We're an early-stage start-up and constantly improving. The service may not be perfect yet — please share feedback and we'll fix things quickly.{' '}
-          <a 
-            href="mailto:feedback@yourdomain.com?subject=Feedback" 
-            className="early-banner__link"
-            aria-label="Send feedback via email"
+      <div className="container">
+        <div className="early-banner__content">
+          <p className="early-banner__text">
+            <span className="early-banner__icon">⚠️</span>
+            Contract Explainer is still in its early stages. We're working hard to make it amazing for you. If something isn't working or could be improved, please tell us here and we'll fix it for you.{' '}
+            <Link 
+              href="/feedback" 
+              className="early-banner__link"
+              aria-label="Give feedback"
+            >
+              Give feedback
+            </Link>
+          </p>
+          <button
+            onClick={handleDismiss}
+            className="early-banner__dismiss"
+            aria-label="Dismiss notice"
+            type="button"
           >
-            Give feedback
-          </a>
-        </p>
-        <button
-          onClick={handleDismiss}
-          className="early-banner__dismiss"
-          aria-label="Dismiss notice"
-          type="button"
-        >
-          ×
-        </button>
+            ×
+          </button>
+        </div>
       </div>
     </div>
   );

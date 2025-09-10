@@ -12,7 +12,7 @@ export default function Pricing() {
       <main className="pricing-container">
         <div className="pricing-header">
           <h1 className="pricing-title">We're Free!</h1>
-          <p className="pricing-subtitle">Simple, transparent pricing for contract analysis</p>
+          <p className="pricing-subtitle">Upload your contract and recieve a free analysis.</p>
         </div>
 
         <div className="pricing-grid">
@@ -22,7 +22,8 @@ export default function Pricing() {
             <div className="pricing-card-header">
               <h2 className="pricing-card-title">Free during beta</h2>
               <p className="pricing-card-subtitle">
-                We're still in early testing. Use full contract analysis at no cost — paid plans launch soon.
+              It's still early days, so using this service won’t cost you a penny. All we ask for in return is a little feedback — tell us what’s clear, what’s confusing, or what could be better.
+              Your thoughts help us build something genuinely useful.
               </p>
             </div>
 
@@ -61,7 +62,7 @@ export default function Pricing() {
 
             <div className="pricing-note">
               <p className="pricing-note-text">
-                Subscriptions and credits will be introduced soon.
+                Paid plans will be introduced soon.
               </p>
             </div>
           </div>
