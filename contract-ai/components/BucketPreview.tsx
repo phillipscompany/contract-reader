@@ -32,8 +32,6 @@ export default function BucketPreview({ buckets }: BucketPreviewProps) {
 
   return (
     <div className="bucket-preview">
-      <h3 className="bucket-preview__title">Risk Coverage</h3>
-      
       <div className="bucket-preview__grid">
         {bucketsWithRisks.map((bucket, bucketIndex) => (
           <div key={bucketIndex} className="bucket-card">

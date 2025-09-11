@@ -212,47 +212,15 @@ export default function ResultsFull({ fullResult, sourceFilename, meta }: Result
       )}
 
       {/* E) Risk Coverage Section */}
-      {(() => {
-        console.log('ResultsFull - fullResult.buckets:', fullResult.buckets);
-        console.log('ResultsFull - buckets length:', fullResult.buckets?.length);
-        return null;
-      })()}
       {fullResult.buckets && fullResult.buckets.length > 0 && (
         <div className="results-section">
-          <BucketPreview buckets={fullResult.buckets} />
-        </div>
-      )}
-      {(!fullResult.buckets || fullResult.buckets.length === 0) && (
-        <div className="results-section">
-          <p>Debug: No buckets found. fullResult.buckets = {JSON.stringify(fullResult.buckets)}</p>
-        </div>
-      )}
-
-      {/* F) Liability and Risks Section */}
-      {fullResult.liabilityAndRisks.length > 0 && (
-        <div className="results-section">
-          <SectionHeader icon={AlertTriangle} title="Liability and Risks" />
+          <SectionHeader icon={AlertTriangle} title="Risk Coverage" />
           <SectionCard>
-            <div className="risks-content">
-              {fullResult.liabilityAndRisks.map((risk, index) => (
-                <div key={index} className="risk-item">
-                  <h4 className="risk-title">{risk.clause}</h4>
-                  <div className="risk-details">
-                    <div className="risk-section">
-                      <h5>Why this matters</h5>
-                      <ExpandableText text={risk.whyItMatters} />
-                    </div>
-                    <div className="risk-section">
-                      <h5>How it affects you</h5>
-                      <ExpandableText text={risk.howItAffectsYou} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <BucketPreview buckets={fullResult.buckets} />
           </SectionCard>
         </div>
       )}
+
 
       {/* G) Professional Advice Note Section */}
       <div className="results-section">

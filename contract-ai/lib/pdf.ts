@@ -507,19 +507,15 @@ export function downloadFullAnalysisPdf(options: DownloadFullAnalysisPdfOptions)
     yPosition = addSectionDivider(yPosition);
   }
 
-  // G) Liability and Risks
-  yPosition = addSectionHeading('Liability and Risks', yPosition);
-  yPosition = addDetailedRisks(full.liabilityAndRisks, yPosition);
-  yPosition = addSectionDivider(yPosition);
 
-  // H) Professional Advice Note
+  // G) Professional Advice Note
   yPosition = addSectionHeading('Professional Advice Note', yPosition);
   pdf.setFont('helvetica', 'italic');
   yPosition = addContentText(full.professionalAdviceNote, yPosition);
   pdf.setFont('helvetica', 'normal');
   yPosition = addSectionDivider(yPosition);
 
-  // I) Footer disclaimer - always included
+  // H) Footer disclaimer - always included
   // Check if we need a new page for the disclaimer
   if (yPosition > pageHeight - margin - 40) {
     pdf.addPage();
