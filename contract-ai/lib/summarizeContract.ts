@@ -1,7 +1,6 @@
 import OpenAI from 'openai';
 import { loadBucketDefs, type Bucket } from './buckets';
 import { detectMentioned, extractFacts, formatKeyInfo } from './riskDetect';
-import { simplifyToSchoolEnglish, simplifyMultipleTexts } from './simplifyText';
 
 
 
@@ -9,7 +8,7 @@ import { simplifyToSchoolEnglish, simplifyMultipleTexts } from './simplifyText';
 
 // Types for Full (detailed) analysis - Lawyer's Memo Style
 export interface FullResult {
-  executiveSummary: string; // 2–3 paragraphs like a lawyer's note
+  executiveSummary: string; // Comprehensive summary with all key facts, figures, dates, amounts, and terms
   partiesAndPurpose: string; // Who is involved and why
   keyClauses: Array<{ clause: string, explanation: string }>; // Each important clause explained
   obligations: string[]; // Duties user must fulfill
@@ -312,77 +311,11 @@ Respond with only the label.`;
   }
 }
 
-// Helper function to simplify full result text fields
-async function simplifyFullResult(result: FullResult): Promise<FullResult> {
-  try {
-    // Simplify main text fields
-    const [simplifiedSummary, simplifiedParties, simplifiedAdvice] = await Promise.all([
-      simplifyToSchoolEnglish(result.executiveSummary),
-      simplifyToSchoolEnglish(result.partiesAndPurpose),
-      simplifyToSchoolEnglish(result.professionalAdviceNote)
-    ]);
-
-    // Simplify key clauses explanations
-    const simplifiedKeyClauses = await Promise.all(
-      result.keyClauses.map(async clause => ({
-        ...clause,
-        explanation: await simplifyToSchoolEnglish(clause.explanation)
-      }))
-    );
-
-    // Simplify array fields
-    const [simplifiedObligations, simplifiedPayments, simplifiedRenewal] = await Promise.all([
-      simplifyMultipleTexts(result.obligations),
-      simplifyMultipleTexts(result.paymentsAndCosts),
-      simplifyMultipleTexts(result.renewalAndTermination)
-    ]);
-
-    // Simplify liability and risks
-    const simplifiedLiabilityRisks = await Promise.all(
-      result.liabilityAndRisks.map(async risk => ({
-        ...risk,
-        whyItMatters: await simplifyToSchoolEnglish(risk.whyItMatters),
-        howItAffectsYou: await simplifyToSchoolEnglish(risk.howItAffectsYou)
-      }))
-    );
-
-    // Simplify bucket keyInfo fields
-    const simplifiedBuckets = await Promise.all(
-      result.buckets.map(async bucket => ({
-        ...bucket,
-        risks: await Promise.all(
-          bucket.risks.map(async risk => ({
-            ...risk,
-            keyInfo: risk.keyInfo && risk.keyInfo.length > 20 
-              ? await simplifyToSchoolEnglish(risk.keyInfo)
-              : risk.keyInfo
-          }))
-        )
-      }))
-    );
-
-    return {
-      ...result,
-      executiveSummary: simplifiedSummary,
-      partiesAndPurpose: simplifiedParties,
-      professionalAdviceNote: simplifiedAdvice,
-      keyClauses: simplifiedKeyClauses,
-      obligations: simplifiedObligations,
-      paymentsAndCosts: simplifiedPayments,
-      renewalAndTermination: simplifiedRenewal,
-      liabilityAndRisks: simplifiedLiabilityRisks,
-      buckets: simplifiedBuckets
-    };
-  } catch (error) {
-    console.error('Failed to simplify full result:', error);
-    return result; // Return original result if simplification fails
-  }
-}
 
 
 export function sanitizeFullResult(result: any): FullResult {
   return {
-    executiveSummary: (result.executiveSummary || 'Not specified in the provided text.').substring(0, 1200).trim(),
+    executiveSummary: (result.executiveSummary || 'Not specified in the provided text.').trim(),
     partiesAndPurpose: (result.partiesAndPurpose || 'Not specified in the provided text.').substring(0, 800).trim(),
     keyClauses: Array.isArray(result.keyClauses) 
       ? result.keyClauses.slice(0, 12).map((clause: any) => ({
@@ -529,7 +462,7 @@ export async function summarizeContractFull(text: string, options: { contractTyp
   const prompt = `Analyse the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
 {
-  "executiveSummary": "2-3 paragraphs like a lawyer's note summarising the contract's purpose, key terms, and overall implications",
+  "executiveSummary": "Comprehensive summary including all key facts, figures, dates, amounts, and terms. This should be detailed enough that someone could understand the entire contract by reading just this section. Include all important numbers, deadlines, obligations, and conditions.",
   "partiesAndPurpose": "Clear explanation of who is involved in this contract and what the main purpose is",
   "keyClauses": [
     {"clause": "Important clause name", "explanation": "Plain English explanation of what this clause means and its implications"},
@@ -620,13 +553,10 @@ Return ONLY the JSON object, no additional text.`;
     result.detectedContractType = contractTypeResult;
     result.finalContractType = finalContractType;
     
-    // Sanitize the result first
+    // Sanitize the result
     const sanitizedResult = sanitizeFullResult(result);
     
-    // Then simplify all text fields to ensure secondary school reading level
-    const simplifiedResult = await simplifyFullResult(sanitizedResult);
-    
-    return simplifiedResult;
+    return sanitizedResult;
     
   } catch (error: any) {
     if (error.message === 'JSON_PARSE_RETRY') {
@@ -635,7 +565,7 @@ Return ONLY the JSON object, no additional text.`;
         const retryPrompt = `Return valid JSON exactly matching this schema - no extra text.
 
 {
-  "executiveSummary": "2-3 paragraphs like a lawyer's note",
+  "executiveSummary": "Comprehensive summary with all key facts, figures, dates, amounts, and terms",
   "partiesAndPurpose": "who is involved and why",
   "keyClauses": [{"clause": "clause1", "explanation": "explanation1"}],
   "obligations": ["obligation1", "obligation2"],
@@ -692,13 +622,10 @@ Contract text: ${truncatedText}`;
         retryResult.detectedContractType = contractTypeResult;
         retryResult.finalContractType = finalContractType;
         
-        // Sanitize the result first
+        // Sanitize the result
         const sanitizedRetryResult = sanitizeFullResult(retryResult);
         
-        // Then simplify all text fields to ensure secondary school reading level
-        const simplifiedRetryResult = await simplifyFullResult(sanitizedRetryResult);
-        
-        return simplifiedRetryResult;
+        return sanitizedRetryResult;
       } catch (retryError: any) {
         console.log({ scope: "openai", code: "JSON_PARSE_FAILED", httpStatus: "parse_error", tokenCount: truncatedText.length });
         throw { code: "UNKNOWN", message: "We couldn't complete the analysis right now. Please try again." };
