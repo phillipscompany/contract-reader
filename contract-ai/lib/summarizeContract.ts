@@ -6,13 +6,6 @@ import { simplifyToSchoolEnglish, simplifyMultipleTexts } from './simplifyText';
 
 
 
-// Types for Demo (short) analysis
-export interface DemoResult {
-  summary: string;
-  parties: string;
-  duration: string;
-  risks: string[]; // 3–6 brief, concrete bullets
-}
 
 // Types for Full (detailed) analysis - Lawyer's Memo Style
 export interface FullResult {
@@ -386,17 +379,6 @@ async function simplifyFullResult(result: FullResult): Promise<FullResult> {
   }
 }
 
-// Helper function to sanitize outputs
-function sanitizeDemoResult(result: any): DemoResult {
-  return {
-    summary: (result.summary || 'Not specified in the provided text.').substring(0, 500).trim(),
-    parties: (result.parties || 'Not specified in the provided text.').substring(0, 300).trim(),
-    duration: (result.duration || 'Not specified in the provided text.').substring(0, 300).trim(),
-    risks: Array.isArray(result.risks) 
-      ? result.risks.slice(0, 6).map((r: any) => String(r || '').substring(0, 200).trim()).filter(Boolean)
-      : ['Not specified in the provided text.']
-  };
-}
 
 export function sanitizeFullResult(result: any): FullResult {
   return {
@@ -499,101 +481,6 @@ function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any
 }
 
 
-// Demo function - fast, light preview
-export async function summarizeContractDemo(text: string): Promise<DemoResult> {
-  const truncatedText = truncateText(text, 25000); // Smaller limit for demo
-  
-  const prompt = `Analyze the following contract text and provide a brief summary. Return ONLY valid JSON with this exact structure:
-
-{
-  "summary": "Brief explanation of what this contract is about (4-5 sentences)",
-  "parties": "Who is involved in this contract (1-2 sentences)",
-  "duration": "Length of contract or renewal terms (2-3 sentences)",
-  "risks": ["3-6 brief, concrete risk points", "focus on fees, auto-renewals", "restrictions, penalties"]
-}
-
-WRITING STYLE REQUIREMENTS:
-- Write in simple British English at a secondary school reading level.
-- Use short sentences. Avoid legal jargon.
-- Always explain ideas in clear words anyone can understand.
-- Keep all facts, dates, numbers, and obligations.
-- Do not remove or change information, only make it easier to read.
-- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
-- Break long sentences into shorter ones.
-- Use everyday language instead of formal legal terms.
-
-Contract text to analyze:
-${truncatedText}
-
-Return ONLY the JSON object, no additional text.`;
-
-  try {
-    const responseText = await makeOpenAICall([
-      { role: "system", content: SHARED_SYSTEM_PROMPT },
-      { role: "user", content: prompt }
-    ], 800);
-
-    const result = parseJSONWithRetry(responseText);
-    return sanitizeDemoResult(result);
-    
-  } catch (error: any) {
-    if (error.message === 'JSON_PARSE_RETRY') {
-      // Retry with stricter instruction
-      try {
-        const retryPrompt = `Return valid JSON exactly matching this schema - no extra text:
-
-{
-  "summary": "Brief explanation of what this contract is about",
-  "parties": "Who is involved in this contract", 
-  "duration": "Length of contract or renewal terms",
-  "risks": ["risk1", "risk2", "risk3"]
-}
-
-WRITING STYLE REQUIREMENTS:
-- Write in simple British English at a secondary school reading level.
-- Use short sentences. Avoid legal jargon.
-- Always explain ideas in clear words anyone can understand.
-- Keep all facts, dates, numbers, and obligations.
-- Do not remove or change information, only make it easier to read.
-- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
-- Break long sentences into shorter ones.
-- Use everyday language instead of formal legal terms.
-
-Contract text: ${truncatedText}`;
-
-        const retryResponse = await makeOpenAICall([
-          { role: "system", content: SHARED_SYSTEM_PROMPT + " Return ONLY valid JSON matching the exact schema." },
-          { role: "user", content: retryPrompt }
-        ], 600);
-
-        const retryResult = parseJSONWithRetry(retryResponse, true);
-        return sanitizeDemoResult(retryResult);
-      } catch (retryError: any) {
-        console.log({ scope: "openai", code: "JSON_PARSE_FAILED", httpStatus: "parse_error", tokenCount: truncatedText.length });
-        throw { code: "UNKNOWN", message: "We couldn't complete the analysis right now. Please try again." };
-      }
-    }
-
-    // Handle other OpenAI API errors
-    if (error?.status === 429) {
-      console.log({ scope: "openai", code: "RATE_LIMIT", httpStatus: 429, tokenCount: truncatedText.length });
-      throw { code: "RATE_LIMIT", message: "Too many requests — please try again in a minute." };
-    }
-    
-    if (error?.status === 401 || error?.status === 403) {
-      console.log({ scope: "openai", code: "AUTH", httpStatus: error.status, tokenCount: truncatedText.length });
-      throw { code: "AUTH", message: "API authorization failed. Please try again later." };
-    }
-    
-    if (error?.status === 408 || error?.status === 504 || error?.name === 'AbortError') {
-      console.log({ scope: "openai", code: "TIMEOUT", httpStatus: error.status || 'timeout', tokenCount: truncatedText.length });
-      throw { code: "TIMEOUT", message: "The analysis is taking too long. Please retry." };
-    }
-    
-    console.log({ scope: "openai", code: "UNKNOWN", httpStatus: error?.status || "unknown", tokenCount: truncatedText.length });
-    throw { code: "UNKNOWN", message: "We couldn't complete the analysis right now. Please try again." };
-  }
-}
 
 // Full function - lawyer's memo style analysis
 export async function summarizeContractFull(text: string, options: { contractTypeHint?: string } = {}): Promise<FullResult> {
@@ -839,7 +726,3 @@ Contract text: ${truncatedText}`;
   }
 }
 
-// Legacy function - keeping for backward compatibility
-export async function summarizeContract(text: string): Promise<DemoResult> {
-  return summarizeContractDemo(text);
-}

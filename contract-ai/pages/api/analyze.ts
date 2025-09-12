@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import { extractTextFromBuffer } from '../../lib/extractText';
-import { summarizeContractDemo, summarizeContractFull, sanitizeFullResult, type DemoResult, type FullResult } from '../../lib/summarizeContract';
+import { summarizeContractFull, sanitizeFullResult, type FullResult } from '../../lib/summarizeContract';
 import fs from 'fs';
 
 export const config = {
@@ -10,20 +10,6 @@ export const config = {
   },
 };
 
-// Helper function to extract first page text for demo mode
-function extractFirstPageText(text: string, fileType: string): string {
-  if (fileType === 'application/pdf') {
-    // For PDFs, try to extract first page by looking for page breaks
-    // This is a simple heuristic - split by common page break indicators
-    const lines = text.split('\n');
-    const firstPageLines = lines.slice(0, Math.min(50, lines.length)); // First 50 lines as approximation
-    return firstPageLines.join('\n');
-  } else {
-    // For DOCX, use first N characters as approximation of first page
-    const firstPageChars = Math.min(3000, text.length);
-    return text.substring(0, firstPageChars);
-  }
-}
 
 // Helper function to sanitize text content (remove links and law firm names)
 function sanitizeText(text: string): string {
@@ -72,12 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid file type' });
     }
 
-    // Always use full mode for now (demo mode commented out for future payment integration)
+    // Always use full mode
     const mode = 'full' as const;
-    // const mode = (fields.mode?.[0] || req.query.mode || 'demo') as 'demo' | 'full';
-    // if (mode !== 'demo' && mode !== 'full') {
-    //   return res.status(400).json({ error: 'Invalid mode. Use "demo" or "full".' });
-    // }
 
     // Parse intake data from form fields (do not log or store)
     const intakeEmail = fields.intakeEmail?.[0] || '';
@@ -105,20 +87,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Sanitize text to remove links and law firm names
         const sanitizedText = sanitizeText(extractedText);
 
-        // Always use full analysis mode
+        // Use full analysis mode
         const cappedText = sanitizedText.length > 50000 ? sanitizedText.substring(0, 50000) + '... [truncated]' : sanitizedText;
         fullResult = await summarizeContractFull(cappedText, { contractTypeHint: intakeContractType });
-
-        // Demo mode logic commented out for future payment integration
-        // if (mode === 'demo') {
-        //   // For demo mode, use first page text
-        //   const firstPageText = extractFirstPageText(sanitizedText, file.mimetype || '');
-        //   demoResult = await summarizeContractDemo(firstPageText);
-        // } else {
-        //   // For full mode, use capped full text
-        //   const cappedText = sanitizedText.length > 50000 ? sanitizedText.substring(0, 50000) + '... [truncated]' : sanitizedText;
-        //   fullResult = await summarizeContractFull(cappedText);
-        // }
       } catch (error: any) {
         // Handle standardized errors from summarization functions
         if (error.code && error.message) {

@@ -1,28 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-// import ResultsDemo from '../components/ResultsDemo'; // Commented out for future payment integration
 import ResultsFull from '../components/ResultsFull';
 import { withBackoff } from '../lib/backoff';
 import { downloadFullAnalysisPdf } from '../lib/pdf';
 import type { FullResult } from '../lib/summarizeContract';
 import { MapPin, Briefcase, Mail } from 'lucide-react';
-// import type { DemoResult, FullResult } from '../lib/summarizeContract'; // DemoResult commented out
 
 interface ApiResponse {
-  name: string;
-  size: number;
-  type: string;
-  mode: 'full';
-  full: FullResult | null;
+  ok: boolean;
+  intakeContractType: string;
+  detectedContractType: { label: string; confidence: number };
+  finalContractType: string;
+  buckets: FullResult['buckets'];
   meta: {
+    name: string;
+    size: number;
+    type: string;
+    mode: string;
     email?: string;
     location?: {
       country?: string;
       region?: string;
     };
-    contractType?: string;
-    pages?: number;
   };
+  full: FullResult;
 }
 
 interface ErrorResponse {
@@ -32,7 +33,7 @@ interface ErrorResponse {
   };
 }
 
-type ProgressStep = 'UPLOADING' | 'EXTRACTING' | 'ANALYSING' | 'DONE' | 'ERROR';
+type ProgressStep = 'UPLOADING' | 'ANALYSING' | 'DONE' | 'ERROR';
 
 export default function Results() {
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +44,7 @@ export default function Results() {
   const [progressStep, setProgressStep] = useState<ProgressStep>('UPLOADING');
   const router = useRouter();
 
-  const doTextExtraction = async (): Promise<{ text: string; filename: string; fileSize: number; fileType: string }> => {
+  const doFileAnalysis = async (): Promise<ApiResponse> => {
     // Get the pending upload from sessionStorage
     const pendingUpload = sessionStorage.getItem('pendingUpload');
     
@@ -69,33 +70,6 @@ export default function Results() {
 
     const file = base64ToBlob(uploadData.base64, uploadData.type);
     
-    // Create FormData and send to text extraction API
-    const formData = new FormData();
-    formData.append('file', file, uploadData.name);
-
-    // Set EXTRACTING state before making the request
-    setProgressStep('EXTRACTING');
-
-    const response = await fetch('/api/extract-text', {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorData: ErrorResponse = await response.json();
-      throw { code: errorData.error.code, message: errorData.error.message };
-    }
-
-    const result = await response.json();
-    return {
-      text: result.text,
-      filename: result.filename,
-      fileSize: result.fileSize,
-      fileType: result.fileType
-    };
-  };
-
-  const doTextAnalysis = async (text: string, filename: string, fileSize: number, fileType: string): Promise<ApiResponse> => {
     // Get intake data from localStorage
     const intakeData = localStorage.getItem('intake');
     let intakeEmail = '';
@@ -115,21 +89,20 @@ export default function Results() {
       }
     }
 
+    // Create FormData and send to analysis API
+    const formData = new FormData();
+    formData.append('file', file, uploadData.name);
+    formData.append('intakeEmail', intakeEmail);
+    formData.append('intakeCountry', intakeCountry);
+    formData.append('intakeRegion', intakeRegion);
+    formData.append('intakeContractType', intakeContractType);
+
     // Set ANALYSING state before making the request
     setProgressStep('ANALYSING');
 
-    const response = await fetch('/api/analyze-text', {
+    const response = await fetch('/api/analyze', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        text,
-        contractTypeHint: intakeContractType,
-        email: intakeEmail,
-        country: intakeCountry,
-        region: intakeRegion
-      }),
+      body: formData,
     });
 
     if (!response.ok) {
@@ -137,17 +110,8 @@ export default function Results() {
       throw { code: errorData.error.code, message: errorData.error.message };
     }
 
-    const analysisResult = await response.json();
-    
-    // Return in the same format as the original API
-    return {
-      name: filename,
-      size: fileSize,
-      type: fileType,
-      mode: 'full' as const,
-      full: analysisResult.full,
-      meta: analysisResult.meta
-    };
+    const result = await response.json();
+    return result;
   };
 
   const processUpload = async () => {
@@ -157,21 +121,8 @@ export default function Results() {
       setIsFromCache(false);
       setProgressStep('UPLOADING');
       
-      // Step 1: Extract text from the uploaded file
-      const extractionResult = await withBackoff(doTextExtraction, {
-        retries: 2,
-        base: 600, // 600ms base delay
-        factor: 2, // Exponential factor
-        jitter: true // Add jitter
-      });
-      
-      // Step 2: Analyze the extracted text with AI
-      const result = await withBackoff(() => doTextAnalysis(
-        extractionResult.text,
-        extractionResult.filename,
-        extractionResult.fileSize,
-        extractionResult.fileType
-      ), {
+      // Single API call for file analysis
+      const result = await withBackoff(doFileAnalysis, {
         retries: 2,
         base: 600, // 600ms base delay
         factor: 2, // Exponential factor
@@ -266,8 +217,6 @@ export default function Results() {
       switch (progressStep) {
         case 'UPLOADING':
           return 'Uploading your contract...';
-        case 'EXTRACTING':
-          return 'Extracting text from your document...';
         case 'ANALYSING':
           return 'Analysing with AI...';
         default:
@@ -279,8 +228,6 @@ export default function Results() {
       switch (progressStep) {
         case 'UPLOADING':
           return 'Preparing your file for analysis.';
-        case 'EXTRACTING':
-          return 'Reading the text content from your document.';
         case 'ANALYSING':
           return 'Our AI is reading through your document to identify key points and risks.';
         default:
@@ -299,10 +246,6 @@ export default function Results() {
             <div className={`progress__step ${progressStep === 'UPLOADING' ? 'progress__step--active' : ''}`}>
               <div className="progress__step-icon">📤</div>
               <div className="progress__step-text">Uploading</div>
-            </div>
-            <div className={`progress__step ${progressStep === 'EXTRACTING' ? 'progress__step--active' : ''}`}>
-              <div className="progress__step-icon">📄</div>
-              <div className="progress__step-text">Extracting text</div>
             </div>
             <div className={`progress__step ${progressStep === 'ANALYSING' ? 'progress__step--active' : ''}`}>
               <div className="progress__step-icon">🤖</div>
@@ -380,7 +323,7 @@ export default function Results() {
       </h1>
 
       {/* Meta Information Display */}
-      {apiResponse.meta && ((apiResponse.meta.location?.country || apiResponse.meta.location?.region) || apiResponse.meta.contractType || apiResponse.meta.email) && (
+      {apiResponse.meta && ((apiResponse.meta.location?.country || apiResponse.meta.location?.region) || apiResponse.meta.email) && (
         <div className="meta-bar">
           {apiResponse.meta.location && (apiResponse.meta.location.country || apiResponse.meta.location.region) && (
             <div className="meta-item">
@@ -395,14 +338,6 @@ export default function Results() {
             </div>
           )}
           
-          {apiResponse.meta.contractType && (
-            <div className="meta-item">
-              <Briefcase size={16} className="meta-icon" />
-              <span className="meta-label">Contract Type:</span>
-              <span className="meta-value">{apiResponse.meta.contractType}</span>
-            </div>
-          )}
-          
           {apiResponse.meta.email && (
             <div className="meta-item">
               <Mail size={16} className="meta-icon" />
@@ -413,7 +348,7 @@ export default function Results() {
         </div>
       )}
 
-      {/* Always render full results - demo mode commented out for future payment integration */}
+      {/* Always render full results */}
       {apiResponse.full ? (
         <ResultsFull 
           fullResult={apiResponse.full}
@@ -425,19 +360,6 @@ export default function Results() {
           <p>No analysis results available.</p>
         </div>
       )}
-      
-      {/* Demo results logic commented out for future payment integration */}
-      {/* {apiResponse.full ? (
-        <ResultsFull 
-          fullResult={apiResponse.full}
-          sourceFilename={sourceFilename}
-        />
-      ) : (
-        <ResultsDemo 
-          demoResult={apiResponse.demo}
-          sourceFilename={sourceFilename}
-        />
-      )} */}
 
       {/* PDF Download Button */}
       {apiResponse.full && (
