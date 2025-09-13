@@ -47,6 +47,7 @@ class ContractError extends Error {
 // Shared system guardrails for both functions
 const SHARED_SYSTEM_PROMPT = `You are an experienced contracts lawyer. Your job is to explain contracts in plain English, highlighting obligations, risks, and practical steps. Do not give jurisdiction-specific legal advice. Do not include any URLs or law firm names. Output valid JSON only, exactly matching the provided schema. Follow these strict rules:
 - Return JSON ONLY matching the schema provided.
+- Return ALL obligations.
 - Use ONLY the provided contract text; if unknown, respond "Not specified in the provided text."
 - Do NOT include any URLs or links.
 - Do NOT name or recommend any law firms, lawyers, or legal services.
@@ -324,7 +325,7 @@ export function sanitizeFullResult(result: any): FullResult {
         })).filter(c => c.clause && c.explanation)
       : [],
     obligations: Array.isArray(result.obligations)
-      ? result.obligations.slice(0, 15).map((o: any) => String(o || '').substring(0, 250).trim()).filter(Boolean)
+      ? result.obligations.map((o: any) => String(o || '').substring(0, 250).trim()).filter(Boolean)
       : [],
     paymentsAndCosts: Array.isArray(result.paymentsAndCosts)
       ? result.paymentsAndCosts.slice(0, 12).map((p: any) => String(p || '').substring(0, 200).trim()).filter(Boolean)
@@ -462,7 +463,7 @@ export async function summarizeContractFull(text: string, options: { contractTyp
   const prompt = `Analyse the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
 {
-  "executiveSummary": "Comprehensive summary including all key facts, figures, dates, amounts, and terms. This should be detailed enough that someone could understand the entire contract by reading just this section. Include all important numbers, deadlines, obligations, and conditions.",
+  "executiveSummary": "Comprehensive summary including all key facts, figures, dates, amounts, and terms. This should be detailed enough that someone could understand the entire contract by reading just this section. Include all important numbers, deadlines, obligations, and conditions. Be specific to the contract",
   "partiesAndPurpose": "Clear explanation of who is involved in this contract and what the main purpose is",
   "keyClauses": [
     {"clause": "Important clause name", "explanation": "Plain English explanation of what this clause means and its implications"},
@@ -522,6 +523,12 @@ IMPORTANT GUARDRAILS:
 - Do NOT include "recommendedAction" or "action" fields in your response.
 - Provide neutral explanations only - explain what exists, not what to do about it.
 - Focus on factual analysis and neutral explanations of contract terms.
+
+CRITICAL OBLIGATIONS REQUIREMENT:
+- You MUST identify and list EVERY SINGLE duty, requirement, or obligation that the signer must fulfill.
+- This includes: payment obligations, performance requirements, compliance duties, reporting requirements, confidentiality obligations, maintenance duties, notice requirements, and any other responsibilities.
+- Do not miss any obligations - this is critical for the user's understanding.
+- If there are many obligations, list them all - do not limit or summarize them.
 
 Contract text to analyze:
 ${truncatedText}
@@ -599,6 +606,12 @@ WRITING STYLE REQUIREMENTS:
 - Use everyday language instead of formal legal terms.
 
 IMPORTANT: Do NOT include "recommendations", "recommendedAction", or "action" fields. Provide neutral explanations only.
+
+CRITICAL OBLIGATIONS REQUIREMENT:
+- You MUST identify and list EVERY SINGLE duty, requirement, or obligation that the signer must fulfill.
+- This includes: payment obligations, performance requirements, compliance duties, reporting requirements, confidentiality obligations, maintenance duties, notice requirements, and any other responsibilities.
+- Do not miss any obligations - this is critical for the user's understanding.
+- If there are many obligations, list them all - do not limit or summarize them.
 
 Contract text: ${truncatedText}`;
 
