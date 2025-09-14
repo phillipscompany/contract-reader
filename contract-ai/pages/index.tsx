@@ -13,6 +13,7 @@ interface IntakeData {
     region: string;
   };
   contractType: string;
+  role: string;
   savedAt: string;
 }
 
@@ -33,7 +34,7 @@ export default function Home() {
     }
   }, []);
 
-  const handleIntakeSave = (data: { email: string; location: { country: string; region: string }; contractType: string }) => {
+  const handleIntakeSave = (data: { email: string; location: { country: string; region: string }; contractType: string; role: string }) => {
     const intakeData: IntakeData = {
       ...data,
       savedAt: new Date().toISOString()

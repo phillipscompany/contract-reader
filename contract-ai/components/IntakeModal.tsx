@@ -3,7 +3,7 @@ import { useState } from 'react';
 interface IntakeModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: { email: string; location: { country: string; region: string }; contractType: string }) => void;
+  onSave: (data: { email: string; location: { country: string; region: string }; contractType: string; role: string }) => void;
 }
 
 export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps) {
@@ -11,7 +11,8 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
   const [country, setCountry] = useState('');
   const [region, setRegion] = useState('');
   const [contractType, setContractType] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; country?: string; contractType?: string }>({});
+  const [role, setRole] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; country?: string; contractType?: string; role?: string }>({});
 
   const countries = [
     'United States',
@@ -31,6 +32,25 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
     'Other'
   ];
 
+  const getRolesForContractType = (contractType: string): string[] => {
+    switch (contractType) {
+      case 'Residential Lease':
+        return ['Tenant', 'Landlord'];
+      case 'Freelance / Services':
+        return ['Freelancer/Contractor', 'Client/Company'];
+      case 'Employment Contract':
+        return ['Employee', 'Employer'];
+      case 'NDA (Non-Disclosure Agreement)':
+        return ['Disclosing Party', 'Receiving Party'];
+      case 'Business Services':
+        return ['Service Provider', 'Client/Customer'];
+      case 'Other':
+        return ['Party A', 'Party B'];
+      default:
+        return [];
+    }
+  };
+
   const validateEmail = (email: string): boolean => {
     if (!email.trim()) return true; // Email is optional
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,7 +58,7 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
   };
 
   const handleSave = () => {
-    const newErrors: { email?: string; country?: string; contractType?: string } = {};
+    const newErrors: { email?: string; country?: string; contractType?: string; role?: string } = {};
 
     // Validate email (optional)
     if (email.trim() && !validateEmail(email.trim())) {
@@ -55,6 +75,11 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
       newErrors.contractType = 'Please select a contract type';
     }
 
+    // Validate role (required)
+    if (!role) {
+      newErrors.role = 'Please select your role';
+    }
+
     setErrors(newErrors);
 
     // If no errors, save and close
@@ -65,7 +90,8 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
           country: country,
           region: region.trim()
         },
-        contractType: contractType
+        contractType: contractType,
+        role: role
       });
       handleClose();
     }
@@ -78,7 +104,8 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
         country: 'Other',
         region: ''
       },
-      contractType: 'Other'
+      contractType: 'Other',
+      role: 'Party A'
     });
     handleClose();
   };
@@ -88,6 +115,7 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
     setCountry('');
     setRegion('');
     setContractType('');
+    setRole('');
     setErrors({});
     onClose();
   };
@@ -124,7 +152,7 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="your.email@example.com"
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -259,6 +287,48 @@ export default function IntakeModal({ open, onClose, onSave }: IntakeModalProps)
               </p>
             )}
           </div>
+
+          {/* Role Field */}
+          {contractType && (
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '6px', 
+                fontSize: '14px', 
+                fontWeight: '500',
+                color: 'var(--text)'
+              }}>
+                Your Role <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `1px solid ${errors.role ? '#ef4444' : 'var(--border)'}`,
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  backgroundColor: 'var(--bg)',
+                  color: 'var(--text)',
+                  boxSizing: 'border-box',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="">Select your role...</option>
+                {getRolesForContractType(contractType).map((roleOption) => (
+                  <option key={roleOption} value={roleOption}>
+                    {roleOption}
+                  </option>
+                ))}
+              </select>
+              {errors.role && (
+                <p style={{ color: '#ef4444', fontSize: '12px', margin: '4px 0 0 0' }}>
+                  {errors.role}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="modal__actions">
