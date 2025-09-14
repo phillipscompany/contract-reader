@@ -7,8 +7,8 @@
 The application performs the following process:
 1. **User Intake**: Collects user email, location, and contract type via modal
 2. **File Upload**: Users upload PDF/DOCX contracts via drag-and-drop interface
-3. **Text Extraction**: Extracts raw text from uploaded documents using specialized libraries
-4. **AI Analysis**: Uses OpenAI GPT-4o-mini to analyze the contract with structured prompts
+3. **Text Extraction**: Extracts raw text from uploaded documents using libraries
+4. **AI Analysis**: Uses OpenAI GPT-4o-mini (will probably update to gpt 5 for production) to analyze the contract with structured prompts
 5. **Risk Assessment**: Identifies and analyzes specific risks based on contract type
 6. **Structured Output**: Generates comprehensive summaries with detailed risk analysis
 7. **PDF Export**: Allows users to download analysis results as formatted PDFs
@@ -259,7 +259,7 @@ if (detectedMentioned && !risk.mentioned) {
 
 ## 💳 Payment Integration
 
-### Stripe Integration
+### Stripe Integration - Not being done for a while, files are still there in case I charge for it later 
 - **Checkout**: `pages/api/checkout.ts` - Creates Stripe checkout sessions
 - **Webhooks**: `pages/api/stripe-webhook.ts` - Handles payment confirmations
 - **Pricing**: $5 per full contract analysis
