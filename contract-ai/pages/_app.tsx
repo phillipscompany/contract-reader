@@ -3,7 +3,7 @@ import Head from 'next/head';
 import '../styles/globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Logo from '../assets/logo.png';
+import Logo from '../assets/Logo.png';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
