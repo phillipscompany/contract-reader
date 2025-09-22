@@ -6,6 +6,14 @@ import { detectMentioned, extractFacts, formatKeyInfo } from './riskDetect';
 
 
 
+// Types for Demo (simplified) analysis
+export interface DemoResult {
+  summary: string;
+  parties: string;
+  duration: string;
+  risks: string[];
+}
+
 // Types for Full (detailed) analysis - Lawyer's Memo Style
 export interface FullResult {
   executiveSummary: string; // Comprehensive summary with all key facts, figures, dates, amounts, and terms
