@@ -9,7 +9,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Contract Reader</title>
+        <title>Contract Explainer</title>
         <link rel="icon" href={Logo.src} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
