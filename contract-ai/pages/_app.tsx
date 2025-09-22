@@ -3,11 +3,14 @@ import Head from 'next/head';
 import '../styles/globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Logo from '../assets/logo.png';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
+        <title>Contract Reader</title>
+        <link rel="icon" href={Logo.src} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link 
