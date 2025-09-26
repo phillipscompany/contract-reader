@@ -65,6 +65,61 @@ h1, h2, h3, h4, h5, h6 {
   display: grid;
   place-items: center;
   box-shadow: var(--shadow);
+  max-width: 100%;
+}
+
+/* Mobile adjustments for drop area */
+@media (max-width: 768px) {
+  .hero {
+    padding: 24px 20px 12px !important;
+  }
+  
+  .hero__title {
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+  }
+  
+  .hero__subtitle {
+    font-size: 14px !important;
+  }
+  
+  .drop {
+    margin-top: 8px !important;
+    margin-bottom: 40px !important;
+  }
+  
+  .drop__area {
+    height: 200px !important;
+    margin: 6px auto 4px !important;
+    max-width: 95% !important;
+    width: 95% !important;
+  }
+  
+  .uploader {
+    padding: 16px !important;
+    font-size: 16px !important;
+    margin: 2px auto !important;
+    max-width: 300px !important;
+    width: 300px !important;
+  }
+  
+  .uploader:before {
+    font-size: 24px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .early-banner {
+    padding: 12px 0 !important;
+  }
+  
+  .early-banner__text {
+    font-size: 12px !important;
+  }
+  
+  .features {
+    margin-top: 40px !important;
+    margin-bottom: 60px !important;
+  }
 }
 .drop__notes { display: grid; gap: 6px; color: var(--muted); font-size: 14px; text-align: center; }
 
