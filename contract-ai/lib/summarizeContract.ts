@@ -32,6 +32,8 @@ export interface FullResult {
   intakeContractType: string;
   detectedContractType: { label: string; confidence: number };
   finalContractType: string;
+  userRole?: string;      // <-- Add this line
+  userParty?: string;     // <-- Add this line
 }
 
 class ContractError extends Error {
@@ -351,7 +353,9 @@ export function sanitizeFullResult(result: any): FullResult {
             : 0.5
         }
       : { label: 'Other', confidence: 0.5 },
-    finalContractType: String(result.finalContractType || '').trim()
+    finalContractType: String(result.finalContractType || '').trim(),
+    userRole: result.userRole || '',      // <-- Add this line
+    userParty: result.userParty || ''     // <-- Add this line
   };
 }
 
@@ -417,7 +421,7 @@ function parseJSONWithRetry(responseText: string, isRetry: boolean = false): any
 
 
 // Full function - lawyer's memo style analysis
-export async function summarizeContractFull(text: string, options: { contractTypeHint?: string } = {}): Promise<FullResult> {
+export async function summarizeContractFull(text: string, options: { contractTypeHint?: string; userRole?: string; userParty?: string } = {}): Promise<FullResult> {
   const truncatedText = truncateText(text, 50000); // Larger limit for full analysis
   
   // Detect contract type from text with confidence
@@ -460,6 +464,18 @@ export async function summarizeContractFull(text: string, options: { contractTyp
     ).join(', ')}]`
   ).join(',\n    ');
   
+  // Add userRole and userParty to the prompt if provided
+  let userPerspective = '';
+  if (options.userRole || options.userParty) {
+    userPerspective = `
+USER PERSPECTIVE:
+- The user is acting as: ${options.userRole || '[not specified]'}
+- The user is party: ${options.userParty || '[not specified]'}
+- Tailor all explanations, obligations, and risk analysis to the user's perspective as this party.
+- When describing obligations, risks, and how clauses affect "you", interpret "you" as the user's selected party.
+`;
+  }
+
   const prompt = `Analyse the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
 
 {
@@ -505,6 +521,7 @@ WRITING STYLE REQUIREMENTS:
 - Break long sentences into shorter ones.
 - Use everyday language instead of formal legal terms.
 
+${userPerspective} // <-- Insert user perspective here if set
 
 CRITICAL BUCKET REQUIREMENTS:
 - Contract Type: ${finalContractType}
@@ -559,6 +576,10 @@ Return ONLY the JSON object, no additional text.`;
     result.intakeContractType = intakeContractType;
     result.detectedContractType = contractTypeResult;
     result.finalContractType = finalContractType;
+    
+    // Add userRole and userParty to result for output
+    result.userRole = options.userRole || '';
+    result.userParty = options.userParty || '';
     
     // Sanitize the result
     const sanitizedResult = sanitizeFullResult(result);
@@ -634,6 +655,10 @@ Contract text: ${truncatedText}`;
         retryResult.intakeContractType = intakeContractType;
         retryResult.detectedContractType = contractTypeResult;
         retryResult.finalContractType = finalContractType;
+        
+        // Add userRole and userParty to result for output
+        retryResult.userRole = options.userRole || '';
+        retryResult.userParty = options.userParty || '';
         
         // Sanitize the result
         const sanitizedRetryResult = sanitizeFullResult(retryResult);

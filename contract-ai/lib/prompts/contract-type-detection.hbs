@@ -1,0 +1,21 @@
+Classify this contract as EXACTLY one of these types and provide a confidence score:
+
+Contract Types:
+- "Residential Lease" - Features: rent, deposit, landlord, tenant, lease term, property address, maintenance responsibilities
+- "Freelance / Services" - Features: SOW (Statement of Work), invoices, IP ownership, deliverables, hourly/daily rates, independent contractor
+- "NDA (Non-Disclosure Agreement)" - Features: confidentiality, non-disclosure, trade secrets, remedies, disclosure restrictions
+- "Employment Contract" - Features: salary, probation period, notice period, benefits, job title, employment terms
+- "Business Services" - Features: SLA (Service Level Agreement), uptime guarantees, liability caps, auto-renewal, B2B services, vendor agreements
+- "Other" - Any other contract type not fitting the above categories
+
+Guidance:
+- Consider the primary purpose and key features of the contract
+- Look for specific terminology and clauses that indicate the contract type
+- Confidence should reflect your certainty based on the text evidence (0.0 = very uncertain, 1.0 = very certain)
+- If multiple types seem possible, choose the most prominent one and adjust confidence accordingly
+
+Contract text:
+{{truncatedText}}
+
+Respond with valid JSON only:
+{ "label": "<exact type from list above>", "confidence": <number between 0.0 and 1.0> }

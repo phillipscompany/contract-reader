@@ -1,0 +1,49 @@
+Analyse the following contract text and provide a structured legal memo-style analysis. Return ONLY valid JSON with this exact structure:
+
+{{schema}}
+
+WRITING STYLE REQUIREMENTS:
+- Write in simple British English at a secondary school reading level.
+- Use short sentences. Avoid legal jargon.
+- Always explain ideas in clear words anyone can understand.
+- Keep all facts, dates, numbers, and obligations.
+- Do not remove or change information, only make it easier to read.
+- Replace complex words with simple ones (e.g., "indemnify" → "protect from legal claims", "jurisdiction" → "which country's laws apply", "herein" → "in this contract").
+- Break long sentences into shorter ones.
+- Use everyday language instead of formal legal terms.
+
+{{#if userPerspective}}
+USER PERSPECTIVE:
+- The user is acting as: {{userPerspective.userRole}}
+- The user is party: {{userPerspective.userParty}}
+- Tailor all explanations, obligations, and risk analysis to the user's perspective as this party.
+- When describing obligations, risks, and how clauses affect "you", interpret "you" as the user's selected party.
+{{/if}}
+
+CRITICAL BUCKET REQUIREMENTS:
+- Contract Type: {{finalContractType}}
+- You must scan the contract for each riskId listed below and set mentioned=true if the contract contains a clause covering that risk, else false.
+- If mentioned=true, produce one short sentence in British English in keyInfo explaining exactly what the contract says about this risk.
+- If mentioned=false, keyInfo must be an empty string "".
+- You must include ALL riskIds exactly as provided - do not add extra risks or buckets.
+
+Required buckets and risks:
+{{bucketInfo}}
+
+IMPORTANT GUARDRAILS:
+- Do NOT provide recommendations or prescriptive advice.
+- Do NOT suggest steps to take or actions to perform.
+- Do NOT include "recommendedAction" or "action" fields in your response.
+- Provide neutral explanations only - explain what exists, not what to do about it.
+- Focus on factual analysis and neutral explanations of contract terms.
+
+CRITICAL OBLIGATIONS REQUIREMENT:
+- You MUST identify and list EVERY SINGLE duty, requirement, or obligation that the signer must fulfill.
+- This includes: payment obligations, performance requirements, compliance duties, reporting requirements, confidentiality obligations, maintenance duties, notice requirements, and any other responsibilities.
+- Do not miss any obligations - this is critical for the user's understanding.
+- If there are many obligations, list them all - do not limit or summarise them.
+
+Contract text to analyse:
+{{truncatedText}}
+
+Return ONLY the JSON object, no additional text.
